@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Everything Calendar",
+  "version": "1.0",
+  "description": "Parse your text! Add to Calendar!",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "contextMenus"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

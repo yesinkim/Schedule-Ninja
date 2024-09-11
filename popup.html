@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LLM Calendar</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+</head>
+<body>
+    <div class="container">
+  <h1>LLM Calendar</h1>
+  <form id="eventForm">
+    <label for="title">이벤트 제목:</label>
+    <input type="text" id="title" name="title"><br><br>
+    <label for="startDateTime">시작 시간:</label>
+    <input type="datetime-local" id="startDateTime" name="startDateTime"><br><br>
+    <label for="endDateTime">종료 시간:</label>
+    <input type="datetime-local" id="endDateTime" name="endDateTime"><br><br>
+    <button type="submit">저장</button>
+  </form>
+    </div>
+  <script src="popup.js"></script>
+</body>
+</html>
