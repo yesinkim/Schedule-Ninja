@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
   <title>LLM Calendar</title>
@@ -7,17 +7,109 @@
 </head>
 <body>
     <div class="container">
-  <h1>LLM Calendar</h1>
-  <form id="eventForm">
-    <label for="title">이벤트 제목:</label>
-    <input type="text" id="title" name="title"><br><br>
-    <label for="startDateTime">시작 시간:</label>
-    <input type="datetime-local" id="startDateTime" name="startDateTime"><br><br>
-    <label for="endDateTime">종료 시간:</label>
-    <input type="datetime-local" id="endDateTime" name="endDateTime"><br><br>
-    <button type="submit">저장</button>
-  </form>
+      <h1>LLM Calendar</h1>
+      
+      <!-- Added this div for selected text --><!--
+      <div class="field">
+        <label class="label">Selected Text:</label>
+        <div id="selectedText" class="textarea" readonly></div>
+      </div>
+
+      <form id="eventForm">
+        <label for="title">이벤트 제목:</label>
+        <input type="text" id="title" name="title"><br><br>
+        <label for="startDateTime">시작 시간:</label>
+        <input type="datetime-local" id="startDateTime" name="startDateTime"><br><br>
+        <label for="endDateTime">종료 시간:</label>
+        <input type="datetime-local" id="endDateTime" name="endDateTime"><br><br>
+        <button type="submit">저장</button>
+      </form>
     </div>
+    <script src="popup.js"></script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LLM Calendar</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <style>
+    .container {
+      padding: 20px;
+      min-width: 500px;
+    }
+    #selectedText {
+      margin-bottom: 20px;
+      min-height: 100px;
+    }
+    #parseResult {
+      margin-top: 20px;
+      padding: 15px;
+    }
+    .result-item {
+      margin: 10px 0;
+    }
+    .error {
+      color: #ff3860;
+      background-color: #feecf0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title is-4 has-text-centered">LLM Calendar</h1>
+    
+    <div class="field">
+      <label class="label">선택된 텍스트:</label>
+      <div id="selectedText" class="textarea" readonly></div>
+    </div>
+
+    <form id="eventForm">
+      <div class="field">
+        <label class="label">이벤트 제목:</label>
+        <div class="control">
+          <input class="input" type="text" id="title" name="title">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">시작 시간:</label>
+        <div class="control">
+          <input class="input" type="datetime-local" id="startDateTime" name="startDateTime">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">종료 시간:</label>
+        <div class="control">
+          <input class="input" type="datetime-local" id="endDateTime" name="endDateTime">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <button type="submit" class="button is-primary is-fullwidth">
+            <span>LLM으로 텍스트 분석하기</span>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- 분석 결과를 표시할 영역 - content 클래스를 가진 div 추가 -->
+    <div id="parseResult" class="box is-hidden">
+      <h3 class="title is-5">LLM 분석 결과:</h3>
+      <div id="resultContent" class="content">
+          <!-- 여기에 동적으로 결과가 추가됨 -->
+      </div>
+      <!-- 로딩 표시를 위한 요소 추가 -->
+      <div id="loadingIndicator" class="is-hidden">
+          <p class="has-text-centered">텍스트 분석 중...</p>
+      </div>
+    </div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
