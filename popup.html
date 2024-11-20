@@ -1,23 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>LLM Calendar</title>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주간 일정</title>
+    <style>
+        body {
+            width: 400px;
+            padding: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .week-info {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .event-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .event-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a73e8;
+        }
+        .event-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .event-time {
+            color: #5f6368;
+            font-size: 0.9em;
+        }
+        .event-location {
+            color: #5f6368;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #5f6368;
+        }
+        .error {
+            color: #d93025;
+            padding: 12px;
+            background-color: #fce8e6;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        /* 새로운 스타일 추가 */
+        .create-button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 350px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .cancel-button {
+            background-color: #f1f3f4;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .success-message {
+            display: none;
+            background-color: #e6f4ea;
+            color: #137333;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-  <h1>LLM Calendar</h1>
-  <form id="eventForm">
-    <label for="title">이벤트 제목:</label>
-    <input type="text" id="title" name="title"><br><br>
-    <label for="startDateTime">시작 시간:</label>
-    <input type="datetime-local" id="startDateTime" name="startDateTime"><br><br>
-    <label for="endDateTime">종료 시간:</label>
-    <input type="datetime-local" id="endDateTime" name="endDateTime"><br><br>
-    <button type="submit">저장</button>
-  </form>
+    <div class="header">
+        <h2>주간 일정</h2>
+        <div>
+            <button id="createEventBtn" class="create-button">새 일정 만들기</button>
+            <div class="week-info" id="weekInfo"></div>
+        </div>
     </div>
-  <script src="popup.js"></script>
+    <div id="successMessage" class="success-message">일정이 성공적으로 추가되었습니다!</div>
+    <div id="eventList" class="event-list">
+        <div id="loadingMessage" class="loading">일정을 불러오는 중...</div>
+        <div id="errorMessage" class="error" style="display: none"></div>
+    </div>
+
+    <!-- 일정 생성 모달 -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <h3>새 일정 만들기</h3>
+            <form id="createEventForm">
+                <div class="form-group">
+                    <label for="summary">제목</label>
+                    <input type="text" id="summary" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">장소</label>
+                    <input type="text" id="location">
+                </div>
+                <div class="form-group">
+                    <label for="startDateTime">시작 시간</label>
+                    <input type="datetime-local" id="startDateTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDateTime">종료 시간</label>
+                    <input type="datetime-local" id="endDateTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">설명</label>
+                    <textarea id="description" rows="3"></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="cancel-button" id="cancelButton">취소</button>
+                    <button type="submit" class="create-button">만들기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="popup.js"></script>
 </body>
 </html>

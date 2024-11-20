@@ -1,18 +1,28 @@
 {
   "manifest_version": 3,
-  "name": "Everything Calendar",
+  "name": "TimeKeeper",
   "version": "1.0",
-  "description": "Parse your text! Add to Calendar!",
+  "description": "Drag, Drop, Done!",
   "permissions": [
+    "contextMenus",
+    "identity",
+    "notifications",
     "activeTab",
-    "storage",
-    "scripting",
-    "contextMenus"
+    "storage"
   ],
-  "background": {
-    "service_worker": "background.js"
+  "host_permissions": [
+    "https://www.googleapis.com/"
+  ],
+  "oauth2": {
+    "client_id": "###Input your client_id###",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar"
+    ]
   },
   "action": {
     "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
   }
 }
