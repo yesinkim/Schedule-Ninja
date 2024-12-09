@@ -10,9 +10,15 @@
     "contextMenus"
   ],
   "host_permissions": [
-    "https://api.groq.com/*"
-    //"https://www.googleapis.com/*"
+    "https://api.groq.com/*",
+    "https://www.googleapis.com/*"
   ],
+  "oauth2": {
+    "client_id": "###Input your client_id###",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar"
+    ]
+  },
   "background": {
     "service_worker": "background.js"
   },
