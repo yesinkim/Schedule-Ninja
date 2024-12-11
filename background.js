@@ -6,7 +6,21 @@ const CONFIG = {
   API_ENDPOINT: 'https://api.groq.com/openai/v1/chat/completions',
   GROQ_API_KEY: 'API KEY 입력!!!',
   MODEL: 'gemma2-9b-it',
-  SYSTEM_PROMPT: '당신은 텍스트에서 다음의 정보 : 이벤트 제목, 시작날짜 및 시간, 종료날짜 및 시간을 정확히 추출하는 어시스턴트입니다. 저는 당신에게 추출한 내용 이외의 텍스트는 절대 주지 않습니다. 당신에게 요청되는 내용에 대해 무조건 추출해야합니다. 주어진 내용에 대해 절대로 요구한 정보 이외의 내용을 대답해서 안됩니다. 일정정보를 형식에 맞게 간단하게 추출하세요.',
+  SYSTEM_PROMPT: `당신은 텍스트에서 일정 정보를 추출하여 Google Calendar API 형식으로 변환하는 어시스턴트입니다.
+다음 형식으로만 응답해주세요:
+{
+  "summary": "이벤트 제목",
+  "start": {
+    "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
+    "timeZone": "Asia/Seoul"
+  },
+  "end": {
+    "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
+    "timeZone": "Asia/Seoul"
+  },
+  "location": "장소 (선택사항)",
+  "description": "설명 (선택사항)"
+}`,
   TEMPERATURE: 0.7,
   MAX_TOKENS: 300
 };
@@ -78,92 +92,104 @@ class ApiService {
       });
 
       const content = data.choices[0].message.content;
-      // 응답 내용에서 일정 정보 추출
-      // const eventInfo = this.extractEventInfo(content);
-      const eventInfo = content;
-
-      // 추출된 데이터 검증
-      // if (!eventInfo.title || !eventInfo.startDateTime || !eventInfo.endDateTime) {
-      //   throw new Error('필수 일정 정보 누락');
-      // }
-
-      // 날짜/시간 형식 검증 및 변환
-      // return this.validateAndFormatDates(eventInfo);
-      return eventInfo
+      
+      // JSON 파싱 시도
+      try {
+        const eventInfo = JSON.parse(content);
+        return this.validateEventData(eventInfo);
+      } catch (error) {
+        throw new Error('JSON 파싱 실패: ' + error.message);
+      }
     } catch (error) {
       console.error('응답 처리 중 에러:', error);
       throw new Error(`일정 정보 추출 실패: ${error.message}`);
     }
   }
 
-  // // 텍스트 기반 응답에서 일정 정보 추출
-  // static extractEventInfo(content) {
-  //   // 여러 가능한 형식을 처리하기 위한 정규식 패턴
-  //   const patterns = {
-  //     title: [
-  //       /제목:\s*(.+?)(?=\n|$)/i,
-  //       /일정명:\s*(.+?)(?=\n|$)/i,
-  //       /이벤트:\s*(.+?)(?=\n|$)/i
-  //     ],
-  //     startDateTime: [
-  //       /시작[\s시간]*:\s*(.+?)(?=\n|$)/i,
-  //       /시작 날짜[\s시간]*:\s*(.+?)(?=\n|$)/i
-  //     ],
-  //     endDateTime: [
-  //       /종료[\s시간]*:\s*(.+?)(?=\n|$)/i,
-  //       /종료 날짜[\s시간]*:\s*(.+?)(?=\n|$)/i
-  //     ],
-  //     location: [
-  //       /장소:\s*(.+?)(?=\n|$)/i,
-  //       /위치:\s*(.+?)(?=\n|$)/i
-  //     ]
-  //   };
-
-  //   const findMatch = (patterns) => {
-  //     for (const pattern of patterns) {
-  //       const match = content.match(pattern);
-  //       if (match) return match[1].trim();
-  //     }
-  //     return null;
-  //   };
-
-  //   return {
-  //     title: findMatch(patterns.title),
-  //     startDateTime: findMatch(patterns.startDateTime),
-  //     endDateTime: findMatch(patterns.endDateTime),
-  //     location: findMatch(patterns.location) || '',
-  //     description: content // 전체 내용을 description으로 저장
-  //   };
-  // }
-
-  // 날짜/시간 검증 및 포맷팅 메서드
-  static validateAndFormatDates(data) {
-    const formatDateTime = (dateTimeStr) => {
-      const date = new Date(dateTimeStr);
-      if (isNaN(date.getTime())) {
-        // 한국어 날짜 형식 처리 추가
-        const koreanDatePattern = /(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*(\d{1,2})?:?(\d{1,2})?/;
-        const match = dateTimeStr.match(koreanDatePattern);
-        if (match) {
-          const [_, year, month, day, hour = 0, minute = 0] = match;
-          const formattedDate = new Date(year, month - 1, day, hour, minute);
-          if (!isNaN(formattedDate.getTime())) {
-            return formattedDate.toISOString();
-          }
+  static validateEventData(eventInfo) {
+    try {
+        // 기본 필드 검증 및 보정
+        if (!eventInfo.summary) {
+            throw new Error('이벤트 제목이 탐지되지 않았습니다.');
         }
-        throw new Error(`유효하지 않은 날짜/시간 형식: ${dateTimeStr}`);
-      }
-      return date.toISOString();
-    };
 
-    return {
-      title: data.title,
-      startDateTime: formatDateTime(data.startDateTime),
-      endDateTime: formatDateTime(data.endDateTime),
-      description: data.description || '',
-      location: data.location || '',
-      timezone: 'Asia/Seoul'
-    };
+        // 시간 데이터 보정 함수
+        const fixDateTime = (dateTimeStr) => {
+            if (!dateTimeStr) return null;
+            
+            try {
+                // ISO 8601 형식 검증
+                const dateTimePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\+\d{2}:\d{2}|Z)$/;
+                if (!dateTimePattern.test(dateTimeStr)) {
+                    return null; // 잘못된 형식이면 null 반환
+                }
+
+                const date = new Date(dateTimeStr);
+                if (isNaN(date.getTime())) {
+                    return null; // 유효하지 않은 날짜면 null 반환
+                }
+
+                return date;
+            } catch (error) {
+                return null;
+            }
+        };
+
+        // 시작 시간과 종료 시간 보정
+        let startDate = fixDateTime(eventInfo.start?.dateTime);
+        let endDate = fixDateTime(eventInfo.end?.dateTime);
+
+        // 시작 시간이 없는 경우
+        if (!startDate && endDate) {
+            startDate = new Date(endDate.getTime() - 60 * 60 * 1000); // 종료 시간 1시간 전
+        } 
+        // 종료 시간이 없는 경우
+        else if (startDate && !endDate) {
+            endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 시작 시간 1시간 후
+        } 
+        // 둘 다 없는 경우
+        else if (!startDate && !endDate) {
+            startDate = new Date(); // 현재 시간
+            endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1시간 후
+        }
+        // 시작 시간이 종료 시간보다 늦은 경우
+        else if (startDate >= endDate) {
+            endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 시작 시간 1시간 후
+        }
+
+        // ISO 문자열로 변환 및 timezone 추가
+        const toISOWithTimezone = (date) => {
+            return date.toISOString().replace('Z', '+09:00');
+        };
+
+        // 결과 객체 생성
+        const validatedEvent = {
+            summary: eventInfo.summary,
+            start: {
+                dateTime: toISOWithTimezone(startDate),
+                timeZone: 'Asia/Seoul'
+            },
+            end: {
+                dateTime: toISOWithTimezone(endDate),
+                timeZone: 'Asia/Seoul'
+            }
+        };
+
+        // 선택적 필드 추가
+        if (eventInfo.location && typeof eventInfo.location === 'string') {
+            validatedEvent.location = eventInfo.location;
+        }
+
+        if (eventInfo.description && typeof eventInfo.description === 'string') {
+            validatedEvent.description = eventInfo.description;
+        }
+
+        return validatedEvent;
+
+    } catch (error) {
+        console.error('Event validation error:', error);
+        throw new Error(`일정 정보 검증 실패: ${error.message}`);
+    }
   }
 }
 
