@@ -7,7 +7,22 @@ const CONFIG = {
   GROQ_API_KEY: 'API KEY 입력!!!',
   MODEL: 'gemma2-9b-it',
   SYSTEM_PROMPT: `당신은 텍스트에서 일정 정보를 추출하여 Google Calendar API 형식으로 변환하는 어시스턴트입니다.
-다음 형식으로만 응답해주세요:
+시간이 명시되지 않은 경우 하루종일 이벤트로 설정하며, 다음 형식으로만 응답해주세요:
+{
+  "summary": "이벤트 제목",
+  "start": {
+    "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+    "timeZone": "Asia/Seoul"
+  },
+  "end": {
+    "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+    "timeZone": "Asia/Seoul"
+  },
+  "location": "장소 (선택사항)",
+  "description": "설명 (선택사항)"
+}
+
+또는 시간이 명시된 경우 다음 형식으로 응답:
 {
   "summary": "이벤트 제목",
   "start": {
@@ -17,9 +32,7 @@ const CONFIG = {
   "end": {
     "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
     "timeZone": "Asia/Seoul"
-  },
-  "location": "장소 (선택사항)",
-  "description": "설명 (선택사항)"
+  }
 }`,
   TEMPERATURE: 0.7,
   MAX_TOKENS: 300
@@ -36,6 +49,10 @@ let state = {
 class ApiService {
   static async parseTextWithLLM(eventData, apiKey) {
     try {
+      // 텍스트 인코딩
+      const selectedText = encodeURIComponent(eventData.selectedText);
+      const systemPrompt = encodeURIComponent(CONFIG.SYSTEM_PROMPT);
+
       //API 요청구성
       const response = await fetch(CONFIG.API_ENDPOINT, {
         method: 'POST',
@@ -48,11 +65,12 @@ class ApiService {
           messages: [
             {
               role: "system",
-              content: CONFIG.SYSTEM_PROMPT + `다음 텍스트에서 정보를 추출해주세오: ${eventData.selectedText}`
+              content: decodeURIComponent(systemPrompt) + 
+                      `다음 텍스트에서 정보를 추출해주세오: ${decodeURIComponent(selectedText)}`
             },
             {
               role: "user",
-              content: `다음 텍스트에서 정보를 추출해주세오: ${eventData.selectedText}`
+              content: `다음 텍스트에서 정보를 추출해주세오: ${decodeURIComponent(selectedText)}`
             }
           ],
           temperature: CONFIG.TEMPERATURE,
@@ -66,7 +84,6 @@ class ApiService {
       }
 
       const data = await response.json();
-
       return this.processApiResponse(data);
 
     } catch (error) {
@@ -78,117 +95,114 @@ class ApiService {
   //응답에서 달력에 맞는 형식들 뽑아내기
   static processApiResponse(data) {
     try {
-      // Groq API 응답 형식 검증
-      if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('유효하지 않은 API 응답 형식');
-      }
+        console.log('\n=== API 응답 처리 시작 ===');
+        console.log('1. 원본 응답 데이터:', {
+            model: data.model,
+            created: data.created,
+            usage: data.usage,
+            system_fingerprint: data.system_fingerprint
+        });
 
-      // API 응답 메타데이터 로깅
-      console.log('API Response Metadata:', {
-        model: data.model,
-        created: data.created,
-        usage: data.usage,
-        system_fingerprint: data.system_fingerprint
-      });
+        // LLM 응답 텍스트 추출 및 출력
+        const rawContent = data.choices[0].message.content;
+        console.log('\n2. LLM 원본 텍스트 응답:');
+        console.log('---시작---');
+        console.log(rawContent);
+        console.log('---끝---');
 
-      const content = data.choices[0].message.content;
-      
-      // JSON 파싱 시도
-      try {
-        const eventInfo = JSON.parse(content);
+        // JSON 추출 및 파싱
+        let eventInfo;
+        try {
+            // 백틱과 'json' 키워드 제거 로직
+            const jsonContent = rawContent
+                .replace(/```json\s*/g, '') // ```json 제거
+                .replace(/```\s*$/g, '')    // 끝의 ``` 제거
+                .trim();                    // 앞뒤 공백 제거
+
+            console.log('\n정제된 JSON 문자열:', jsonContent);
+            
+            eventInfo = JSON.parse(jsonContent);
+            console.log('\n3. JSON 파싱 성공:', JSON.stringify(eventInfo, null, 2));
+        } catch (error) {
+            console.error('\n❌ JSON 파싱 실패!');
+            console.error('파싱하려던 텍스트:', rawContent);
+            console.error('에러:', error);
+            
+            // 다른 형식의 JSON 추출 시도
+            const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                try {
+                    console.log('\n대체 JSON 추출 시도...');
+                    eventInfo = JSON.parse(jsonMatch[0]);
+                    console.log('대체 파싱 성공:', JSON.stringify(eventInfo, null, 2));
+                } catch (e) {
+                    throw new Error('JSON 파싱 실패: ' + error.message);
+                }
+            } else {
+                throw new Error('JSON 파싱 실패: ' + error.message);
+            }
+        }
+
+        // 검증 로직...
         return this.validateEventData(eventInfo);
-      } catch (error) {
-        throw new Error('JSON 파싱 실패: ' + error.message);
-      }
+
     } catch (error) {
-      console.error('응답 처리 중 에러:', error);
-      throw new Error(`일정 정보 추출 실패: ${error.message}`);
+        console.error('응답 처리 중 에러:', error);
+        throw error;
     }
   }
 
   static validateEventData(eventInfo) {
+    console.log('\n=== 이벤트 데이터 검증 시작 ===');
     try {
-        // 기본 필드 검증 및 보정
+        // 1. 제목 검증
+        console.log('1. 제목 검증:', eventInfo.summary);
         if (!eventInfo.summary) {
             throw new Error('이벤트 제목이 탐지되지 않았습니다.');
         }
 
-        // 시간 데이터 보정 함수
-        const fixDateTime = (dateTimeStr) => {
-            if (!dateTimeStr) return null;
+        // 2. 날짜/시간 형식 검증
+        const isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
+        const isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
+        console.log('2. 이벤트 타입:', {
+            isAllDayEvent,
+            isTimeSpecificEvent,
+            start: eventInfo.start,
+            end: eventInfo.end
+        });
+
+        if (!isAllDayEvent && !isTimeSpecificEvent) {
+            throw new Error('시작 및 종료 날짜/시간 형식이 올바르지 않습니다.');
+        }
+
+        // 3. 하루종일 이벤트 처리
+        if (isAllDayEvent) {
+            console.log('3. 하루종일 이벤트 검증');
+            const startDate = new Date(eventInfo.start.date);
+            const endDate = new Date(eventInfo.end.date);
             
-            try {
-                // ISO 8601 형식 검증
-                const dateTimePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\+\d{2}:\d{2}|Z)$/;
-                if (!dateTimePattern.test(dateTimeStr)) {
-                    return null; // 잘못된 형식이면 null 반환
-                }
-
-                const date = new Date(dateTimeStr);
-                if (isNaN(date.getTime())) {
-                    return null; // 유효하지 않은 날짜면 null 반환
-                }
-
-                return date;
-            } catch (error) {
-                return null;
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                throw new Error('유효하지 않은 날짜 형식입니다.');
             }
-        };
 
-        // 시작 시간과 종료 시간 보정
-        let startDate = fixDateTime(eventInfo.start?.dateTime);
-        let endDate = fixDateTime(eventInfo.end?.dateTime);
+            console.log('   시작일:', startDate);
+            console.log('   종료일:', endDate);
 
-        // 시작 시간이 없는 경우
-        if (!startDate && endDate) {
-            startDate = new Date(endDate.getTime() - 60 * 60 * 1000); // 종료 시간 1시간 전
-        } 
-        // 종료 시간이 없는 경우
-        else if (startDate && !endDate) {
-            endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 시작 시간 1시간 후
-        } 
-        // 둘 다 없는 경우
-        else if (!startDate && !endDate) {
-            startDate = new Date(); // 현재 시간
-            endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1시간 후
-        }
-        // 시작 시간이 종료 시간보다 늦은 경우
-        else if (startDate >= endDate) {
-            endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 시작 시간 1시간 후
-        }
-
-        // ISO 문자열로 변환 및 timezone 추가
-        const toISOWithTimezone = (date) => {
-            return date.toISOString().replace('Z', '+09:00');
-        };
-
-        // 결과 객체 생성
-        const validatedEvent = {
-            summary: eventInfo.summary,
-            start: {
-                dateTime: toISOWithTimezone(startDate),
-                timeZone: 'Asia/Seoul'
-            },
-            end: {
-                dateTime: toISOWithTimezone(endDate),
-                timeZone: 'Asia/Seoul'
+            if (startDate >= endDate) {
+                console.log('   종료일 자동 조정');
+                const nextDay = new Date(startDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                eventInfo.end.date = nextDay.toISOString().split('T')[0];
+                console.log('   조정된 종료일:', eventInfo.end.date);
             }
-        };
-
-        // 선택적 필드 추가
-        if (eventInfo.location && typeof eventInfo.location === 'string') {
-            validatedEvent.location = eventInfo.location;
         }
 
-        if (eventInfo.description && typeof eventInfo.description === 'string') {
-            validatedEvent.description = eventInfo.description;
-        }
-
-        return validatedEvent;
+        console.log('\n✅ 최종 검증 완료된 이벤트:', JSON.stringify(eventInfo, null, 2));
+        return eventInfo;
 
     } catch (error) {
-        console.error('Event validation error:', error);
-        throw new Error(`일정 정보 검증 실패: ${error.message}`);
+        console.error('\n❌ 검증 실패:', error);
+        throw error;
     }
   }
 }
@@ -198,12 +212,35 @@ class ApiService {
 class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
-      // Google Calendar API integration would go here
-      console.log('Creating calendar event:', eventData);
-      return true;
+      // Google Calendar API 호출
+      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${await this.getAccessToken()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Calendar API 에러: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+
     } catch (error) {
       console.error('Calendar API 에러:', error);
       throw error;
+    }
+  }
+
+  static async getAccessToken() {
+    try {
+      const auth = await chrome.identity.getAuthToken({ interactive: true });
+      return auth.token;
+    } catch (error) {
+      throw new Error('인증 실패: ' + error.message);
     }
   }
 }
@@ -242,6 +279,21 @@ class MessageHandler {
           });
         } finally {
           state.processingStatus = false;
+        }
+        break;
+        
+      case 'createCalendarEvent':
+        try {
+          const eventCreated = await CalendarService.createCalendarEvent(request.eventData);
+          sendResponse({
+            success: true,
+            event: eventCreated
+          });
+        } catch (error) {
+          sendResponse({
+            success: false,
+            error: error.message
+          });
         }
         break;
         

@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
               ` : ''}
           `;
+          lastParsedData = data;
       } else {
           contentDiv.innerHTML = `
               <div class="notification is-danger">
@@ -150,4 +151,41 @@ document.addEventListener('DOMContentLoaded', function() {
           });
       });
   }
+
+  // Calendar 이벤트 생성 버튼 핸들러
+  const createEventBtn = document.getElementById('createEventBtn');
+  if (createEventBtn) {
+      createEventBtn.addEventListener('click', async function() {
+          try {
+              createEventBtn.classList.add('is-loading');
+              
+              const response = await chrome.runtime.sendMessage({
+                  action: 'createCalendarEvent',
+                  eventData: lastParsedData // 마지막으로 파싱된 데이터 저장 필요
+              });
+
+              if (response.success) {
+                  // 성공 메시지 표시
+                  contentDiv.innerHTML += `
+                      <div class="notification is-success">
+                          일정이 성공적으로 등록되었습니다!
+                      </div>
+                  `;
+              } else {
+                  throw new Error(response.error);
+              }
+          } catch (error) {
+              contentDiv.innerHTML += `
+                  <div class="notification is-danger">
+                      일정 등록 실패: ${escapeHtml(error.message)}
+                  </div>
+              `;
+          } finally {
+              createEventBtn.classList.remove('is-loading');
+          }
+      });
+  }
+
+  // 파싱 결과를 저장할 변수
+  let lastParsedData = null;
 });
