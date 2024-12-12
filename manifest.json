@@ -7,7 +7,8 @@
     "activeTab",
     "storage",
     "scripting",
-    "contextMenus"
+    "contextMenus",
+    "identity"
   ],
   "host_permissions": [
     "https://api.groq.com/*",
@@ -16,7 +17,7 @@
   "oauth2": {
     "client_id": "###Input your client_id###",
     "scopes": [
-      "https://www.googleapis.com/auth/calendar"
+      "https://www.googleapis.com/auth/calendar.events"
     ]
   },
   "background": {
