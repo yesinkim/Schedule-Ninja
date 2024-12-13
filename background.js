@@ -1,10 +1,11 @@
 /// API-KEY
-//importScripts('config.js');
+importScripts('secrets.js');
+console.log('API Key loaded:', API_SECRETS.GROQ_API_KEY); 
 
 //Configuration
 const CONFIG = {
   API_ENDPOINT: 'https://api.groq.com/openai/v1/chat/completions',
-  GROQ_API_KEY: 'API KEY 입력!!!',
+  GROQ_API_KEY: API_SECRETS.GROQ_API_KEY,
   MODEL: 'gemma2-9b-it',
   SYSTEM_PROMPT: `당신은 텍스트에서 일정 정보를 추출하여 Google Calendar API 형식으로 변환하는 어시스턴트입니다.
 시간이 명시되지 않은 경우 하루종일 이벤트로 설정하며, 다음 형식으로만 응답해주세요:
