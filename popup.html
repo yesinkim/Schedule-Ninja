@@ -1,33 +1,3 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-  <title>LLM Calendar</title>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
-</head>
-<body>
-    <div class="container">
-      <h1>LLM Calendar</h1>
-      
-      <!-- Added this div for selected text --><!--
-      <div class="field">
-        <label class="label">Selected Text:</label>
-        <div id="selectedText" class="textarea" readonly></div>
-      </div>
-
-      <form id="eventForm">
-        <label for="title">이벤트 제목:</label>
-        <input type="text" id="title" name="title"><br><br>
-        <label for="startDateTime">시작 시간:</label>
-        <input type="datetime-local" id="startDateTime" name="startDateTime"><br><br>
-        <label for="endDateTime">종료 시간:</label>
-        <input type="datetime-local" id="endDateTime" name="endDateTime"><br><br>
-        <button type="submit">저장</button>
-      </form>
-    </div>
-    <script src="popup.js"></script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -103,6 +73,13 @@
       <h3 class="title is-5">LLM 분석 결과:</h3>
       <div id="resultContent" class="content">
           <!-- 여기에 동적으로 결과가 추가됨 -->
+      </div>
+      <div class="field">
+        <div class="control">
+          <button id="createEventBtn" class="button is-success is-fullwidth">
+            Google Calendar에 추가
+          </button>
+        </div>
       </div>
       <!-- 로딩 표시를 위한 요소 추가 -->
       <div id="loadingIndicator" class="is-hidden">

@@ -51,42 +51,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (response?.success && response?.eventData) {
           const data = response.eventData;
+          
+          // API 응답 전체를 JSON 형식으로 표시
+          console.log('API Response:', data);
+          
           contentDiv.innerHTML = `
+              <div class="notification is-info is-light">
+                  <pre style="white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
+              </div>
               <div class="field">
                   <label class="label">제목:</label>
                   <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data)}" readonly>
+                      <input class="input is-static" type="text" value="${escapeHtml(data.summary)}" readonly>
                   </div>
               </div>
               <div class="field">
                   <label class="label">시작:</label>
                   <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.startDateTime)}" readonly>
+                      <input class="input is-static" type="text" value="${escapeHtml(data.start.dateTime)}" readonly>
                   </div>
               </div>
               <div class="field">
                   <label class="label">종료:</label>
                   <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.endDateTime)}" readonly>
+                      <input class="input is-static" type="text" value="${escapeHtml(data.end.dateTime)}" readonly>
                   </div>
               </div>
+              ${data.location ? `
               <div class="field">
                   <label class="label">장소:</label>
                   <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.location || '없음')}" readonly>
+                      <input class="input is-static" type="text" value="${escapeHtml(data.location)}" readonly>
                   </div>
               </div>
+              ` : ''}
+              ${data.description ? `
               <div class="field">
                   <label class="label">설명:</label>
                   <div class="control">
-                      <textarea class="textarea is-static" readonly>${escapeHtml(data.description || '없음')}</textarea>
+                      <textarea class="textarea is-static" readonly>${escapeHtml(data.description)}</textarea>
                   </div>
               </div>
+              ` : ''}
           `;
+          lastParsedData = data;
       } else {
           contentDiv.innerHTML = `
               <div class="notification is-danger">
-                  파싱 실패: ${escapeHtml(response?.error || '알 수 없는 오류')}
+                  <p>파싱 실패: ${escapeHtml(response?.error || '알 수 없는 오류')}</p>
+                  <pre style="white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
               </div>
           `;
       }
@@ -138,4 +151,41 @@ document.addEventListener('DOMContentLoaded', function() {
           });
       });
   }
+
+  // Calendar 이벤트 생성 버튼 핸들러
+  const createEventBtn = document.getElementById('createEventBtn');
+  if (createEventBtn) {
+      createEventBtn.addEventListener('click', async function() {
+          try {
+              createEventBtn.classList.add('is-loading');
+              
+              const response = await chrome.runtime.sendMessage({
+                  action: 'createCalendarEvent',
+                  eventData: lastParsedData // 마지막으로 파싱된 데이터 저장 필요
+              });
+
+              if (response.success) {
+                  // 성공 메시지 표시
+                  contentDiv.innerHTML += `
+                      <div class="notification is-success">
+                          일정이 성공적으로 등록되었습니다!
+                      </div>
+                  `;
+              } else {
+                  throw new Error(response.error);
+              }
+          } catch (error) {
+              contentDiv.innerHTML += `
+                  <div class="notification is-danger">
+                      일정 등록 실패: ${escapeHtml(error.message)}
+                  </div>
+              `;
+          } finally {
+              createEventBtn.classList.remove('is-loading');
+          }
+      });
+  }
+
+  // 파싱 결과를 저장할 변수
+  let lastParsedData = null;
 });
