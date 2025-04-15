@@ -49,59 +49,68 @@ document.addEventListener('DOMContentLoaded', function() {
       resultDiv.classList.remove('is-hidden');
       hideLoading();
 
-      if (response?.success && response?.eventData) {
-          const data = response.eventData;
-          
-          // API 응답 전체를 JSON 형식으로 표시
-          console.log('API Response:', data);
-          
-          contentDiv.innerHTML = `
-              <div class="notification is-info is-light">
-                  <pre style="white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
-              </div>
-              <div class="field">
-                  <label class="label">제목:</label>
-                  <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.summary)}" readonly>
-                  </div>
-              </div>
-              <div class="field">
-                  <label class="label">시작:</label>
-                  <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.start.dateTime)}" readonly>
-                  </div>
-              </div>
-              <div class="field">
-                  <label class="label">종료:</label>
-                  <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.end.dateTime)}" readonly>
-                  </div>
-              </div>
-              ${data.location ? `
-              <div class="field">
-                  <label class="label">장소:</label>
-                  <div class="control">
-                      <input class="input is-static" type="text" value="${escapeHtml(data.location)}" readonly>
-                  </div>
-              </div>
-              ` : ''}
-              ${data.description ? `
-              <div class="field">
-                  <label class="label">설명:</label>
-                  <div class="control">
-                      <textarea class="textarea is-static" readonly>${escapeHtml(data.description)}</textarea>
-                  </div>
-              </div>
-              ` : ''}
+      if (response?.success) {
+        const data = response.eventData;
+        lastParsedData = data;
+        
+        // API 응답 전체를 JSON 형식으로 표시
+        console.log('API Response:', data);
+        
+        contentDiv.innerHTML = `
+            <div class="notification is-info is-light">
+                <pre style="white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
+            </div>
+            <div class="field">
+                <label class="label">제목:</label>
+                <div class="control">
+                    <input class="input is-static" type="text" value="${escapeHtml(data.summary)}" readonly>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">시작:</label>
+                <div class="control">
+                    <input class="input is-static" type="text" value="${escapeHtml(data.start.dateTime || data.start.date)}" readonly>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">종료:</label>
+                <div class="control">
+                    <input class="input is-static" type="text" value="${escapeHtml(data.end.dateTime || data.end.date)}" readonly>
+                </div>
+            </div>
+            ${data.location ? `
+            <div class="field">
+                <label class="label">장소:</label>
+                <div class="control">
+                    <input class="input is-static" type="text" value="${escapeHtml(data.location)}" readonly>
+                </div>
+            </div>
+            ` : ''}
+            ${data.description ? `
+            <div class="field">
+                <label class="label">설명:</label>
+                <div class="control">
+                    <textarea class="textarea is-static" readonly>${escapeHtml(data.description)}</textarea>
+                </div>
+            </div>
+            ` : ''}
+        `;
+
+        if (response.created) {
+          contentDiv.innerHTML += `
+            <div class="notification is-success">
+              일정이 캘린더에 등록되었습니다!
+            </div>
           `;
-          lastParsedData = data;
-          contentDiv.innerHTML = `
-              <div class="notification is-danger">
-                  <p>파싱 실패: ${escapeHtml(response?.error || '알 수 없는 오류')}</p>
-                  <pre style="white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
-              </div>
-          `;
-      }
+        }
+    } else if (response?.error) {
+        contentDiv.innerHTML = `
+            <div class="notification is-danger">
+                <p>파싱 실패: ${escapeHtml(response.error)}</p>
+                <pre style="white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
+            </div>
+        `;
+    }
   }
 
   // 선택된 텍스트 가져오기
