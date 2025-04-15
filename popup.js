@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
               ` : ''}
           `;
           lastParsedData = data;
-      } else {
           contentDiv.innerHTML = `
               <div class="notification is-danger">
                   <p>파싱 실패: ${escapeHtml(response?.error || '알 수 없는 오류')}</p>
@@ -163,6 +162,15 @@ document.addEventListener('DOMContentLoaded', function() {
                   action: 'createCalendarEvent',
                   eventData: lastParsedData // 마지막으로 파싱된 데이터 저장 필요
               });
+
+              if (!lastParsedData) {
+                contentDiv.innerHTML += `
+                  <div class="notification is-warning">
+                      먼저 일정을 파싱해주세요.
+                  </div>
+                `;
+                return;
+              }
 
               if (response.success) {
                   // 성공 메시지 표시
