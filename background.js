@@ -142,7 +142,7 @@ class ApiService {
         }
 
         // 검증 로직...
-        return this.validateEventData(eventInfo);
+        return ApiService.validateEventDataInCreateEvent(eventInfo);
 
     } catch (error) {
         console.error('응답 처리 중 에러:', error);
@@ -211,7 +211,7 @@ class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
       // eventData 검증
-      this.validateEventDataInCreateEvent(eventData);
+      ApiService.validateEventDataInCreateEvent(eventData);
 
       // Google Calendar API 호출
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
