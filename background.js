@@ -308,11 +308,14 @@ class MessageHandler {
   }
 }
 
-// Context Menu Setup
-chrome.contextMenus.create({
-  id: "createEvent",
-  title: "Create Calendar Event",
-  contexts: ["selection"]
+// Extension installed event
+chrome.runtime.onInstalled.addListener(() => {
+  // Context Menu Setup
+  chrome.contextMenus.create({
+    id: "createEvent",
+    title: "Create Calendar Event",
+    contexts: ["selection"]
+  });
 });
 
 // Event Listeners
