@@ -37,46 +37,15 @@
       <div id="selectedText" class="textarea" readonly></div>
     </div>
 
-    <form id="eventForm">
-      <div class="field">
-        <label class="label">이벤트 제목:</label>
-        <div class="control">
-          <input class="input" type="text" id="title" name="title">
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">시작 시간:</label>
-        <div class="control">
-          <input class="input" type="datetime-local" id="startDateTime" name="startDateTime">
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">종료 시간:</label>
-        <div class="control">
-          <input class="input" type="datetime-local" id="endDateTime" name="endDateTime">
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="control">
-          <button type="submit" class="button is-primary is-fullwidth">
-            <span>LLM으로 텍스트 분석하기</span>
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- 분석 결과를 표시할 영역 - content 클래스를 가진 div 추가 -->
-    <div id="parseResult" class="box is-hidden">
-      <h3 class="title is-5">LLM 분석 결과:</h3>
+    <!-- 분석 결과를 표시할 영역 -->
+    <div id="parseResult" class="box">
+      <h3 class="title is-5">일정 정보:</h3>
       <div id="resultContent" class="content">
           <!-- 여기에 동적으로 결과가 추가됨 -->
       </div>
       <div class="field">
         <div class="control">
-          <button id="createEventBtn" class="button is-success is-fullwidth">
+          <button id="confirmEventBtn" class="button is-success is-fullwidth">
             Google Calendar에 추가
           </button>
         </div>

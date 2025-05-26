@@ -323,7 +323,11 @@ chrome.runtime.onInstalled.addListener(() => {
 //오른쪽 클릭시
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "createEvent") {
-    state.selectedText = info.selectionText;
+    // 선택된 텍스트를 content script로 전송
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showModal',
+      selectedText: info.selectionText
+    });
   }
 });
 
