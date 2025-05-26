@@ -26,7 +26,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["css/tailwind.min.css"]
     }
   ],
   "action": {
@@ -34,5 +35,9 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
-  }
+  },
+  "web_accessible_resources": [{
+    "resources": ["css/*"],
+    "matches": ["<all_urls>"]
+  }]
 }
