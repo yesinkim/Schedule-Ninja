@@ -1,33 +1,44 @@
 // Shadow DOM + Tailwind 환경에서 모달을 띄우는 코드
 
 // 1. 모달 컨테이너 생성 및 Shadow Root 부착
-const modalHost = document.createElement('div');
-document.body.appendChild(modalHost);
-const shadow = modalHost.attachShadow({ mode: 'open' });
+function createModalHost() {
+  const oldHost = document.getElementById('timekeeper-modal-host');
+  if (oldHost) oldHost.remove();
+  const modalHost = document.createElement('div');
+  modalHost.id = 'timekeeper-modal-host';
+  modalHost.style.position = 'fixed';
+  modalHost.style.top = '0';
+  modalHost.style.left = '0';
+  modalHost.style.width = '100vw';
+  modalHost.style.height = '100vh';
+  modalHost.style.zIndex = '2147483647';
+  modalHost.style.pointerEvents = 'auto';
+  document.body.appendChild(modalHost);
+  return modalHost.attachShadow({ mode: 'open' });
+}
 
 // 2. Tailwind CDN link를 Shadow Root에만 삽입
-const styleLink = document.createElement('link');
-styleLink.rel = 'stylesheet';
-styleLink.href = chrome.runtime.getURL('css/tailwind.min.css');
-shadow.appendChild(styleLink);
+// (전역에서 shadow를 사용하지 않고 showModal 내부로 이동)
 
 // 3. 모달 HTML 템플릿
 const modalTemplate = `
-<div id="timekeeper-modal" style="display:none;">
-  <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 opacity-0 transition-opacity duration-300" id="modal-backdrop"></div>
-  <div class="fixed top-4 right-4 w-80 max-w-[95vw] z-50 transform translate-x-full transition-transform duration-300" id="modal-content">
-    <div class="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+<div id="timekeeper-modal" style="display:none; z-index:2147483647; pointer-events:auto;">
+  <div class="fixed inset-0 bg-black/20 backdrop-blur-sm" id="modal-backdrop"
+       style="z-index:2147483646; pointer-events:auto;"></div>
+  <div class="fixed top-4 right-4 w-80 max-w-[95vw]" id="modal-content"
+       style="z-index:2147483647; pointer-events:auto;">
+    <div class="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden relative">
       <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 text-white relative flex items-center justify-between">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 text-white relative flex items-center justify-between z-10">
         <span class="font-bold text-base">TimeKeeper</span>
-        <button class="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors duration-200" id="modal-close">
+        <button class="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors duration-200" id="modal-close" style="z-index:20;">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
       <!-- Content -->
-      <div class="p-3 max-h-80 overflow-y-auto">
+      <div class="p-3 max-h-80 overflow-y-auto" style="z-index:10;">
         <!-- Loading State -->
         <div id="timekeeper-loading" class="text-center py-4">
           <div class="inline-flex items-center space-x-2 text-blue-600">
@@ -46,43 +57,67 @@ const modalTemplate = `
 `;
 
 // 4. 모달을 Shadow Root에 삽입
-const modalWrapper = document.createElement('div');
-modalWrapper.innerHTML = modalTemplate;
-shadow.appendChild(modalWrapper);
+// (shadow.appendChild(modalWrapper) 등은 showModal 내부로 이동)
 
 // 5. 모달 내부 요소 참조 (shadow root 기준)
-const modal = shadow.getElementById('timekeeper-modal');
-const backdrop = shadow.getElementById('modal-backdrop');
-const modalContent = shadow.getElementById('modal-content');
-const closeBtn = shadow.getElementById('modal-close');
-const resultContent = shadow.getElementById('timekeeper-result-content');
-const loadingIndicator = shadow.getElementById('timekeeper-loading');
+// ❌ 전역에서 shadow를 참조하는 코드는 모두 삭제합니다.
+// const modal = shadow.getElementById('timekeeper-modal');
+// const backdrop = shadow.getElementById('modal-backdrop');
+// const modalContent = shadow.getElementById('modal-content');
+// const closeBtn = shadow.getElementById('modal-close');
+// const resultContent = shadow.getElementById('timekeeper-result-content');
+// const loadingIndicator = shadow.getElementById('timekeeper-loading');
 
 // 6. 모달 열고 닫기 애니메이션
-function openModal() {
+function openModal(modal, backdrop, modalContent) {
   modal.style.display = 'block';
   setTimeout(() => {
     backdrop.classList.remove('opacity-0');
     modalContent.classList.remove('translate-x-full');
   }, 10);
 }
-function closeModal() {
+
+function closeModal(modal, backdrop, modalContent) {
   backdrop.classList.add('opacity-0');
   modalContent.classList.add('translate-x-full');
   setTimeout(() => {
     modal.style.display = 'none';
   }, 300);
 }
-closeBtn.addEventListener('click', closeModal);
-backdrop.addEventListener('click', closeModal);
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.style.display === 'block') {
-    closeModal();
-  }
-});
 
-// 7. 결과 표시 함수 (shadow root 내부)
-function displayResult(data) {
+// 전역 변수로 상태 관리
+let lastParsedData = null;
+let isCreatingEvent = false;
+let modalInstance = null;
+
+// 모달 초기화 함수
+function initializeModal() {
+  if (modalInstance) {
+    document.body.removeChild(modalInstance);
+  }
+  
+  modalInstance = document.createElement('div');
+  document.body.appendChild(modalInstance);
+  const shadow = modalInstance.attachShadow({ mode: 'open' });
+
+  // Tailwind CDN
+  const styleLink = document.createElement('link');
+  styleLink.rel = 'stylesheet';
+  styleLink.href = chrome.runtime.getURL('css/tailwind.min.css');
+  shadow.appendChild(styleLink);
+
+  return shadow;
+}
+
+function displayResult(data, shadow) {
+  if (!shadow || !data) return;
+  
+  const resultContent = shadow.getElementById('timekeeper-result-content');
+  if (!resultContent) return;
+
+  // lastParsedData 업데이트
+  lastParsedData = data;
+  
   // 1. 컴팩트 카드 UI + 드롭다운 영역 생성
   resultContent.innerHTML = `
     <div id="tk-compact-card" class="flex items-center justify-between bg-white border border-gray-200 rounded-t-xl shadow-sm px-4 py-3 hover:shadow-md transition cursor-pointer group min-w-[220px] tk-slide-in">
@@ -98,7 +133,7 @@ function displayResult(data) {
         </div>
       </div>
       <button id="tk-add-btn" class="ml-3 flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 flex-shrink-0">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
       </button>
     </div>
     <div id="tk-dropdown" class="tk-dropdown-closed"></div>
@@ -121,6 +156,22 @@ function displayResult(data) {
         overflow: visible;
         transition: max-height 0.7s cubic-bezier(.4,1.7,.7,1), opacity 0.3s, transform 0.4s;
       }
+      @keyframes tk-check-animation {
+        0% { stroke-dashoffset: 24; }
+        100% { stroke-dashoffset: 0; }
+      }
+      .tk-check-mark {
+        stroke-dasharray: 24;
+        stroke-dashoffset: 24;
+        animation: tk-check-animation 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.2s forwards;
+      }
+      .tk-success-message {
+        animation: tk-fade-in 0.3s ease-out forwards;
+      }
+      @keyframes tk-fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
     </style>
   `;
 
@@ -129,80 +180,93 @@ function displayResult(data) {
   const dropdown = shadow.getElementById('tk-dropdown');
   const addBtn = shadow.getElementById('tk-add-btn');
   let dropdownOpen = false;
-  card.addEventListener('click', (e) => {
-    if (e.target.closest('#tk-add-btn')) return;
+
+  // 이벤트 리스너 등록 전에 기존 리스너 제거
+  const newCard = card.cloneNode(true);
+  card.parentNode.replaceChild(newCard, card);
+  
+  // 새로운 참조로 업데이트
+  const updatedCard = shadow.getElementById('tk-compact-card');
+  const updatedAddBtn = shadow.getElementById('tk-add-btn');
+
+  updatedCard.addEventListener('click', (e) => {
+    if (e.target.closest('#tk-add-btn') || isCreatingEvent) return;
     dropdownOpen = !dropdownOpen;
     if (dropdownOpen) {
-      showDropdownForm(data);
+      showDropdownForm(data, shadow);
       dropdown.classList.add('tk-dropdown-open');
       dropdown.classList.remove('tk-dropdown-closed');
-      if (addBtn) addBtn.style.display = 'none';
+      if (updatedAddBtn) updatedAddBtn.style.display = 'none';
     } else {
       dropdown.classList.remove('tk-dropdown-open');
       dropdown.classList.add('tk-dropdown-closed');
-      setTimeout(() => { dropdown.innerHTML = ''; }, 500);
-      if (addBtn) addBtn.style.display = '';
+      setTimeout(() => { 
+        if (!isCreatingEvent) {
+          dropdown.innerHTML = ''; 
+        }
+      }, 500);
+      if (updatedAddBtn && !isCreatingEvent) updatedAddBtn.style.display = '';
     }
   });
 
-  // 3. +버튼 클릭 시 바로 일정 추가 + 슬라이드 삭제
-  addBtn.addEventListener('click', async (e) => {
+  // 3. +버튼 클릭 시 일정 추가 처리
+  async function handleAddEvent(e) {
+    if (isCreatingEvent) return;
+    isCreatingEvent = true;
+    
     e.stopPropagation();
-    addBtn.innerHTML = `<div class='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>`;
-    addBtn.disabled = true;
-    card.classList.remove('tk-success','tk-error');
-    card.querySelector('.tk-success-msg')?.remove();
-    card.querySelector('.tk-error-msg')?.remove();
+    updatedAddBtn.innerHTML = `<div class='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>`;
+    updatedAddBtn.disabled = true;
+    updatedCard.classList.remove('tk-success','tk-error');
+    updatedCard.querySelector('.tk-success-message')?.remove();
+    updatedCard.querySelector('.tk-error-msg')?.remove();
+    
     try {
       const response = await chrome.runtime.sendMessage({
         action: 'createCalendarEvent',
-        eventData: data,
+        eventData: lastParsedData,
       });
+      
       if (response.success) {
-        addBtn.innerHTML = `<svg class='w-5 h-5 text-green-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'></path></svg>`;
-        card.classList.add('tk-success');
-        card.insertAdjacentHTML('beforeend', `
-          <div class="tk-success-msg flex items-center justify-center gap-2 absolute left-1/2 top-3 -translate-x-1/2 bg-white/95 px-3 py-1.5 rounded-lg shadow-lg border border-green-200 z-50 animate-fadeIn">
-            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span class="text-green-700 text-[15px] font-semibold">일정이 추가되었습니다!</span>
-          </div>
-        `);
+        updatedAddBtn.innerHTML = `
+          <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <path class='tk-check-mark' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'></path>
+          </svg>
+        `;
+        
+        showToastMessage(shadow, "일정이 추가되었습니다!", "success");
+
         setTimeout(() => {
-          card.classList.remove('tk-success');
-          card.querySelector('.tk-success-msg')?.remove();
-          card.classList.remove('tk-slide-in');
-          card.classList.add('tk-slide-out');
+          updatedCard.classList.remove('tk-slide-in');
+          updatedCard.classList.add('tk-slide-out');
+          
           setTimeout(() => {
-            removeCardAndCloseIfNone(card, dropdown);
+            removeCardAndCloseIfNone(updatedCard, dropdown, shadow);
+            isCreatingEvent = false;
           }, 500);
         }, 1200);
       } else {
         throw new Error(response.error);
       }
     } catch (error) {
-      addBtn.innerHTML = `<svg class='w-5 h-5 text-red-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'></path></svg>`;
-      card.classList.add('tk-error');
-      card.insertAdjacentHTML('beforeend', `
-        <div class="tk-error-msg flex items-center justify-center gap-2 absolute left-1/2 top-3 -translate-x-1/2 bg-white/95 px-3 py-1.5 rounded-lg shadow-lg border border-red-200 z-50 animate-fadeIn">
-          <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          <span class="text-red-700 text-[15px] font-semibold">추가 실패</span>
-        </div>
-      `);
+      updatedAddBtn.innerHTML = `<svg class='w-5 h-5 text-red-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'></path></svg>`;
+      
+      showToastMessage(shadow, "일정 추가 실패: " + error.message, "error");
+
       setTimeout(() => {
-        card.classList.remove('tk-error');
-        card.querySelector('.tk-error-msg')?.remove();
-        addBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 6v6m0 0v6m0-6h6m-6 0H6'></path></svg>`;
-        addBtn.disabled = false;
+        updatedAddBtn.innerHTML = `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 6v6m0 0v6m0-6h6m-6 0H6'></path></svg>`;
+        updatedAddBtn.disabled = false;
+        isCreatingEvent = false;
       }, 1200);
     }
-  });
+  }
 
-  // 4. 드롭다운 상세/수정 폼 함수 (기존 인라인 에디팅 UX 재사용)
-  function showDropdownForm(originData) {
+  updatedAddBtn.addEventListener('click', handleAddEvent);
+
+  // 4. 드롭다운 상세/수정 폼 함수
+  function showDropdownForm(originData, shadow) {
+    if (isCreatingEvent) return;
+    
     function editableField({ label, value, id, type = 'text', placeholder = '', multiline = false }) {
       return `
         <div class=\"group mb-2\">
@@ -250,7 +314,7 @@ function displayResult(data) {
         field.classList.add('hidden');
         let newValue = field.value;
         display.innerHTML = newValue ? newValue.replace(/\n/g, '<br>') : `<span class='text-gray-400'>${field.placeholder}</span>`;
-        updateParsedDataFromFields();
+        updateParsedDataFromFields(originData, newValue);
       });
       field.addEventListener('keydown', (e) => {
         if (!multiline && (e.key === 'Enter' || e.key === 'Escape')) {
@@ -264,7 +328,7 @@ function displayResult(data) {
     setupInlineEdit('editLocation');
     setupInlineEdit('editDescription', true);
     // 입력값 변경 시 lastParsedData 갱신
-    function updateParsedDataFromFields() {
+    function updateParsedDataFromFields(originData, newValue) {
       const getValue = (id, multiline = false) => {
         const input = dropdown.querySelector(`#${id}-input`);
         const textarea = dropdown.querySelector(`#${id}-textarea`);
@@ -273,8 +337,8 @@ function displayResult(data) {
       const startValue = getValue('editStart');
       const endValue = getValue('editEnd');
       const isAllDay = !startValue?.includes('T');
-      lastParsedData = {
-        ...lastParsedData,
+      const updatedData = {
+        ...originData,
         summary: getValue('editSummary'),
         start: {
           [isAllDay ? 'date' : 'dateTime']: isAllDay ? startValue : startValue + ':00+09:00',
@@ -287,133 +351,163 @@ function displayResult(data) {
         location: getValue('editLocation'),
         description: getValue('editDescription', true),
       };
-    }
-    // 저장 버튼 클릭 시 정보 반영 및 드롭다운 닫기 + 캘린더에 저장
-    dropdown.querySelector('#tk-dropdown-save').addEventListener('click', async () => {
-      updateParsedDataFromFields();
-      const saveBtn = dropdown.querySelector('#tk-dropdown-save');
-      // 기존 피드백 메시지 제거
-      dropdown.querySelector('.tk-dropdown-success-msg')?.remove();
-      dropdown.querySelector('.tk-dropdown-error-msg')?.remove();
-      saveBtn.innerHTML = `<div class='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>`;
-      saveBtn.disabled = true;
-      try {
-        const response = await chrome.runtime.sendMessage({
-          action: 'createCalendarEvent',
-          eventData: lastParsedData,
-        });
-        if (response.success) {
-          dropdown.insertAdjacentHTML('beforeend', `
-            <div class="tk-dropdown-success-msg flex items-center justify-center gap-2 absolute left-1/2 bottom-4 -translate-x-1/2 bg-white/90 px-4 py-2 rounded-lg shadow-lg border border-green-200 z-50 animate-fadeIn">
-              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              <span class="text-green-700 text-sm font-semibold">일정이 추가되었습니다!</span>
-            </div>
-          `);
-          setTimeout(() => {
-            dropdown.querySelector('.tk-dropdown-success-msg')?.remove();
-            saveBtn.innerHTML = `<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 6v6m0 0v6m0-6h6m-6 0H6'></path></svg> 일정 저장`;
-            saveBtn.disabled = false;
-          }, 1200);
-        } else {
-          throw new Error(response.error);
-        }
-      } catch (error) {
-        dropdown.insertAdjacentHTML('beforeend', `
-          <div class="tk-dropdown-error-msg flex items-center justify-center gap-2 absolute left-1/2 bottom-4 -translate-x-1/2 bg-white/90 px-4 py-2 rounded-lg shadow-lg border border-red-200 z-50 animate-fadeIn">
-            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-            <span class="text-red-700 text-sm font-semibold">저장 실패</span>
-          </div>
-        `);
-        setTimeout(() => {
-          dropdown.querySelector('.tk-dropdown-error-msg')?.remove();
-          saveBtn.innerHTML = `<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 6v6m0 0v6m0-6h6m-6 0H6'></path></svg> 일정 저장`;
-          saveBtn.disabled = false;
-        }, 1200);
+      if (newValue) {
+        updatedData.summary = newValue;
       }
+      lastParsedData = updatedData;
+    }
+    // 저장 버튼 클릭 핸들러
+    dropdown.querySelector('#tk-dropdown-save')?.addEventListener('click', async () => {
+      if (isCreatingEvent) return;
+      handleAddEvent({ stopPropagation: () => {} });
     });
   }
 
   // 카드 성공/에러 스타일 및 드롭다운 피드백 스타일 통합 추가
   const style = document.createElement('style');
   style.textContent = `
-    .tk-success {
-      background: linear-gradient(90deg, #e0ffe7 0%, #f0fff4 100%) !important;
-      border-color: #38d39f !important;
-      transition: background 0.3s, border-color 0.3s;
-      position: relative;
+    #modal-content, #timekeeper-modal, #modal-backdrop {
+      pointer-events: auto !important;
     }
-    .tk-error {
-      background: linear-gradient(90deg, #ffe0e0 0%, #fff0f0 100%) !important;
-      border-color: #ff6b6b !important;
-      transition: background 0.3s, border-color 0.3s;
-      position: relative;
+    #modal-content * {
+      pointer-events: auto !important;
     }
-    .tk-success-msg, .tk-error-msg {
-      position: absolute;
-      top: 0.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 20;
-      min-width: 140px;
-      max-width: 90vw;
-      background: rgba(255,255,255,0.97);
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
-      border-radius: 0.75rem;
-      padding: 0.35rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.97rem;
-      font-weight: 600;
-      animation: fadeIn 0.3s;
-      pointer-events: none;
-    }
-    .tk-dropdown-success-msg, .tk-dropdown-error-msg {
-      position: absolute;
-      left: 50%;
-      bottom: 1.2rem;
-      transform: translateX(-50%);
-      z-index: 30;
-      min-width: 140px;
-      max-width: 90vw;
-      background: rgba(255,255,255,0.97);
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
-      border-radius: 0.75rem;
-      padding: 0.35rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.97rem;
-      font-weight: 600;
-      animation: fadeIn 0.3s;
-      pointer-events: none;
-    }
-    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    /* .tk-success, .tk-error 관련 스타일은 Tailwind 클래스로 직접 적용되거나 더 이상 필요 없습니다. */
+    /* .tk-success-msg, .tk-error-msg 관련 스타일은 새로운 토스트 방식으로 대체되므로 삭제합니다. */
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } } /* 이건 다른 곳에서 쓸 수도 있으니 일단 유지 */
   `;
   shadow.appendChild(style);
 }
 
+// 새로운 토스트 메시지 표시 함수
+function showToastMessage(shadow, message, type = "success") {
+  const existingToast = shadow.getElementById('tk-toast-message');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  const modalContentEl = shadow.getElementById('modal-content');
+  if (!modalContentEl) {
+    console.error("Modal content element not found for toast message");
+    return;
+  }
+  const modalCard = modalContentEl.firstElementChild; // This is the div.bg-white.rounded-xl... element
+  if (!modalCard) {
+    console.error("Modal card element not found for toast message");
+    return;
+  }
+
+  const toast = document.createElement('div');
+  toast.id = 'tk-toast-message';
+  // positioning relative to the modal card, slightly smaller, longer animation duration
+  toast.className = `absolute bottom-3 left-1/2 -translate-x-1/2 p-2 px-3 rounded-lg shadow-lg text-xs font-medium flex items-center gap-2 z-30 transition-all duration-500 ease-out`; // duration-300 to duration-500
+  
+  if (type === "success") {
+    toast.classList.add('bg-green-500', 'text-white');
+    toast.innerHTML = `
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span>${message}</span>
+    `;
+  } else { // error
+    toast.classList.add('bg-red-500', 'text-white');
+    toast.innerHTML = `
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>${message}</span>
+    `;
+  }
+  
+  modalCard.appendChild(toast); // Append to modal card instead of shadow root
+
+  // Animate in: initial state (opacity 0, slightly down)
+  toast.style.transform = 'translate(-50%, 20px)'; // Start slightly lower for slide-up effect
+  toast.style.opacity = '0';
+
+  setTimeout(() => {
+    toast.style.transform = 'translate(-50%, 0)';
+    toast.style.opacity = '1';
+  }, 10); // Short delay to ensure transition is applied
+
+  // Animate out and remove after 5 seconds (increased from 3)
+  setTimeout(() => {
+    toast.style.transform = 'translate(-50%, 20px)'; // Slide down
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.remove();
+      }
+    }, 500); // Delay removal until animation completes (increased from 300)
+  }, 5000); // Toast visible for 5 seconds (increased from 3000)
+}
+
 // 10. 모달 show 함수 (외부에서 호출)
 function showModal(selectedText) {
-  openModal();
-  loadingIndicator.classList.remove('hidden');
-  resultContent.classList.add('hidden');
+  // 1. Shadow Root 생성
+  const shadow = createModalHost();
+
+  // 2. Tailwind 스타일 추가
+  const styleLink = document.createElement('link');
+  styleLink.rel = 'stylesheet';
+  styleLink.href = chrome.runtime.getURL('css/tailwind.min.css');
+  shadow.appendChild(styleLink);
+
+  // 3. 모달 템플릿 추가
+  const modalWrapper = document.createElement('div');
+  modalWrapper.innerHTML = modalTemplate;
+  shadow.appendChild(modalWrapper);
+
+  // 4. 이후 모든 DOM 접근/이벤트 등록도 shadow 기준
+  const modal = shadow.getElementById('timekeeper-modal');
+  const backdrop = shadow.getElementById('modal-backdrop');
+  const modalContent = shadow.getElementById('modal-content');
+  const closeBtn = shadow.getElementById('modal-close');
+  const resultContent = shadow.getElementById('timekeeper-result-content');
+  const loadingIndicator = shadow.getElementById('timekeeper-loading');
+
+  // 모달 열기
+  openModal(modal, backdrop, modalContent);
+
+  // 닫기 이벤트 설정
+  function closeModalHandler() {
+    closeModal(modal, backdrop, modalContent);
+    setTimeout(() => {
+      const host = document.getElementById('timekeeper-modal-host');
+      if (host && host.parentElement) {
+        host.parentElement.removeChild(host);
+      }
+    }, 300);
+  }
+  
+  if (closeBtn) closeBtn.addEventListener('click', closeModalHandler);
+  if (backdrop) backdrop.addEventListener('click', closeModalHandler);
+  
+  // Escape 키로 닫기
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+      closeModalHandler();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+
+  // 로딩 표시 및 데이터 파싱 요청
+  if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+  if (resultContent) resultContent.classList.add('hidden');
+
   chrome.runtime.sendMessage(
     {
       action: 'parseText',
       eventData: { selectedText },
     },
     (response) => {
-      loadingIndicator.classList.add('hidden');
-      resultContent.classList.remove('hidden');
+      if (loadingIndicator) loadingIndicator.classList.add('hidden');
+      if (resultContent) resultContent.classList.remove('hidden');
       if (response?.success) {
-        lastParsedData = response.eventData;
-        displayResult(response.eventData);
-      } else {
+        displayResult(response.eventData, shadow);
+      } else if (resultContent) {
         resultContent.innerHTML = `
           <div class="bg-red-50 border border-red-200 rounded-lg p-3">
             <div class="flex items-center space-x-2">
@@ -436,17 +530,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// 카드 remove 시 카드가 0개면 전체 컨테이너도 닫기
-function removeCardAndCloseIfNone(card, dropdown) {
+// 카드 제거 함수 개선
+function removeCardAndCloseIfNone(card, dropdown, shadow) {
+  if (!card) return;
+  
+  // 드롭다운 정리
+  if (dropdown) {
+    dropdown.innerHTML = '';
+    dropdown.classList.remove('tk-dropdown-open');
+    dropdown.classList.add('tk-dropdown-closed');
+  }
+  
+  // 카드 제거
   card.remove();
-  if (dropdown) dropdown.innerHTML = '';
-  // 카드가 더 이상 없으면 전체 모달/컨테이너도 닫기
-  const parent = card.parentElement;
-  if (parent && parent.querySelectorAll('#tk-compact-card').length === 0) {
-    // Shadow DOM 루트에서 모달 호스트(div) 제거
-    const modalHost = shadow.host;
-    if (modalHost && modalHost.parentElement) {
-      modalHost.parentElement.removeChild(modalHost);
-    }
+  
+  // 모든 카드가 제거되었는지 확인
+  const remainingCards = shadow.querySelectorAll('#tk-compact-card');
+  if (remainingCards.length === 0) {
+    setTimeout(() => {
+      const host = document.getElementById('timekeeper-modal-host');
+      if (host && host.parentElement) {
+        host.parentElement.removeChild(host);
+      }
+    }, 300);
   }
 }
