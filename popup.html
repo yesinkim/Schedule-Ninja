@@ -1,58 +1,503 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>LLM Calendar</title>
+  <title>Schedule Ninja Settings</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    body {
+      background: #313B43;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
     .container {
+      padding: 0;
+      min-width: 400px;
+      max-width: 500px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .main-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      margin: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .header {
+      background: #E83941;
+      color: #e7e7e9;
+      padding: 24px;
+      border-radius: 24px 24px 0 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+      50% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo {
+      font-size: 32px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      opacity: 0.9;
+      font-weight: 400;
+      font-size: 14px;
+    }
+    
+    .content-area {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    
+    .login-section {
+      text-align: center;
+      padding: 40px 0;
+    }
+    
+    .settings-section {
+      display: none;
+    }
+    
+    .google-btn {
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 16px 24px;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto;
+      min-width: 200px;
+    }
+    
+    .google-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+    }
+    
+    .google-btn:active {
+      transform: translateY(0);
+    }
+    
+    .google-btn.is-loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(76, 175, 80, 0.1);
+      color: #4CAF50;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4CAF50;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .settings-group {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
       padding: 20px;
-      min-width: 500px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
-    #selectedText {
-      margin-bottom: 20px;
-      min-height: 100px;
+    
+    .settings-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    #parseResult {
-      margin-top: 20px;
-      padding: 15px;
+    
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
-    .result-item {
-      margin: 10px 0;
+    
+    .setting-item:last-child {
+      border-bottom: none;
     }
-    .error {
-      color: #ff3860;
-      background-color: #feecf0;
-      padding: 10px;
-      border-radius: 4px;
+    
+    .setting-info {
+      flex: 1;
+    }
+    
+    .setting-label {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    
+    .setting-description {
+      font-size: 13px;
+      color: #7f8c8d;
+      line-height: 1.4;
+    }
+    
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #7f8c8d;
+      min-width: 40px;
+      text-align: right;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background: #e0e0e0;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .toggle-switch.active {
+      background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
+      border-color: rgba(232, 57, 65, 0.2);
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(24px);
+    }
+    
+    .disconnect-btn {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    }
+    
+    .disconnect-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    }
+    
+    .guide-section {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .guide-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .guide-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .guide-step:last-child {
+      border-bottom: none;
+    }
+    
+    .step-number {
+      background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    
+    .step-text {
+      color: #2c3e50;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 300px;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(20px);
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .notification.is-success {
+      background: rgba(76, 175, 80, 0.9);
+      color: white;
+    }
+    
+    .notification.is-danger {
+      background: rgba(244, 67, 54, 0.9);
+      color: white;
+    }
+    
+    .notification.is-info {
+      background: rgba(33, 150, 243, 0.9);
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="title is-4 has-text-centered">LLM Calendar</h1>
-    
-    <div class="field">
-      <label class="label">선택된 텍스트:</label>
-      <div id="selectedText" class="textarea" readonly></div>
-    </div>
-
-    <!-- 분석 결과를 표시할 영역 -->
-    <div id="parseResult" class="box">
-      <h3 class="title is-5">일정 정보:</h3>
-      <div id="resultContent" class="content">
-          <!-- 여기에 동적으로 결과가 추가됨 -->
-      </div>
-      <div class="field">
-        <div class="control">
-          <button id="confirmEventBtn" class="button is-success is-fullwidth">
-            Google Calendar에 추가
-          </button>
+    <div class="main-card">
+      <!-- 로그인 섹션 -->
+      <div id="loginSection" class="login-section">
+        <div class="header">
+          <div class="header-content">
+            <div class="logo">
+              <svg width="32" height="32" viewBox="0 0 574 584" style="margin-right: 8px; vertical-align: middle;">
+                <path fill="currentColor" d="M267.45,795.59C246.86,779.18 235.82,757.99 232.51,732.37C231.63,725.53 231.68,718.76 231.68,711.96C231.64,603.48 231.64,495 231.65,386.52C231.65,348.21 260.93,313 298.48,305.59C309.39,303.44 320.31,303.75 331.28,303.61C334.78,303.57 335.32,305.33 335.39,308.28C335.59,318.07 334.53,327.92 336.37,337.66C340.07,357.32 350.27,371.89 369.81,378.19C389.27,384.47 406.86,380.31 421.02,365.45C429.61,356.44 434.21,345.13 434.62,332.48C434.87,324.82 434.86,317.15 434.79,309.48C434.75,305.39 436.08,303.56 440.58,303.57C489.08,303.70 537.57,303.69 586.06,303.57C590.26,303.56 591.45,305.00 591.43,309.06C591.34,321.01 590.91,332.92 594.13,344.74C599.46,364.31 618.70,383.39 647.41,380.51C667.39,378.51 684.81,363.04 689.66,340.20C690.98,333.95 690.71,327.63 690.97,321.33C691.20,315.72 688.60,308.71 692.42,304.90C696.01,301.31 702.90,303.74 708.32,303.72C722.13,303.67 735.50,306.30 747.84,312.60C773.92,325.91 789.46,347.08 794.44,376.02C795.26,380.83 795.35,385.61 795.35,390.43C795.35,500.74 795.82,611.06 795.07,721.36C794.83,756.19 779.51,784.22 748.61,802.33C736.20,809.60 722.42,812.18 708.35,812.20C576.71,812.38 445.07,812.46 313.43,812.23C296.58,812.20 281.17,806.29 267.45,795.59"/>
+                <path fill="currentColor" d="M383.10,239.64C400.97,239.66 411.46,246.54 415.66,260.86C416.69,264.36 417.34,267.96 417.33,271.65C417.33,291.48 417.41,311.30 417.32,331.12C417.26,344.19 408.56,356.85 396.96,361.13C383.68,366.05 369.72,362.74 360.46,352.59C355.98,347.68 353.73,341.87 353.70,335.35C353.59,313.03 353.51,290.71 353.71,268.39C353.85,251.93 366.23,239.84 383.10,239.64"/>
+                <path fill="currentColor" d="M656.98,242.78C668.52,248.97 672.94,259.13 673.19,271.05C673.61,291.21 673.53,311.38 673.26,331.55C673.07,345.97 662.37,359.18 649.11,362.32C634.21,365.85 620.05,360.02 613.17,347.45C610.89,343.31 609.68,338.82 609.67,334.09C609.64,312.59 609.45,291.08 609.72,269.59C609.95,250.87 624.17,238.83 640.16,239.55C645.86,239.81 651.48,239.72 656.98,242.78"/>
+                <path fill="currentColor" d="M645.43,555.27C642.53,557.29 644.38,559.31 644.94,561.23C649.06,575.51 648.67,589.48 641.66,602.83C635.03,615.47 623.77,620.50 610.20,619.78C590.39,618.72 580.89,610.52 575.74,591.29C574.84,587.93 573.41,586.66 570.12,588.14C563.81,590.95 556.85,586.51 554.65,581.72C552.00,575.93 553.23,569.16 558.72,565.31C567.47,559.17 577.37,555.11 587.12,550.84C610.72,540.50 634.08,529.63 658.15,520.34C668.72,516.26 678.52,523.91 677.32,533.55C676.62,539.12 673.15,542.35 668.33,544.56C660.78,548.03 653.26,551.58 645.43,555.27"/>
+                <path fill="currentColor" d="M363.93,547.22C360.88,545.79 358.10,544.64 355.50,543.18C349.05,539.54 346.91,532.84 349.90,526.07C352.49,520.22 359.23,517.42 365.84,519.90C399.02,532.34 431.25,546.92 462.96,562.69C470.68,566.53 473.55,571.40 472.66,577.31C471.36,585.97 464.29,590.51 456.05,588.00C454.96,587.67 453.82,587.48 452.72,587.23C451.12,588.87 450.85,590.88 450.38,592.77C445.89,610.83 432.88,620.52 414.30,619.62C393.35,618.60 379.72,604.25 379.67,583.05C379.65,575.10 378.84,567.05 382.19,559.45C383.35,556.82 381.95,555.39 379.72,554.38C374.57,552.04 369.43,549.70 363.93,547.22"/>
+              </svg>
+              Schedule Ninja
+            </div>
+            <div class="subtitle">Google Calendar와 연결하여 일정을 관리하세요</div>
+          </div>
+        </div>
+        
+        <div class="content-area">
+          <div class="settings-group">
+            <div class="content has-text-centered">
+              <p class="mb-4" style="color: #7f8c8d; line-height: 1.6;">
+                Google Calendar에 연결하면 텍스트에서 일정을 자동으로 파싱하여 캘린더에 추가할 수 있습니다.
+              </p>
+              <button id="googleLoginBtn" class="google-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>Google로 로그인</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- 로딩 표시를 위한 요소 추가 -->
-      <div id="loadingIndicator" class="is-hidden">
-          <p class="has-text-centered">텍스트 분석 중...</p>
+
+      <!-- 설정 섹션 -->
+      <div id="settingsSection" class="settings-section">
+        <div class="header">
+          <div class="header-content">
+            <div class="logo">
+              <svg width="32" height="32" viewBox="0 0 574 584" style="margin-right: 8px; vertical-align: middle;">
+                <path fill="currentColor" d="M267.45,795.59C246.86,779.18 235.82,757.99 232.51,732.37C231.63,725.53 231.68,718.76 231.68,711.96C231.64,603.48 231.64,495 231.65,386.52C231.65,348.21 260.93,313 298.48,305.59C309.39,303.44 320.31,303.75 331.28,303.61C334.78,303.57 335.32,305.33 335.39,308.28C335.59,318.07 334.53,327.92 336.37,337.66C340.07,357.32 350.27,371.89 369.81,378.19C389.27,384.47 406.86,380.31 421.02,365.45C429.61,356.44 434.21,345.13 434.62,332.48C434.87,324.82 434.86,317.15 434.79,309.48C434.75,305.39 436.08,303.56 440.58,303.57C489.08,303.70 537.57,303.69 586.06,303.57C590.26,303.56 591.45,305.00 591.43,309.06C591.34,321.01 590.91,332.92 594.13,344.74C599.46,364.31 618.70,383.39 647.41,380.51C667.39,378.51 684.81,363.04 689.66,340.20C690.98,333.95 690.71,327.63 690.97,321.33C691.20,315.72 688.60,308.71 692.42,304.90C696.01,301.31 702.90,303.74 708.32,303.72C722.13,303.67 735.50,306.30 747.84,312.60C773.92,325.91 789.46,347.08 794.44,376.02C795.26,380.83 795.35,385.61 795.35,390.43C795.35,500.74 795.82,611.06 795.07,721.36C794.83,756.19 779.51,784.22 748.61,802.33C736.20,809.60 722.42,812.18 708.35,812.20C576.71,812.38 445.07,812.46 313.43,812.23C296.58,812.20 281.17,806.29 267.45,795.59"/>
+                <path fill="currentColor" d="M383.10,239.64C400.97,239.66 411.46,246.54 415.66,260.86C416.69,264.36 417.34,267.96 417.33,271.65C417.33,291.48 417.41,311.30 417.32,331.12C417.26,344.19 408.56,356.85 396.96,361.13C383.68,366.05 369.72,362.74 360.46,352.59C355.98,347.68 353.73,341.87 353.70,335.35C353.59,313.03 353.51,290.71 353.71,268.39C353.85,251.93 366.23,239.84 383.10,239.64"/>
+                <path fill="currentColor" d="M656.98,242.78C668.52,248.97 672.94,259.13 673.19,271.05C673.61,291.21 673.53,311.38 673.26,331.55C673.07,345.97 662.37,359.18 649.11,362.32C634.21,365.85 620.05,360.02 613.17,347.45C610.89,343.31 609.68,338.82 609.67,334.09C609.64,312.59 609.45,291.08 609.72,269.59C609.95,250.87 624.17,238.83 640.16,239.55C645.86,239.81 651.48,239.72 656.98,242.78"/>
+                <path fill="currentColor" d="M645.43,555.27C642.53,557.29 644.38,559.31 644.94,561.23C649.06,575.51 648.67,589.48 641.66,602.83C635.03,615.47 623.77,620.50 610.20,619.78C590.39,618.72 580.89,610.52 575.74,591.29C574.84,587.93 573.41,586.66 570.12,588.14C563.81,590.95 556.85,586.51 554.65,581.72C552.00,575.93 553.23,569.16 558.72,565.31C567.47,559.17 577.37,555.11 587.12,550.84C610.72,540.50 634.08,529.63 658.15,520.34C668.72,516.26 678.52,523.91 677.32,533.55C676.62,539.12 673.15,542.35 668.33,544.56C660.78,548.03 653.26,551.58 645.43,555.27"/>
+                <path fill="currentColor" d="M363.93,547.22C360.88,545.79 358.10,544.64 355.50,543.18C349.05,539.54 346.91,532.84 349.90,526.07C352.49,520.22 359.23,517.42 365.84,519.90C399.02,532.34 431.25,546.92 462.96,562.69C470.68,566.53 473.55,571.40 472.66,577.31C471.36,585.97 464.29,590.51 456.05,588.00C454.96,587.67 453.82,587.48 452.72,587.23C451.12,588.87 450.85,590.88 450.38,592.77C445.89,610.83 432.88,620.52 414.30,619.62C393.35,618.60 379.72,604.25 379.67,583.05C379.65,575.10 378.84,567.05 382.19,559.45C383.35,556.82 381.95,555.39 379.72,554.38C374.57,552.04 369.43,549.70 363.93,547.22"/>
+              </svg>
+              Schedule Ninja
+            </div>
+            <div class="status-badge">
+              <div class="status-dot"></div>
+              <span>Google Calendar 연결됨</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="settings-group">
+            <div class="settings-title">
+              <span>⚙️</span>
+              <span>설정</span>
+            </div>
+            
+            <!-- 테마 설정 -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">다크 모드</div>
+                <div class="setting-description">어두운 테마로 변경합니다</div>
+              </div>
+              <div class="toggle-container">
+                <span id="themeLabel" class="toggle-label">라이트</span>
+                <div id="themeToggle" class="toggle-switch">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 출처 정보 설정 -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">출처 정보 표시</div>
+                <div class="setting-description">일정에 페이지 링크와 출처를 자동으로 추가합니다</div>
+              </div>
+              <div class="toggle-container">
+                <span id="sourceLabel" class="toggle-label">끄기</span>
+                <div id="sourceToggle" class="toggle-switch">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 연결 해제 -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Google Calendar 연결 해제</div>
+                <div class="setting-description">Google 계정 연결을 해제합니다</div>
+              </div>
+              <button id="disconnectBtn" class="disconnect-btn">
+                연결 해제
+              </button>
+            </div>
+          </div>
+
+          <!-- 사용법 안내 -->
+          <div class="guide-section">
+            <div class="guide-title">
+              <span>📖</span>
+              <span>사용법</span>
+            </div>
+            <ol class="guide-steps">
+              <li class="guide-step">
+                <div class="step-number">1</div>
+                <div class="step-text">웹페이지에서 일정이 포함된 텍스트를 선택하세요</div>
+              </li>
+              <li class="guide-step">
+                <div class="step-number">2</div>
+                <div class="step-text">우클릭하여 "Create Calendar Event"를 선택하세요</div>
+              </li>
+              <li class="guide-step">
+                <div class="step-number">3</div>
+                <div class="step-text">파싱된 일정을 확인하고 수정하세요</div>
+              </li>
+              <li class="guide-step">
+                <div class="step-number">4</div>
+                <div class="step-text">+ 버튼을 눌러 Google Calendar에 추가하세요</div>
+              </li>
+            </ol>
+          </div>
+        </div>
       </div>
     </div>
   </div>

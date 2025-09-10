@@ -2,8 +2,10 @@
 
 // 전역 변수
 let modalInstance = null;
-let lastParsedData = null;
+let lastParsedData = null; // 이제 배열 형태로 저장
+let pageInfo = null; // 페이지 정보 저장
 let isCreatingEvent = false;
+let creatingEventIndex = -1; // 현재 추가 중인 이벤트 인덱스
 
 // 모달 생성 함수
 function createModal() {
@@ -98,108 +100,128 @@ function displayResult(data) {
   
   if (!resultContent) return;
 
-  lastParsedData = data;
+  // data가 배열인지 확인하고 처리
+  const eventsArray = Array.isArray(data) ? data : [data];
+  lastParsedData = eventsArray;
   
   // 로딩 숨기기
   if (loadingIndicator) loadingIndicator.style.display = 'none';
   
-  // 결과 표시 - 기존 + 버튼 디자인 유지
+  // 결과 표시 - 여러 이벤트를 각각 표시
   resultContent.style.display = 'block';
-  resultContent.innerHTML = `
-    <div id="tk-compact-card" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-radius: 12px 12px 0 0; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); padding: 16px; margin-bottom: 0; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2);">
-      <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-        <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
-          <span style="font-size: 20px;">🗓️</span>
-          <span style="font-weight: bold; font-size: 16px; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${data.summary || '제목 없음'}</span>
+  
+  let eventsHtml = '';
+  eventsArray.forEach((eventData, index) => {
+    eventsHtml += `
+      <div class="event-card" data-event-index="${index}" style="margin-bottom: 12px;">
+        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); padding: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2);">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+              <span style="font-size: 20px;">🗓️</span>
+              <span style="font-weight: bold; font-size: 16px; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${eventData.summary || '제목 없음'}</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; min-width: 0;">
+              <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
+                ${eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || ''}
+              </span>
+              <span style="font-size: 12px; color: #9ca3af;">~</span>
+              <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
+                ${eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || ''}
+              </span>
+              <span style="font-size: 12px; color: #9ca3af;">|</span>
+              <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">${eventData.location || ''}</span>
+            </div>
+          </div>
+          <button id="tk-add-btn-${index}" style="margin-left: 12px; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; flex-shrink: 0;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+          </button>
         </div>
-        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; min-width: 0;">
-          <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
-            ${data.start?.dateTime ? data.start.dateTime.replace('T', ' ').slice(0, 16) : data.start?.date || ''}
-          </span>
-          <span style="font-size: 12px; color: #9ca3af;">~</span>
-          <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
-            ${data.end?.dateTime ? data.end.dateTime.replace('T', ' ').slice(0, 16) : data.end?.date || ''}
-          </span>
-          <span style="font-size: 12px; color: #9ca3af;">|</span>
-          <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">${data.location || ''}</span>
-        </div>
+        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(-10px); overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.3s, transform 0.4s;"></div>
       </div>
-      <button id="tk-add-btn" style="margin-left: 12px; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; flex-shrink: 0;">
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-      </button>
-    </div>
-    <div id="tk-dropdown" style="max-height: 0; opacity: 0; transform: translateY(-10px); overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.3s, transform 0.4s;"></div>
-  `;
-  
-  // 카드 클릭 이벤트 (수정 폼 토글)
-  const card = resultContent.querySelector('#tk-compact-card');
-  const dropdown = resultContent.querySelector('#tk-dropdown');
-  const addBtn = resultContent.querySelector('#tk-add-btn');
-  let dropdownOpen = false;
-  
-  // 카드 호버 효과
-  card.addEventListener('mouseenter', () => {
-    card.style.transform = 'translateY(-2px)';
-    card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)';
+    `;
   });
   
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'translateY(0)';
-    card.style.boxShadow = '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)';
-  });
+  resultContent.innerHTML = eventsHtml;
   
-  card.addEventListener('click', (e) => {
-    if (e.target.closest('#tk-add-btn') || isCreatingEvent) return;
+  // 각 이벤트 카드에 대한 이벤트 리스너 설정
+  eventsArray.forEach((eventData, index) => {
+    const card = resultContent.querySelector(`#tk-compact-card-${index}`);
+    const dropdown = resultContent.querySelector(`#tk-dropdown-${index}`);
+    const addBtn = resultContent.querySelector(`#tk-add-btn-${index}`);
+    let dropdownOpen = false;
     
-    dropdownOpen = !dropdownOpen;
-    if (dropdownOpen) {
-      // 카드 하단 모서리를 직각으로 변경 (연결된 느낌)
-      card.style.borderRadius = '12px 12px 0 0';
-      showDropdownForm(data);
-      dropdown.style.maxHeight = '700px';
-      dropdown.style.opacity = '1';
-      dropdown.style.transform = 'translateY(0)';
-      addBtn.style.display = 'none';
-    } else {
-      // 카드 모서리를 다시 둥글게 변경
-      card.style.borderRadius = '12px';
-      dropdown.style.maxHeight = '0';
-      dropdown.style.opacity = '0';
-      dropdown.style.transform = 'translateY(-10px)';
-      setTimeout(() => { 
-        if (!isCreatingEvent) {
-          dropdown.innerHTML = ''; 
-        }
-      }, 500);
-      // + 버튼을 드롭다운 애니메이션 완료 후에 부드럽게 나타나게 함
-      setTimeout(() => {
-        if (!isCreatingEvent) {
-          addBtn.style.display = 'flex';
-          addBtn.style.opacity = '0';
-          addBtn.style.transition = 'opacity 0.2s ease-out';
-          setTimeout(() => {
-            addBtn.style.opacity = '1';
-          }, 10);
-        }
-      }, 300);
-    }
-  });
-  
-  // + 버튼 클릭 이벤트 (일정 추가)
-  addBtn.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    await handleAddEvent(addBtn);
+    if (!card || !dropdown || !addBtn) return;
+    
+    // 카드 호버 효과
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateY(-2px)';
+      card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'translateY(0)';
+      card.style.boxShadow = '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)';
+    });
+    
+    // 카드 클릭 이벤트 (수정 폼 토글)
+    card.addEventListener('click', async (e) => {
+      if (e.target.closest(`#tk-add-btn-${index}`) || (isCreatingEvent && creatingEventIndex === index)) return;
+      
+      dropdownOpen = !dropdownOpen;
+      if (dropdownOpen) {
+        // 카드 하단 모서리를 직각으로 변경 (연결된 느낌)
+        card.style.borderRadius = '12px 12px 0 0';
+        await showDropdownForm(eventData, index);
+        dropdown.style.maxHeight = '700px';
+        dropdown.style.opacity = '1';
+        dropdown.style.transform = 'translateY(0)';
+        addBtn.style.display = 'none';
+      } else {
+        // 카드 모서리를 다시 둥글게 변경
+        card.style.borderRadius = '12px';
+        dropdown.style.maxHeight = '0';
+        dropdown.style.opacity = '0';
+        dropdown.style.transform = 'translateY(-10px)';
+        setTimeout(() => { 
+          if (!(isCreatingEvent && creatingEventIndex === index)) {
+            dropdown.innerHTML = ''; 
+          }
+        }, 500);
+        // + 버튼을 드롭다운 애니메이션 완료 후에 부드럽게 나타나게 함
+        setTimeout(() => {
+          if (!(isCreatingEvent && creatingEventIndex === index)) {
+            addBtn.style.display = 'flex';
+            addBtn.style.opacity = '0';
+            addBtn.style.transition = 'opacity 0.2s ease-out';
+            setTimeout(() => {
+              addBtn.style.opacity = '1';
+            }, 10);
+          }
+        }, 300);
+      }
+    });
+    
+    // + 버튼 클릭 이벤트 (일정 추가)
+    addBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await handleAddEvent(addBtn, index);
+    });
   });
 }
 
 // 드롭다운 수정 폼 표시
-function showDropdownForm(originData) {
-    if (isCreatingEvent) return;
+async function showDropdownForm(originData, eventIndex) {
+    // 현재 해당 이벤트가 추가 중이 아닌 경우에만 수정 폼 표시
+    if (isCreatingEvent && creatingEventIndex === eventIndex) return;
     
-  const dropdown = modalInstance.querySelector('#tk-dropdown');
+  const dropdown = modalInstance.querySelector(`#tk-dropdown-${eventIndex}`);
   if (!dropdown) return;
+
+  // 설정 확인
+  const settings = await chrome.storage.sync.get(['settings']);
+  const showSourceInfo = settings.settings?.showSourceInfo;
   
   dropdown.innerHTML = `
     <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 20px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none;">
@@ -221,7 +243,7 @@ function showDropdownForm(originData) {
         </div>
       <div style="margin-bottom: 12px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">설명</label>
-        <textarea id="editDescription" rows="2" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
         </div>
       <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,7 +258,7 @@ function showDropdownForm(originData) {
   const saveBtn = dropdown.querySelector('#tk-dropdown-save');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
-      if (isCreatingEvent) return;
+      if (isCreatingEvent && creatingEventIndex === eventIndex) return;
       
       // 폼 데이터로 lastParsedData 업데이트
       const form = dropdown.querySelector('#editForm');
@@ -246,7 +268,8 @@ function showDropdownForm(originData) {
       const endValue = dropdown.querySelector('#editEnd').value;
       const isAllDay = !startValue?.includes('T');
       
-      lastParsedData = {
+      // 해당 인덱스의 이벤트 데이터 업데이트
+      lastParsedData[eventIndex] = {
         ...originData,
         summary: dropdown.querySelector('#editSummary').value,
         start: {
@@ -262,16 +285,17 @@ function showDropdownForm(originData) {
       };
       
       // + 버튼으로 일정 추가 실행
-      const addBtn = modalInstance.querySelector('#tk-add-btn');
-      await handleAddEvent(addBtn);
+      const addBtn = modalInstance.querySelector(`#tk-add-btn-${eventIndex}`);
+      await handleAddEvent(addBtn, eventIndex);
     });
   }
 }
 
 // 일정 추가 처리 함수
-async function handleAddEvent(addBtn) {
+async function handleAddEvent(addBtn, eventIndex) {
   if (isCreatingEvent) return;
   isCreatingEvent = true;
+  creatingEventIndex = eventIndex;
   
   addBtn.innerHTML = `
     <div style="width: 20px; height: 20px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
@@ -279,9 +303,24 @@ async function handleAddEvent(addBtn) {
   addBtn.disabled = true;
   
   try {
+    // 출처 정보를 포함한 이벤트 데이터 생성
+    const eventData = { ...lastParsedData[eventIndex] };
+    
+    // 출처 정보 추가 (설정에 따라)
+    const settings = await chrome.storage.sync.get(['settings']);
+    if (pageInfo && settings.settings?.showSourceInfo) {
+      const sourceText = `🥷 Schedule Ninja snagged\n🌐 ${pageInfo.url}`;
+      
+      if (eventData.description) {
+        eventData.description = `${eventData.description}\n\n---\n${sourceText}`;
+      } else {
+        eventData.description = sourceText;
+      }
+    }
+    
     const response = await chrome.runtime.sendMessage({
       action: 'createCalendarEvent',
-      eventData: lastParsedData,
+      eventData: eventData,
     });
     
     if (response.success) {
@@ -295,9 +334,21 @@ async function handleAddEvent(addBtn) {
       // 성공 메시지 표시
       showToastMessage("일정이 추가되었습니다!", "success");
       
-      setTimeout(() => {
-        closeModal();
-      }, 1500);
+      // 상태 리셋
+      isCreatingEvent = false;
+      creatingEventIndex = -1;
+      
+      // 모든 이벤트가 추가되었는지 확인
+      const allEventsAdded = lastParsedData.every((_, index) => {
+        const btn = modalInstance.querySelector(`#tk-add-btn-${index}`);
+        return btn && btn.style.background === '#10b981';
+      });
+      
+      if (allEventsAdded) {
+        setTimeout(() => {
+          closeModal();
+        }, 1500);
+      }
     } else {
       throw new Error(response.error);
     }
@@ -320,6 +371,7 @@ async function handleAddEvent(addBtn) {
       addBtn.style.background = 'linear-gradient(to right, #E83941, #d32f2f)';
       addBtn.disabled = false;
       isCreatingEvent = false;
+      creatingEventIndex = -1;
     }, 2000);
   }
 }
@@ -411,11 +463,18 @@ function showModal(selectedText) {
   };
   document.addEventListener('keydown', escapeHandler);
 
+  // 페이지 정보 수집 및 저장
+  pageInfo = {
+    title: document.title,
+    url: window.location.href,
+    domain: window.location.hostname
+  };
+
   // 데이터 파싱 요청
   chrome.runtime.sendMessage(
     {
       action: 'parseText',
-      eventData: { selectedText },
+      eventData: { selectedText, pageInfo },
     },
     (response) => {
       if (response?.success) {
@@ -445,5 +504,7 @@ function showModal(selectedText) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'showModal') {
     showModal(request.selectedText);
+  } else if (request.action === 'closeModal') {
+    closeModal();
   }
 });

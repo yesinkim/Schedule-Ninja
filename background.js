@@ -8,35 +8,63 @@ const CONFIG = {
   GROQ_API_KEY: API_SECRETS.GROQ_API_KEY,
   MODEL: 'gemma2-9b-it',
   SYSTEM_PROMPT: `당신은 텍스트에서 일정 정보를 추출하여 Google Calendar API 형식으로 변환하는 어시스턴트입니다.
-시간이 명시되지 않은 경우 하루종일 이벤트로 설정하며, 다음 형식으로만 응답해주세요:
-{
-  "summary": "이벤트 제목",
-  "start": {
-    "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
-    "timeZone": "Asia/Seoul"
-  },
-  "end": {
-    "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
-    "timeZone": "Asia/Seoul"
-  },
-  "location": "장소 (선택사항)",
-  "description": "설명 (선택사항)"
-}
+텍스트에 여러 개의 이벤트가 포함되어 있을 수 있으므로, 항상 배열 형태로 응답해주세요.
 
-또는 시간이 명시된 경우 다음 형식으로 응답:
-{
-  "summary": "이벤트 제목",
-  "start": {
-    "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
-    "timeZone": "Asia/Seoul"
-  },
-  "end": {
-    "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
-    "timeZone": "Asia/Seoul"
+단일 이벤트인 경우:
+[
+  {
+    "summary": "이벤트 제목",
+    "start": {
+      "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+      "timeZone": "Asia/Seoul"
+    },
+    "end": {
+      "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+      "timeZone": "Asia/Seoul"
+    },
+    "location": "장소 (선택사항)",
+    "description": "설명 (선택사항)"
   }
-}`,
+]
+
+시간이 명시된 경우:
+[
+  {
+    "summary": "이벤트 제목",
+    "start": {
+      "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
+      "timeZone": "Asia/Seoul"
+    },
+    "end": {
+      "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
+      "timeZone": "Asia/Seoul"
+    },
+    "location": "장소 (선택사항)",
+    "description": "설명 (선택사항)"
+  }
+]
+
+여러 이벤트인 경우:
+[
+  {
+    "summary": "첫 번째 이벤트 제목",
+    "start": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
+    "end": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
+    "location": "장소1",
+    "description": "설명1"
+  },
+  {
+    "summary": "두 번째 이벤트 제목",
+    "start": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
+    "end": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
+    "location": "장소2",
+    "description": "설명2"
+  }
+]
+
+중요: 항상 배열 형태로 응답하고, 각 이벤트는 독립적으로 완전한 정보를 포함해야 합니다.`,
   TEMPERATURE: 0.7,
-  MAX_TOKENS: 300
+  MAX_TOKENS: 500
 };
 
 //State management
@@ -141,8 +169,21 @@ class ApiService {
             //}
         }
 
-        // 검증 로직...
-        return ApiService.validateEventDataInCreateEvent(eventInfo);
+        // 배열 형태인지 확인하고 검증
+        if (Array.isArray(eventInfo)) {
+          console.log('\n4. 배열 형태의 이벤트들:', eventInfo.length, '개');
+          // 각 이벤트를 개별적으로 검증
+          const validatedEvents = eventInfo.map((event, index) => {
+            console.log(`\n이벤트 ${index + 1} 검증 중:`, event);
+            return ApiService.validateEventDataInCreateEvent(event);
+          });
+          return validatedEvents;
+        } else {
+          // 단일 이벤트인 경우 배열로 감싸서 반환
+          console.log('\n4. 단일 이벤트를 배열로 변환');
+          const validatedEvent = ApiService.validateEventDataInCreateEvent(eventInfo);
+          return [validatedEvent];
+        }
 
     } catch (error) {
         console.error('응답 처리 중 에러:', error);
@@ -210,9 +251,6 @@ class ApiService {
 class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
-      // eventData 검증
-      ApiService.validateEventDataInCreateEvent(eventData);
-
       // Google Calendar API 호출
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
@@ -284,6 +322,8 @@ class MessageHandler {
         
       case 'createCalendarEvent':
         try {
+          // 단일 이벤트 데이터 검증
+          ApiService.validateEventDataInCreateEvent(request.eventData);
           const eventCreated = await CalendarService.createCalendarEvent(request.eventData);
           sendResponse({
             success: true,
@@ -295,6 +335,18 @@ class MessageHandler {
             error: error.message
           });
         }
+        break;
+        
+      case 'closeModal':
+        // 모든 탭에서 모달 닫기 메시지 전송
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, { action: 'closeModal' }).catch(() => {
+              // 에러 무시 (content script가 없는 탭)
+            });
+          });
+        });
+        sendResponse({ success: true });
         break;
         
       default:
