@@ -4,65 +4,87 @@
   <title>Schedule Ninja Settings</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-sizing: border-box;
     }
     
     body {
-      background: #313B43;
+      background: linear-gradient(135deg, #313B43 0%, #2c3e50 100%);
       margin: 0;
       padding: 0;
       min-height: 100vh;
+      overflow-x: hidden;
+      border-radius: 16px;
     }
     
     .container {
-      padding: 0;
+      padding: 20px;
       min-width: 400px;
-      max-width: 500px;
-      height: 100vh;
+      max-width: 450px;
+      min-height: 600px;
+      height: auto;
       display: flex;
       flex-direction: column;
+      border-radius: 20px;
+      overflow: hidden;
     }
     
     .main-card {
       background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(25px);
       border-radius: 24px;
-      margin: 20px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      box-shadow: 
+        0 32px 64px rgba(0, 0, 0, 0.2),
+        0 16px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
     
     .header {
-      background: #E83941;
+      background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
       color: #e7e7e9;
       padding: 24px;
-      border-radius: 24px 24px 0 0;
       text-align: center;
       position: relative;
       overflow: hidden;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 
+        0 8px 16px rgba(232, 57, 65, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
     .header::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: shimmer 3s ease-in-out infinite;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+      animation: shimmer 4s ease-in-out infinite;
     }
     
     @keyframes shimmer {
-      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
-      50% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
     }
     
     .header-content {
@@ -71,26 +93,46 @@
     }
     
     .logo {
-      font-size: 32px;
-      margin-bottom: 8px;
+      font-size: 24px;
+      margin-bottom: 6px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     
     .subtitle {
       opacity: 0.9;
       font-weight: 400;
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.4;
     }
     
     .content-area {
       flex: 1;
-      padding: 24px;
+      padding: 20px;
       overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,0,0,0.2) transparent;
+    }
+    
+    .content-area::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .content-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .content-area::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 2px;
     }
     
     .login-section {
       text-align: center;
-      padding: 40px 0;
+      padding: 30px 0;
     }
     
     .settings-section {
@@ -98,32 +140,37 @@
     }
     
     .google-btn {
-      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-      border: none;
-      border-radius: 12px;
-      padding: 16px 24px;
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #3c4043;
+      font-weight: 500;
+      font-size: 14px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
       margin: 0 auto;
       min-width: 200px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Google Sans', 'Inter', sans-serif;
     }
     
     .google-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      border-color: #c4c7c5;
     }
     
     .google-btn:active {
-      transform: translateY(0);
+      background: #f8f9fa;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
+    
     
     .google-btn.is-loading {
       opacity: 0.7;
@@ -133,43 +180,61 @@
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(76, 175, 80, 0.1);
+      gap: 6px;
+      background: rgba(76, 175, 80, 0.15);
       color: #4CAF50;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
       font-weight: 500;
-      margin-top: 12px;
+      margin-top: 8px;
+      border: 1px solid rgba(76, 175, 80, 0.2);
     }
     
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #4CAF50;
       animation: pulse 2s infinite;
     }
     
     @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
     }
     
     .settings-group {
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
       padding: 20px;
       margin-bottom: 16px;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(15px);
+      box-shadow: 
+        0 8px 24px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .settings-group::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
     }
     
     .settings-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
       color: #2c3e50;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -179,8 +244,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     }
     
     .setting-item:last-child {
@@ -189,43 +254,46 @@
     
     .setting-info {
       flex: 1;
+      margin-right: 12px;
     }
     
     .setting-label {
       font-weight: 600;
       color: #2c3e50;
-      font-size: 15px;
-      margin-bottom: 4px;
+      font-size: 14px;
+      margin-bottom: 3px;
+      line-height: 1.3;
     }
     
     .setting-description {
-      font-size: 13px;
+      font-size: 12px;
       color: #7f8c8d;
       line-height: 1.4;
+      word-wrap: break-word;
     }
     
     .toggle-container {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     
     .toggle-label {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 500;
       color: #7f8c8d;
-      min-width: 40px;
+      min-width: 35px;
       text-align: right;
     }
     
     .toggle-switch {
       position: relative;
-      width: 52px;
-      height: 28px;
+      width: 48px;
+      height: 26px;
       background: #e0e0e0;
-      border-radius: 14px;
+      border-radius: 13px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 2px solid transparent;
     }
     
@@ -238,48 +306,65 @@
       position: absolute;
       top: 2px;
       left: 2px;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       background: white;
       border-radius: 50%;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
     
     .toggle-switch.active .toggle-slider {
-      transform: translateX(24px);
+      transform: translateX(22px);
     }
     
     .disconnect-btn {
       background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
       border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
+      border-radius: 12px;
+      padding: 8px 16px;
       color: white;
       font-weight: 500;
-      font-size: 14px;
+      font-size: 12px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 3px 12px rgba(255, 107, 107, 0.25);
     }
     
     .disconnect-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.35);
     }
     
     .guide-section {
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
       padding: 20px;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(15px);
+      box-shadow: 
+        0 8px 24px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .guide-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
     }
     
     .guide-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
       color: #2c3e50;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -294,9 +379,9 @@
     .guide-step {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     }
     
     .guide-step:last-child {
@@ -305,22 +390,23 @@
     
     .step-number {
       background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
-      color: white;
-      width: 24px;
-      height: 24px;
+      color: #e7e7e9;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       flex-shrink: 0;
     }
     
     .step-text {
       color: #2c3e50;
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13px;
+      line-height: 1.4;
+      word-wrap: break-word;
     }
     
     .notification {
@@ -387,17 +473,17 @@
         <div class="content-area">
           <div class="settings-group">
             <div class="content has-text-centered">
-              <p class="mb-4" style="color: #7f8c8d; line-height: 1.6;">
-                Google Calendar에 연결하면 텍스트에서 일정을 자동으로 파싱하여 캘린더에 추가할 수 있습니다.
+              <p class="mb-4" style="color: #7f8c8d; line-height: 1.5; font-size: 13px;">
+                텍스트에서 일정을 자동으로 파싱하여<br>Google Calendar에 추가할 수 있습니다.
               </p>
               <button id="googleLoginBtn" class="google-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" style="display: block;">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                <span>Google로 로그인</span>
+                <span>Sign in with Google</span>
               </button>
             </div>
           </div>
@@ -450,7 +536,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label">출처 정보 표시</div>
-                <div class="setting-description">일정에 페이지 링크와 출처를 자동으로 추가합니다</div>
+                <div class="setting-description">일정에 페이지 링크와 출처를<br>자동으로 추가합니다</div>
               </div>
               <div class="toggle-container">
                 <span id="sourceLabel" class="toggle-label">끄기</span>
@@ -481,19 +567,19 @@
             <ol class="guide-steps">
               <li class="guide-step">
                 <div class="step-number">1</div>
-                <div class="step-text">웹페이지에서 일정이 포함된 텍스트를 선택하세요</div>
+                <div class="step-text">웹페이지에서 일정이 포함된<br>텍스트를 선택하세요</div>
               </li>
               <li class="guide-step">
                 <div class="step-number">2</div>
-                <div class="step-text">우클릭하여 "Create Calendar Event"를 선택하세요</div>
+                <div class="step-text">우클릭하여 "Create Calendar Event"를<br>선택하세요</div>
               </li>
               <li class="guide-step">
                 <div class="step-number">3</div>
-                <div class="step-text">파싱된 일정을 확인하고 수정하세요</div>
+                <div class="step-text">파싱된 일정을 확인하고<br>수정하세요</div>
               </li>
               <li class="guide-step">
                 <div class="step-number">4</div>
-                <div class="step-text">+ 버튼을 눌러 Google Calendar에 추가하세요</div>
+                <div class="step-text">+ 버튼을 눌러 Google Calendar에<br>추가하세요</div>
               </li>
             </ol>
           </div>

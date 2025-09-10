@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('popup.js 로드됨');
+  
   // DOM 요소들
   const loginSection = document.getElementById('loginSection');
   const settingsSection = document.getElementById('settingsSection');
@@ -9,6 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const sourceToggle = document.getElementById('sourceToggle');
   const sourceLabel = document.getElementById('sourceLabel');
   const loginStatus = document.getElementById('loginStatus');
+  
+  console.log('DOM 요소들:', {
+    loginSection,
+    settingsSection,
+    googleLoginBtn,
+    disconnectBtn,
+    themeToggle,
+    sourceToggle
+  });
 
   // 설정 상태
   let settings = {
@@ -20,13 +31,39 @@ document.addEventListener('DOMContentLoaded', function() {
   // 설정 로드
   async function loadSettings() {
     try {
+      console.log('설정 로드 시작');
       const result = await chrome.storage.sync.get(['settings', 'isLoggedIn']);
+      console.log('저장된 설정:', result);
+      
       if (result.settings) {
         settings = { ...settings, ...result.settings };
       }
       if (result.isLoggedIn !== undefined) {
         settings.isLoggedIn = result.isLoggedIn;
       }
+      
+      // 실제 Google 인증 상태 확인
+      try {
+        console.log('Google 인증 상태 확인 중...');
+        const authResult = await chrome.identity.getAuthToken({ interactive: false });
+        console.log('인증 결과:', authResult);
+        
+        if (authResult && authResult.token) {
+          console.log('토큰 발견 - 로그인 상태로 설정');
+          settings.isLoggedIn = true;
+          await saveSettings();
+        } else {
+          console.log('토큰 없음 - 비로그인 상태로 설정');
+          settings.isLoggedIn = false;
+          await saveSettings();
+        }
+      } catch (authError) {
+        console.log('인증 상태 확인 실패:', authError);
+        settings.isLoggedIn = false;
+        await saveSettings();
+      }
+      
+      console.log('최종 설정:', settings);
       updateUI();
     } catch (error) {
       console.error('설정 로드 실패:', error);
@@ -50,57 +87,71 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // UI 업데이트
   function updateUI() {
+    console.log('UI 업데이트 중, 로그인 상태:', settings.isLoggedIn);
+    
     // 로그인 상태에 따른 섹션 표시
     if (settings.isLoggedIn) {
-      loginSection.style.display = 'none';
-      settingsSection.style.display = 'block';
+      console.log('로그인된 상태 - 설정 화면 표시');
+      if (loginSection) loginSection.style.display = 'none';
+      if (settingsSection) settingsSection.style.display = 'block';
     } else {
-      loginSection.style.display = 'block';
-      settingsSection.style.display = 'none';
+      console.log('비로그인 상태 - 로그인 화면 표시');
+      if (loginSection) loginSection.style.display = 'block';
+      if (settingsSection) settingsSection.style.display = 'none';
     }
 
     // 테마 토글 상태
-    if (settings.isDarkMode) {
-      themeToggle.classList.add('active');
-      themeLabel.textContent = '다크';
-      document.body.classList.add('is-dark');
-    } else {
-      themeToggle.classList.remove('active');
-      themeLabel.textContent = '라이트';
-      document.body.classList.remove('is-dark');
+    if (themeToggle && themeLabel) {
+      if (settings.isDarkMode) {
+        themeToggle.classList.add('active');
+        themeLabel.textContent = '다크';
+        document.body.classList.add('is-dark');
+      } else {
+        themeToggle.classList.remove('active');
+        themeLabel.textContent = '라이트';
+        document.body.classList.remove('is-dark');
+      }
     }
 
     // 출처 정보 토글 상태
-    if (settings.showSourceInfo) {
-      sourceToggle.classList.add('active');
-      sourceLabel.textContent = '켜기';
-    } else {
-      sourceToggle.classList.remove('active');
-      sourceLabel.textContent = '끄기';
+    if (sourceToggle && sourceLabel) {
+      if (settings.showSourceInfo) {
+        sourceToggle.classList.add('active');
+        sourceLabel.textContent = '켜기';
+      } else {
+        sourceToggle.classList.remove('active');
+        sourceLabel.textContent = '끄기';
+      }
     }
   }
 
   // Google 로그인
   async function handleGoogleLogin() {
     try {
-      googleLoginBtn.classList.add('is-loading');
+      if (googleLoginBtn) {
+        googleLoginBtn.classList.add('is-loading');
+      }
       
       // Google Calendar API 토큰 요청
-      const auth = await chrome.identity.getAuthToken({ interactive: true });
+      const authResult = await chrome.identity.getAuthToken({ interactive: true });
       
-      if (auth && auth.token) {
+      if (authResult && authResult.token) {
         settings.isLoggedIn = true;
         await saveSettings();
         updateUI();
         
         // 성공 메시지
         showNotification('Google Calendar 연결이 완료되었습니다!', 'success');
+      } else {
+        throw new Error('토큰을 받지 못했습니다');
       }
     } catch (error) {
       console.error('Google 로그인 실패:', error);
       showNotification('Google 로그인에 실패했습니다.', 'error');
     } finally {
-      googleLoginBtn.classList.remove('is-loading');
+      if (googleLoginBtn) {
+        googleLoginBtn.classList.remove('is-loading');
+      }
     }
   }
 
@@ -108,9 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
   async function handleDisconnect() {
     try {
       // 토큰 제거
-      const result = await chrome.identity.getAuthToken({ interactive: false });
-      if (result && result.token) {
-        await chrome.identity.removeCachedAuthToken({ token: result.token });
+      const authResult = await chrome.identity.getAuthToken({ interactive: false });
+      if (authResult && authResult.token) {
+        await chrome.identity.removeCachedAuthToken({ token: authResult.token });
       }
       
       settings.isLoggedIn = false;
@@ -157,11 +208,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
   }
 
-  // 이벤트 리스너
-  googleLoginBtn.addEventListener('click', handleGoogleLogin);
-  disconnectBtn.addEventListener('click', handleDisconnect);
-  themeToggle.addEventListener('click', toggleTheme);
-  sourceToggle.addEventListener('click', toggleSourceInfo);
+  // 이벤트 리스너 (요소가 존재할 때만 추가)
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', handleGoogleLogin);
+  }
+  if (disconnectBtn) {
+    disconnectBtn.addEventListener('click', handleDisconnect);
+  }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+  if (sourceToggle) {
+    sourceToggle.addEventListener('click', toggleSourceInfo);
+  }
 
   // 초기 설정 로드
   loadSettings();
