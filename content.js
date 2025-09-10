@@ -31,7 +31,7 @@ function createModal() {
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); pointer-events: auto;" id="modal-backdrop"></div>
     <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: white; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); pointer-events: auto;" id="modal-content">
       <div style="background: linear-gradient(to right, #2563eb, #4f46e5); padding: 12px; color: white; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: bold; font-size: 16px;">TimeKeeper</span>
+        <span style="font-weight: bold; font-size: 16px;">Schedule Ninja</span>
         <button id="modal-close" style="width: 28px; height: 28px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -203,11 +203,11 @@ function showDropdownForm(originData) {
       <div style="margin-bottom: 8px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">장소</label>
         <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: white; border: 1px solid #60a5fa; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s;" placeholder="장소를 입력하세요" />
-      </div>
+        </div>
       <div style="margin-bottom: 12px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">설명</label>
         <textarea id="editDescription" rows="2" style="width: 100%; padding: 8px; background: white; border: 1px solid #60a5fa; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
-      </div>
+        </div>
       <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #2563eb, #4f46e5); color: white; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -417,7 +417,7 @@ function showModal(selectedText) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
                 <span style="color: #991b1b; font-weight: 500; font-size: 14px;">분석 실패: ${response?.error || '알 수 없는 오류'}</span>
-              </div>
+            </div>
           </div>
         `;
         }
