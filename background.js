@@ -93,6 +93,15 @@ class ApiService {
     }
   }
 
+  // JSON 파싱 가능 여부 확인 함수
+  static isJsonString(str) {
+      try {
+          JSON.parse(str);
+      } catch (e) {
+          return false;
+      }
+      return true;
+  }
   //응답에서 달력에 맞는 형식들 뽑아내기
   static processApiResponse(data) {
     try {
@@ -125,27 +134,15 @@ class ApiService {
             eventInfo = JSON.parse(jsonContent);
             console.log('\n3. JSON 파싱 성공:', JSON.stringify(eventInfo, null, 2));
         } catch (error) {
-            console.error('\n❌ JSON 파싱 실패!');
-            console.error('파싱하려던 텍스트:', rawContent);
-            console.error('에러:', error);
-            
-            // 다른 형식의 JSON 추출 시도
-            const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                try {
-                    console.log('\n대체 JSON 추출 시도...');
-                    eventInfo = JSON.parse(jsonMatch[0]);
-                    console.log('대체 파싱 성공:', JSON.stringify(eventInfo, null, 2));
-                } catch (e) {
-                    throw new Error('JSON 파싱 실패: ' + error.message);
-                }
-            } else {
-                throw new Error('JSON 파싱 실패: ' + error.message);
-            }
+
+            throw new Error('JSON 파싱에 실패했습니다. 응답 형식을 확인해주세요.');
+            //if (!this.isJsonString(rawContent)) {
+            //    throw new Error('JSON 파싱에 실패했습니다. 응답 형식이 JSON이 아닙니다.');
+            //}
         }
 
         // 검증 로직...
-        return this.validateEventData(eventInfo);
+        return ApiService.validateEventDataInCreateEvent(eventInfo);
 
     } catch (error) {
         console.error('응답 처리 중 에러:', error);
@@ -153,7 +150,7 @@ class ApiService {
     }
   }
 
-  static validateEventData(eventInfo) {
+  static validateEventDataInCreateEvent(eventInfo) {
     console.log('\n=== 이벤트 데이터 검증 시작 ===');
     try {
         // 1. 제목 검증
@@ -213,6 +210,9 @@ class ApiService {
 class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
+      // eventData 검증
+      ApiService.validateEventDataInCreateEvent(eventData);
+
       // Google Calendar API 호출
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
@@ -224,7 +224,9 @@ class CalendarService {
       });
 
       if (!response.ok) {
-        throw new Error(`Calendar API 에러: ${response.status}`);
+        const error = new Error(`Calendar API 에러: ${response.status}`);
+        error.data = JSON.stringify(await response.json());
+        throw error;
       }
 
       const result = await response.json();
@@ -241,7 +243,7 @@ class CalendarService {
       const auth = await chrome.identity.getAuthToken({ interactive: true });
       return auth.token;
     } catch (error) {
-      throw new Error('인증 실패: ' + error.message);
+      throw error;
     }
   }
 }
@@ -259,18 +261,15 @@ class MessageHandler {
         });
         break;
         
-      case 'parseText': //popup.js - parsetext : llm을 통해 parse text
+      case 'parseText': //텍스트 파싱만 수행, 캘린더 추가는 별도 액션에서
         try {
           state.processingStatus = true;
           //Api Service를 통해 처리된 데이터를 받음
           const parsedData = await ApiService.parseTextWithLLM(request.eventData, request.apiKey);
-          // Calendar Service로 전달
-          //const eventCreated = await CalendarService.createCalendarEvent(parsedData);
           
           sendResponse({
             success: true,
             eventData: parsedData,
-            //created: eventCreated
           });
         } catch (error) {
           state.lastError = error.message;
@@ -307,11 +306,14 @@ class MessageHandler {
   }
 }
 
-// Context Menu Setup
-chrome.contextMenus.create({
-  id: "createEvent",
-  title: "Create Calendar Event",
-  contexts: ["selection"]
+// Extension installed event
+chrome.runtime.onInstalled.addListener(() => {
+  // Context Menu Setup
+  chrome.contextMenus.create({
+    id: "createEvent",
+    title: "Create Calendar Event",
+    contexts: ["selection"]
+  });
 });
 
 // Event Listeners
@@ -319,7 +321,11 @@ chrome.contextMenus.create({
 //오른쪽 클릭시
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "createEvent") {
-    state.selectedText = info.selectionText;
+    // 선택된 텍스트를 content script로 전송
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'showModal',
+      selectedText: info.selectionText
+    });
   }
 });
 
