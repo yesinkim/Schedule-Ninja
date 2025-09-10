@@ -261,17 +261,15 @@ class MessageHandler {
         });
         break;
         
-      case 'parseText': //popup.js - parsetext : llm을 통해 parse text
+      case 'parseText': //텍스트 파싱만 수행, 캘린더 추가는 별도 액션에서
         try {
           state.processingStatus = true;
           //Api Service를 통해 처리된 데이터를 받음
           const parsedData = await ApiService.parseTextWithLLM(request.eventData, request.apiKey);
-          const eventCreated = await CalendarService.createCalendarEvent(parsedData);
           
           sendResponse({
             success: true,
             eventData: parsedData,
-            eventCreated: eventCreated,
           });
         } catch (error) {
           state.lastError = error.message;
