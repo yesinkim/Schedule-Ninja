@@ -203,20 +203,61 @@ class ApiService {
         // 2. 날짜/시간 형식 검증
         const isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
         const isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
+        const hasOnlyStartTime = !!(eventInfo.start?.dateTime && !eventInfo.end?.dateTime);
+        
         console.log('2. 이벤트 타입:', {
             isAllDayEvent,
             isTimeSpecificEvent,
+            hasOnlyStartTime,
             start: eventInfo.start,
             end: eventInfo.end
         });
 
-        if (!isAllDayEvent && !isTimeSpecificEvent) {
+        // 시작 시간만 있고 종료 시간이 없는 경우 1시간짜리 이벤트로 설정
+        if (hasOnlyStartTime) {
+            console.log('3. 시작 시간만 있는 경우 - 1시간짜리 이벤트로 자동 설정');
+            const startDateTime = new Date(eventInfo.start.dateTime);
+            
+            if (isNaN(startDateTime.getTime())) {
+                throw new Error('유효하지 않은 시작 시간 형식입니다.');
+            }
+            
+            // 시작 시간에서 1시간 후를 종료 시간으로 설정
+            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1시간 = 60분 * 60초 * 1000ms
+            
+            // 시작 시간의 시간대 정보를 유지하여 종료 시간 설정
+            const startDateTimeStr = eventInfo.start.dateTime;
+            
+            // 시간대 오프셋 추출 (정규식 사용)
+            let timezoneOffset = '+09:00'; // 기본값
+            const timezoneMatch = startDateTimeStr.match(/([+-]\d{2}:\d{2}|Z)$/);
+            if (timezoneMatch) {
+                timezoneOffset = timezoneMatch[1] === 'Z' ? '+00:00' : timezoneMatch[1];
+            }
+            
+            // 종료 시간을 시작 시간과 동일한 시간대 형식으로 설정
+            const endDateTimeStr = endDateTime.toISOString().replace('Z', timezoneOffset);
+            
+            eventInfo.end = {
+                dateTime: endDateTimeStr,
+                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
+            };
+            
+            console.log('   시작 시간:', startDateTimeStr);
+            console.log('   추출된 시간대 오프셋:', timezoneOffset);
+            console.log('   자동 설정된 종료 시간:', endDateTimeStr);
+            
+            // 이제 시간 특정 이벤트가 됨
+            const isTimeSpecificEventAfterFix = true;
+        }
+
+        if (!isAllDayEvent && !isTimeSpecificEvent && !hasOnlyStartTime) {
             throw new Error('시작 및 종료 날짜/시간 형식이 올바르지 않습니다.');
         }
 
-        // 3. 하루종일 이벤트 처리
+        // 4. 하루종일 이벤트 처리
         if (isAllDayEvent) {
-            console.log('3. 하루종일 이벤트 검증');
+            console.log('4. 하루종일 이벤트 검증');
             const startDate = new Date(eventInfo.start.date);
             const endDate = new Date(eventInfo.end.date);
             
