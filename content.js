@@ -224,28 +224,28 @@ async function showDropdownForm(originData, eventIndex) {
   const showSourceInfo = settings.settings?.showSourceInfo;
   
   dropdown.innerHTML = `
-    <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 20px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none;">
+    <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 20px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none; text-align: left;">
       <div style="margin-bottom: 8px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">제목</label>
-        <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left;" placeholder="제목을 입력하세요" />
+        <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="제목을 입력하세요" />
           </div>
       <div style="margin-bottom: 8px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">시작</label>
-        <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left;" />
+        <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
       </div>
       <div style="margin-bottom: 8px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">종료</label>
-        <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left;" />
+        <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
       </div>
       <div style="margin-bottom: 8px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">장소</label>
-        <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left;" placeholder="장소를 입력하세요" />
+        <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="장소를 입력하세요" />
         </div>
       <div style="margin-bottom: 12px;">
         <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">설명</label>
-        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
         </div>
-      <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+      <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1);">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -259,6 +259,29 @@ async function showDropdownForm(originData, eventIndex) {
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       if (isCreatingEvent && creatingEventIndex === eventIndex) return;
+      
+      // 저장 버튼 애니메이션 시작
+      saveBtn.style.transform = 'scale(0.95)';
+      saveBtn.style.transition = 'all 0.1s ease-out';
+      
+      setTimeout(() => {
+        saveBtn.style.transform = 'scale(1)';
+      }, 100);
+      
+      // 호버 효과 추가
+      saveBtn.addEventListener('mouseenter', () => {
+        if (!saveBtn.classList.contains('completed')) {
+          saveBtn.style.transform = 'scale(1.02)';
+          saveBtn.style.boxShadow = '0 4px 12px rgba(232, 57, 65, 0.3)';
+        }
+      });
+      
+      saveBtn.addEventListener('mouseleave', () => {
+        if (!saveBtn.classList.contains('completed')) {
+          saveBtn.style.transform = 'scale(1)';
+          saveBtn.style.boxShadow = 'none';
+        }
+      });
       
       // 폼 데이터로 lastParsedData 업데이트
       const form = dropdown.querySelector('#editForm');
@@ -284,15 +307,95 @@ async function showDropdownForm(originData, eventIndex) {
         description: dropdown.querySelector('#editDescription').value,
       };
       
+      // 저장 버튼을 로딩 상태로 변경
+      updateSaveButtonState(saveBtn, 'loading');
+      
       // + 버튼으로 일정 추가 실행
       const addBtn = modalInstance.querySelector(`#tk-add-btn-${eventIndex}`);
-      await handleAddEvent(addBtn, eventIndex);
+      await handleAddEvent(addBtn, eventIndex, saveBtn);
     });
   }
 }
 
+// 저장 버튼 상태 변경 함수
+function updateSaveButtonState(saveBtn, state) {
+  if (!saveBtn) return;
+  
+  switch (state) {
+    case 'loading':
+      saveBtn.innerHTML = `
+        <div style="width: 16px; height: 16px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <span>저장 중...</span>
+      `;
+      saveBtn.style.background = '#6b7280';
+      saveBtn.disabled = true;
+      break;
+      
+    case 'success':
+      saveBtn.innerHTML = `
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>저장 완료!</span>
+      `;
+      saveBtn.style.background = 'linear-gradient(to right, #065f46, #047857)';
+      saveBtn.classList.add('completed');
+      
+      // 완료 애니메이션: 확대 + 펄스 효과
+      saveBtn.style.transform = 'scale(1.1)';
+      saveBtn.style.boxShadow = '0 8px 20px rgba(6, 95, 70, 0.5)';
+      
+      setTimeout(() => {
+        saveBtn.style.transform = 'scale(1)';
+        saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.4)';
+      }, 300);
+      
+      // 펄스 효과
+      let pulseCount = 0;
+      const pulseInterval = setInterval(() => {
+        if (pulseCount >= 3) {
+          clearInterval(pulseInterval);
+          return;
+        }
+        
+        saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.7)';
+        setTimeout(() => {
+          saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.4)';
+        }, 200);
+        
+        pulseCount++;
+      }, 600);
+      
+      break;
+      
+    case 'error':
+      saveBtn.innerHTML = `
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span>다시 시도</span>
+      `;
+      saveBtn.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+      saveBtn.disabled = false;
+      break;
+      
+    default:
+      // 기본 상태로 복원
+      saveBtn.innerHTML = `
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <span>일정 저장</span>
+      `;
+      saveBtn.style.background = 'linear-gradient(to right, #E83941, #d32f2f)';
+      saveBtn.disabled = false;
+      saveBtn.classList.remove('completed');
+      break;
+  }
+}
+
 // 일정 추가 처리 함수
-async function handleAddEvent(addBtn, eventIndex) {
+async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   if (isCreatingEvent) return;
   isCreatingEvent = true;
   creatingEventIndex = eventIndex;
@@ -331,8 +434,10 @@ async function handleAddEvent(addBtn, eventIndex) {
       `;
       addBtn.style.background = '#10b981';
       
-      // 성공 메시지 표시
-      showToastMessage("일정이 추가되었습니다!", "success");
+      // 저장 버튼 상태를 성공으로 업데이트
+      if (saveBtn) {
+        updateSaveButtonState(saveBtn, 'success');
+      }
       
       // 상태 리셋
       isCreatingEvent = false;
@@ -360,7 +465,10 @@ async function handleAddEvent(addBtn, eventIndex) {
     `;
     addBtn.style.background = '#ef4444';
     
-    showToastMessage("일정 추가 실패: " + error.message, "error");
+    // 저장 버튼 상태를 에러로 업데이트
+    if (saveBtn) {
+      updateSaveButtonState(saveBtn, 'error');
+    }
     
     setTimeout(() => {
       addBtn.innerHTML = `
@@ -370,6 +478,12 @@ async function handleAddEvent(addBtn, eventIndex) {
       `;
       addBtn.style.background = 'linear-gradient(to right, #E83941, #d32f2f)';
       addBtn.disabled = false;
+      
+      // 저장 버튼도 기본 상태로 복원
+      if (saveBtn) {
+        updateSaveButtonState(saveBtn, 'default');
+      }
+      
       isCreatingEvent = false;
       creatingEventIndex = -1;
     }, 2000);

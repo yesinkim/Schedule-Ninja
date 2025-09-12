@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Schedule Ninja",
   "version": "1.1",
-  "description": "Parse your text! Add to Calendar!",
+  "description": "Don't miss a beat. We got your back.",
   "permissions": [
     "activeTab",
     "storage",
