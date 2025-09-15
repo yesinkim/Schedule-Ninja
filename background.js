@@ -236,19 +236,20 @@ class ApiService {
             }
             
             // 종료 시간을 시작 시간과 동일한 시간대 형식으로 설정
-            const endDateTimeStr = endDateTime.toISOString().replace('Z', timezoneOffset);
+            // ISO 문자열에서 시간대 부분만 교체하여 올바른 로컬 시간 유지
+            const endDateTimeStr = endDateTime.toISOString().replace(/Z$/, timezoneOffset);
             
             eventInfo.end = {
                 dateTime: endDateTimeStr,
-                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
+                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'   // TODO: 로컬 시간대로 변경 필요
             };
             
             console.log('   시작 시간:', startDateTimeStr);
             console.log('   추출된 시간대 오프셋:', timezoneOffset);
             console.log('   자동 설정된 종료 시간:', endDateTimeStr);
             
-            // 이제 시간 특정 이벤트가 됨
-            const isTimeSpecificEventAfterFix = true;
+            // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
+            isTimeSpecificEvent = true;
         }
 
         if (!isAllDayEvent && !isTimeSpecificEvent && !hasOnlyStartTime) {
