@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # Project Overview
 
 This project is **Schedule Ninja**, a Chrome extension that intelligently parses text content and automatically creates Google Calendar events. It uses AI (Groq API) to extract scheduling information from any webpage text and seamlessly integrates with Google Calendar API.
@@ -29,13 +33,8 @@ This project is **Schedule Ninja**, a Chrome extension that intelligently parses
 - **Inline CSS**: Custom styling for modal components
 - **Google Calendar API**: Event creation and management
 
-### Backend (Optional Server)
-- **FastAPI**: Python web framework for API endpoints
-- **Groq API**: AI text parsing and event extraction
-- **Pydantic**: Data validation and serialization
-
 ### APIs and Services
-- **Groq API**: AI-powered text analysis (gemma2-9b-it model)
+- **Chrome LanguageModel API**: Built-in Gemini Nano model for text processing (Chrome 138+)
 - **Google Calendar API**: Calendar event management
 - **OAuth2**: Google authentication flow
 
