@@ -1,226 +1,242 @@
+// Schedule Ninja Popup Script
 document.addEventListener('DOMContentLoaded', function() {
-  // DOM 요소들을 미리 참조
-  const resultDiv = document.getElementById('parseResult');
-  const contentDiv = document.getElementById('resultContent');
-  const loadingIndicator = document.getElementById('loadingIndicator');
-  const confirmEventBtn = document.getElementById('confirmEventBtn');
-
-  // 안전한 HTML 이스케이프 함수
-  function escapeHtml(unsafe) {
-      return unsafe
-          ? unsafe.replace(/[&<>"']/g, char => ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              '"': '&quot;',
-              "'": '&#039;'
-          })[char])
-          : '';
+  // DOM 요소들
+  const loginSection = document.getElementById('loginSection');
+  const settingsSection = document.getElementById('settingsSection');
+  const loginBtn = document.getElementById('loginBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const backBtn = document.getElementById('backBtn');
+  
+  // 설정 토글들
+  const sourceToggle = document.getElementById('sourceToggle');
+  const sourceLabel = document.getElementById('sourceLabel');
+  const autoDetectToggle = document.getElementById('autoDetectToggle');
+  const autoDetectLabel = document.getElementById('autoDetectLabel');
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const darkModeLabel = document.getElementById('darkModeLabel');
+  
+  // 셀렉트 박스들
+  const languageSelect = document.getElementById('languageSelect');
+  const timezoneSelect = document.getElementById('timezoneSelect');
+  
+  // 연결 해제 버튼
+  const disconnectBtn = document.getElementById('disconnectBtn');
+  
+  // 초기화
+  init();
+  
+  function init() {
+    // 이벤트 리스너 설정
+    setupEventListeners();
+    
+    // 설정 로드
+    loadSettings();
+    
+    // 로그인 상태 확인
+    checkLoginStatus();
   }
-
-  // 로딩 상태 표시 함수
-  function showLoading() {
-      if (resultDiv && loadingIndicator) {
-          resultDiv.classList.remove('is-hidden');
-          loadingIndicator.classList.remove('is-hidden');
-          if (contentDiv) {
-              contentDiv.classList.add('is-hidden');
-          }
-      }
+  
+  function setupEventListeners() {
+    // 네비게이션 버튼들
+    if (loginBtn) loginBtn.addEventListener('click', showLoginSection);
+    if (settingsBtn) settingsBtn.addEventListener('click', showSettingsSection);
+    if (backBtn) backBtn.addEventListener('click', showLoginSection);
+    
+    // 설정 토글들
+    if (sourceToggle) sourceToggle.addEventListener('click', toggleSourceInfo);
+    if (autoDetectToggle) autoDetectToggle.addEventListener('click', toggleAutoDetect);
+    if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
+    
+    // 셀렉트 박스들
+    if (languageSelect) languageSelect.addEventListener('change', updateLanguage);
+    if (timezoneSelect) timezoneSelect.addEventListener('change', updateTimezone);
+    
+    // 연결 해제 버튼
+    if (disconnectBtn) disconnectBtn.addEventListener('click', disconnectGoogle);
   }
-
-  // 로딩 상태 숨기기 함수
-  function hideLoading() {
-      if (loadingIndicator) {
-          loadingIndicator.classList.add('is-hidden');
-      }
-      if (contentDiv) {
-          contentDiv.classList.remove('is-hidden');
-      }
+  
+  function showLoginSection() {
+    if (loginSection) loginSection.style.display = 'block';
+    if (settingsSection) settingsSection.style.display = 'none';
   }
-
-  // 결과 표시 함수
-  function displayResult(response) {
-      if (!resultDiv || !contentDiv) {
-          console.error('Required DOM elements not found');
-          return;
+  
+  function showSettingsSection() {
+    if (loginSection) loginSection.style.display = 'none';
+    if (settingsSection) settingsSection.style.display = 'block';
+  }
+  
+  function checkLoginStatus() {
+    // Google Calendar 연결 상태 확인
+    chrome.identity.getAuthToken({ interactive: false }, function(token) {
+      if (token) {
+        // 로그인된 상태
+        showSettingsSection();
+      } else {
+        // 로그인되지 않은 상태
+        showLoginSection();
       }
-
-      resultDiv.classList.remove('is-hidden');
-      hideLoading();
-
-      if (response?.success) {
-        const data = response.eventData;
-        lastParsedData = data;
-        
-        // API 응답 전체를 JSON 형식으로 표시
-        console.log('API Response:', data);
-        
-        contentDiv.innerHTML = `
-            <div class="notification is-info is-light">
-                <pre style="white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
-            </div>
-            <div class="field">
-                <label class="label">제목:</label>
-                <div class="control">
-                    <input class="input" type="text" id="editSummary" value="${escapeHtml(data.summary)}">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">시작:</label>
-                <div class="control">
-                    <input class="input" type="datetime-local" id="editStart" 
-                           value="${data.start.dateTime ? data.start.dateTime.slice(0, 16) : data.start.date + 'T00:00'}">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">종료:</label>
-                <div class="control">
-                    <input class="input" type="datetime-local" id="editEnd" 
-                           value="${data.end.dateTime ? data.end.dateTime.slice(0, 16) : data.end.date + 'T00:00'}">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">장소:</label>
-                <div class="control">
-                    <input class="input" type="text" id="editLocation" value="${escapeHtml(data.location || '')}">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">설명:</label>
-                <div class="control">
-                    <textarea class="textarea" id="editDescription">${escapeHtml(data.description || '')}</textarea>
-                </div>
-            </div>
-        `;
-
-        // 입력 필드 변경 이벤트 리스너 추가
-        document.getElementById('editSummary')?.addEventListener('change', updateParsedData);
-        document.getElementById('editStart')?.addEventListener('change', updateParsedData);
-        document.getElementById('editEnd')?.addEventListener('change', updateParsedData);
-        document.getElementById('editLocation')?.addEventListener('change', updateParsedData);
-        document.getElementById('editDescription')?.addEventListener('change', updateParsedData);
-
-        if (response.created) {
-          contentDiv.innerHTML += `
-            <div class="notification is-success">
-              일정이 캘린더에 등록되었습니다!
-            </div>
-          `;
-        }
-    } else if (response?.error) {
-        contentDiv.innerHTML = `
-            <div class="notification is-danger">
-                <p>파싱 실패: ${escapeHtml(response.error)}</p>
-                <pre style="white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
-            </div>
-        `;
+    });
+  }
+  
+  function loadSettings() {
+    chrome.storage.sync.get(['settings'], function(result) {
+      const settings = result.settings || {};
+      
+      // 출처 정보 설정
+      const showSourceInfo = settings.showSourceInfo !== false; // 기본값: true
+      updateToggleUI(sourceToggle, sourceLabel, showSourceInfo);
+      
+      // 자동 감지 설정
+      const autoDetectEnabled = settings.autoDetectEnabled !== false; // 기본값: true
+      updateToggleUI(autoDetectToggle, autoDetectLabel, autoDetectEnabled);
+      
+      // 다크 모드 설정
+      const darkMode = settings.darkMode || false;
+      updateToggleUI(darkModeToggle, darkModeLabel, darkMode);
+      
+      // 언어 설정
+      if (languageSelect) {
+        languageSelect.value = settings.language || 'ko';
+      }
+      
+      // 시간대 설정
+      if (timezoneSelect) {
+        timezoneSelect.value = settings.timezone || 'Asia/Seoul';
+      }
+    });
+  }
+  
+  function updateToggleUI(toggle, label, isActive) {
+    if (!toggle || !label) return;
+    
+    if (isActive) {
+      toggle.classList.add('active');
+      label.textContent = '켜기';
+    } else {
+      toggle.classList.remove('active');
+      label.textContent = '끄기';
     }
   }
-
-  // 수정된 데이터 업데이트 함수
-  function updateParsedData() {
-    if (!lastParsedData) return;
-
-    const startValue = document.getElementById('editStart')?.value;
-    const endValue = document.getElementById('editEnd')?.value;
-    const isAllDay = !startValue?.includes('T');
-
-    lastParsedData = {
-      ...lastParsedData,
-      summary: document.getElementById('editSummary')?.value || '',
-      start: {
-        [isAllDay ? 'date' : 'dateTime']: isAllDay ? startValue : startValue + ':00+09:00',
-        timeZone: 'Asia/Seoul'
-      },
-      end: {
-        [isAllDay ? 'date' : 'dateTime']: isAllDay ? endValue : endValue + ':00+09:00',
-        timeZone: 'Asia/Seoul'
-      },
-      location: document.getElementById('editLocation')?.value || '',
-      description: document.getElementById('editDescription')?.value || ''
-    };
-
-    console.log('Updated parsed data:', lastParsedData);
+  
+  function toggleSourceInfo() {
+    chrome.storage.sync.get(['settings'], function(result) {
+      const settings = result.settings || {};
+      const newValue = !settings.showSourceInfo;
+      
+      settings.showSourceInfo = newValue;
+      chrome.storage.sync.set({ settings: settings });
+      
+      updateToggleUI(sourceToggle, sourceLabel, newValue);
+      showNotification('출처 정보 설정이 변경되었습니다.', 'success');
+    });
   }
-
-  // 선택된 텍스트 가져오기 및 분석 시작
-  chrome.runtime.sendMessage({action: "getSelectedText"}, async function(response) {
-      if (chrome.runtime.lastError) {
-          console.error('Error getting selected text:', chrome.runtime.lastError);
-          return;
-      }
-
-      const selectedTextElement = document.getElementById('selectedText');
-      if (selectedTextElement && response?.selectedText) {
-          selectedTextElement.textContent = response.selectedText;
-          
-          // 텍스트가 있으면 바로 분석 시작
-          try {
-              showLoading();
-              const parseResponse = await chrome.runtime.sendMessage({
-                  action: 'parseText',
-                  eventData: {
-                      selectedText: response.selectedText
-                  }
-              });
-
-              if (chrome.runtime.lastError) {
-                  throw new Error(chrome.runtime.lastError.message);
-              }
-
-              console.log('Got response:', parseResponse);
-              displayResult(parseResponse);
-          } catch (error) {
-              displayResult({
-                  success: false,
-                  error: '텍스트 분석 실패: ' + error.message
-              });
-          }
-      } else {
-          displayResult({
-              success: false,
-              error: '선택된 텍스트가 없습니다.'
+  
+  function toggleAutoDetect() {
+    chrome.storage.sync.get(['settings'], function(result) {
+      const settings = result.settings || {};
+      const newValue = !settings.autoDetectEnabled;
+      
+      settings.autoDetectEnabled = newValue;
+      chrome.storage.sync.set({ settings: settings });
+      
+      updateToggleUI(autoDetectToggle, autoDetectLabel, newValue);
+      
+      // 모든 탭에 설정 변경 알림
+      chrome.tabs.query({}, function(tabs) {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { 
+            action: 'updateAutoDetectSetting', 
+            enabled: newValue 
+          }).catch(() => {
+            // 에러 무시 (content script가 없는 탭)
           });
-      }
-  });
-
-  // Confirm Event 버튼 핸들러
-  if (confirmEventBtn) {
-      confirmEventBtn.addEventListener('click', async function() {
-          try {
-              confirmEventBtn.classList.add('is-loading');
-              
-              if (!lastParsedData) {
-                  throw new Error('일정 정보가 없습니다.');
-              }
-
-              const response = await chrome.runtime.sendMessage({
-                  action: 'createCalendarEvent',
-                  eventData: lastParsedData
-              });
-
-              if (response.success) {
-                  contentDiv.innerHTML += `
-                      <div class="notification is-success">
-                          일정이 성공적으로 등록되었습니다!
-                      </div>
-                  `;
-              } else {
-                  throw new Error(response.error);
-              }
-          } catch (error) {
-              contentDiv.innerHTML += `
-                  <div class="notification is-danger">
-                      일정 등록 실패: ${escapeHtml(error.message)}
-                  </div>
-              `;
-          } finally {
-              confirmEventBtn.classList.remove('is-loading');
-          }
+        });
       });
+      
+      showNotification('자동 감지 설정이 변경되었습니다.', 'success');
+    });
   }
-
-  // 파싱 결과를 저장할 변수
-  let lastParsedData = null;
+  
+  function toggleDarkMode() {
+    chrome.storage.sync.get(['settings'], function(result) {
+      const settings = result.settings || {};
+      const newValue = !settings.darkMode;
+      
+      settings.darkMode = newValue;
+      chrome.storage.sync.set({ settings: settings });
+      
+      updateToggleUI(darkModeToggle, darkModeLabel, newValue);
+      showNotification('다크 모드 설정이 변경되었습니다.', 'success');
+    });
+  }
+  
+  function updateLanguage() {
+    const language = languageSelect.value;
+    chrome.storage.sync.get(['settings'], function(result) {
+      const settings = result.settings || {};
+      settings.language = language;
+      chrome.storage.sync.set({ settings: settings });
+      showNotification('언어 설정이 변경되었습니다.', 'success');
+    });
+  }
+  
+  function updateTimezone() {
+    const timezone = timezoneSelect.value;
+    chrome.storage.sync.get(['settings'], function(result) {
+      const settings = result.settings || {};
+      settings.timezone = timezone;
+      chrome.storage.sync.set({ settings: settings });
+      showNotification('시간대 설정이 변경되었습니다.', 'success');
+    });
+  }
+  
+  function disconnectGoogle() {
+    if (confirm('Google Calendar 연결을 해제하시겠습니까?')) {
+      chrome.identity.clearAllCachedAuthTokens(function() {
+        showNotification('Google Calendar 연결이 해제되었습니다.', 'success');
+        setTimeout(() => {
+          showLoginSection();
+        }, 1000);
+      });
+    }
+  }
+  
+  function showNotification(message, type = 'success') {
+    // 기존 알림 제거
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+    
+    // 새 알림 생성
+    const notification = document.createElement('div');
+    notification.className = `notification is-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // 3초 후 제거
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 3000);
+  }
+  
+  // Google 로그인 버튼 클릭 이벤트
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', function() {
+      chrome.identity.getAuthToken({ interactive: true }, function(token) {
+        if (token) {
+          showNotification('Google Calendar에 성공적으로 연결되었습니다!', 'success');
+          setTimeout(() => {
+            showSettingsSection();
+          }, 1000);
+        } else {
+          showNotification('Google Calendar 연결에 실패했습니다.', 'danger');
+        }
+      });
+    });
+  }
 });

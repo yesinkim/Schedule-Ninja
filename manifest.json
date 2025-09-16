@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Schedule Ninja",
   "version": "1.1",
-  "description": "Parse your text! Add to Calendar!",
+  "description": "Don't miss a beat. We got your back.",
   "permissions": [
     "activeTab",
     "storage",
@@ -31,6 +31,11 @@
   ],
   "action": {
     "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
