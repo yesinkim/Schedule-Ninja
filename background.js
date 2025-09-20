@@ -170,13 +170,25 @@ class LanguageModelManager {
     // 모델 다운로드 중인 경우 대기
     if (isModelDownloading) {
       console.log('⏳ 모델 다운로드 중... 대기');
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+        const MAX_WAIT_TIME = 30000; // 30초 최대 대기
+        
         const checkSession = () => {
+          // 타임아웃 체크
+          if (Date.now() - startTime > MAX_WAIT_TIME) {
+            console.error('❌ 모델 다운로드 대기 시간 초과 (30초)');
+            reject(new Error('모델 다운로드 대기 시간이 초과되었습니다.'));
+            return;
+          }
+          
           if (languageModelSession && !languageModelSession.destroyed) {
             resolve(languageModelSession);
           } else if (!isModelDownloading) {
             // 다운로드 실패한 경우 재시도
-            this.createNewSession().then(resolve);
+            this.createNewSession()
+              .then(resolve)
+              .catch(reject); // 에러 핸들링 추가
           } else {
             setTimeout(checkSession, 100);
           }
