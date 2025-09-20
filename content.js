@@ -43,8 +43,14 @@ function createModal() {
       <div style="padding: 12px; max-height: 320px; overflow-y: auto;">
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
-            <div style="width: 16px; height: 16px; border: 2px solid #E83941; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <span style="font-size: 12px; font-weight: 500;">AI 분석 중...</span>
+            <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
+            <span id="loading-text" style="font-size: 12px; font-weight: 500;">Snagging...</span>
+          </div>
+          <div id="progress-container" style="margin-top: 12px; display: none;">
+            <div style="background: rgba(255,255,255,0.3); border-radius: 8px; height: 4px; overflow: hidden;">
+              <div id="progress-bar" style="background: linear-gradient(to right, #E83941, #d32f2f); height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
+            </div>
+            <div id="progress-text" style="font-size: 10px; color: #6b7280; margin-top: 4px; text-align: center;"></div>
           </div>
         </div>
         <div id="timekeeper-result-content" style="display: none;">
@@ -93,16 +99,54 @@ function closeModal() {
 
 // 결과 표시
 function displayResult(data) {
-  if (!modalInstance || !data) return;
+  console.log('🎯 displayResult 호출됨:', data);
+  
+  if (!modalInstance) {
+    console.error('❌ modalInstance가 없습니다');
+    return;
+  }
+  
+  if (!data) {
+    console.error('❌ data가 없습니다');
+    return;
+  }
   
   const resultContent = modalInstance.querySelector('#timekeeper-result-content');
   const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
   
-  if (!resultContent) return;
+  if (!resultContent) {
+    console.error('❌ resultContent 요소를 찾을 수 없습니다');
+    return;
+  }
+
+  console.log('✅ 모달 요소들 확인 완료');
 
   // data가 배열인지 확인하고 처리
   const eventsArray = Array.isArray(data) ? data : [data];
   lastParsedData = eventsArray;
+  
+  console.log('📊 처리할 이벤트 개수:', eventsArray.length);
+  
+  // 빈 배열 체크
+  if (eventsArray.length === 0) {
+    console.log('⚠️ 이벤트가 없습니다');
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    resultContent.style.display = 'block';
+    resultContent.innerHTML = `
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="16" height="16" fill="none" stroke="#d97706" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span style="color: #92400e; font-weight: 500; font-size: 14px;">일정 정보를 찾을 수 없습니다</span>
+        </div>
+        <div style="margin-top: 8px; font-size: 12px; color: #92400e;">
+          텍스트에 날짜나 시간 정보가 포함되어 있는지 확인해주세요.
+        </div>
+      </div>
+    `;
+    return;
+  }
   
   // 로딩 숨기기
   if (loadingIndicator) loadingIndicator.style.display = 'none';
@@ -324,8 +368,8 @@ function updateSaveButtonState(saveBtn, state) {
   switch (state) {
     case 'loading':
       saveBtn.innerHTML = `
-        <div style="width: 16px; height: 16px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-        <span>저장 중...</span>
+        <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 16px; height: 16px; object-fit: contain; filter: brightness(0) invert(1);">
+        <span>Saving...</span>
       `;
       saveBtn.style.background = '#6b7280';
       saveBtn.disabled = true;
@@ -580,7 +624,7 @@ function showModal(selectedText, isAutoDetected = false) {
     // 자동 감지된 경우 로딩 메시지 변경
     if (isAutoDetected) {
       const loadingText = loadingIndicator.querySelector('span');
-      if (loadingText) {
+    if (loadingText) {
         loadingText.textContent = '예매 정보 분석 중...';
       }
     }
@@ -1058,6 +1102,39 @@ class BookingPageDetector {
 // 페이지 감지기 초기화
 const bookingDetector = new BookingPageDetector();
 
+// 진행률 업데이트 함수
+function updateProgress(progress, stage) {
+  if (!modalInstance) return;
+  
+  const progressContainer = modalInstance.querySelector('#progress-container');
+  const progressBar = modalInstance.querySelector('#progress-bar');
+  const progressText = modalInstance.querySelector('#progress-text');
+  const loadingText = modalInstance.querySelector('#loading-text');
+  
+  if (progressContainer && progressBar && progressText) {
+    // 진행률 표시 활성화
+    progressContainer.style.display = 'block';
+    progressBar.style.width = `${progress}%`;
+    
+    // 단계별 메시지
+    const stageMessages = {
+      'cache_check': '캐시 확인 중...',
+      'downloading': 'AI 모델 로딩 중...',
+      'parsing': '텍스트 분석 중...',
+      'processing': '일정 정보 추출 중...',
+      'complete': '완료!'
+    };
+    
+    const message = stageMessages[stage] || '처리 중...';
+    progressText.textContent = `${progress}% - ${message}`;
+    
+    // 로딩 텍스트 업데이트
+    if (loadingText) {
+      loadingText.textContent = message;
+    }
+  }
+}
+
 // 메시지 리스너
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'showModal') {
@@ -1069,5 +1146,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (bookingDetector) {
       bookingDetector.setEnabled(request.enabled);
     }
+  } else if (request.action === 'updateProgress') {
+    // 진행률 업데이트 처리
+    updateProgress(request.progress, request.stage);
   }
 });
