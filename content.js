@@ -31,15 +31,15 @@ function createModal() {
   // 모달 HTML - 닌자 눈 디자인
   modalInstance.innerHTML = `
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); pointer-events: auto;" id="modal-backdrop"></div>
-    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto;" id="modal-content">
+    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto;" id="modal-content">
       <!-- 닌자 눈 헤더 -->
-      <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; position: relative;">
+      <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
         <!-- 닌자 눈 아이콘 -->
         <div style="display: flex; align-items: center; gap: 8px;">
           <img src="${chrome.runtime.getURL('ninja_eyes.png')}" alt="ninja eyes" style="width: 24px; height: 24px; object-fit: contain;">
           <span style="font-weight: bold; font-size: 14px; color: white;">Schedule Ninja</span>
         </div>
-        <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50% !important; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -47,14 +47,14 @@ function createModal() {
       </div>
       
       <!-- 모달 본문 -->
-      <div style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px; max-height: 320px; overflow-y: auto;">
+      <div style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto;">
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
             <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
             <span id="loading-text" style="font-size: 12px; font-weight: 500;">Snagging...</span>
           </div>
           <div id="progress-container" style="margin-top: 12px; display: none;">
-            <div style="background: rgba(255,255,255,0.3); border-radius: 8px; height: 4px; overflow: hidden;">
+            <div style="background: rgba(255,255,255,0.3); border-radius: 8px !important; height: 4px; overflow: hidden;">
               <div id="progress-bar" style="background: linear-gradient(to right, #E83941, #d32f2f); height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
             </div>
             <div id="progress-text" style="font-size: 10px; color: #6b7280; margin-top: 4px; text-align: center;"></div>
@@ -140,7 +140,7 @@ function displayResult(data) {
     if (loadingIndicator) loadingIndicator.style.display = 'none';
     resultContent.style.display = 'block';
     resultContent.innerHTML = `
-      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; text-align: center;">
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px !important; padding: 12px; text-align: center;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
           <svg width="16" height="16" fill="none" stroke="#d97706" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -165,7 +165,7 @@ function displayResult(data) {
   eventsArray.forEach((eventData, index) => {
     eventsHtml += `
       <div class="event-card" data-event-index="${index}" style="margin-bottom: 8px;">
-        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-radius: 11px; box-shadow: 0 7px 28px rgba(0,0,0,0.11), 0 2px 7px rgba(0,0,0,0.07); padding: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2);">
+        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-radius: 11px !important; box-shadow: 0 7px 28px rgba(0,0,0,0.11), 0 2px 7px rgba(0,0,0,0.07); padding: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2);">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
             <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
               <svg width="20" height="20" fill="none" stroke="#E83941" viewBox="0 0 24 24" style="flex-shrink: 0;">
@@ -198,7 +198,7 @@ function displayResult(data) {
               ` : ''}
             </div>
           </div>
-          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; flex-shrink: 0;">
+          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50% !important; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; flex-shrink: 0;">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -238,7 +238,7 @@ function displayResult(data) {
       dropdownOpen = !dropdownOpen;
       if (dropdownOpen) {
         // 카드 하단 모서리를 직각으로 변경 (연결된 느낌)
-        card.style.borderRadius = '12px 12px 0 0';
+        card.style.setProperty('border-radius', '12px 12px 0 0', 'important');
         await showDropdownForm(eventData, index);
         dropdown.style.maxHeight = '700px';
         dropdown.style.opacity = '1';
@@ -246,7 +246,7 @@ function displayResult(data) {
         addBtn.style.display = 'none';
       } else {
         // 카드 모서리를 다시 둥글게 변경
-        card.style.borderRadius = '12px';
+        card.style.setProperty('border-radius', '12px', 'important');
         dropdown.style.maxHeight = '0';
         dropdown.style.opacity = '0';
         dropdown.style.transform = 'translateY(-10px)';
@@ -291,7 +291,7 @@ async function showDropdownForm(originData, eventIndex) {
   
   dropdown.innerHTML = `
     <!-- 수정 폼 -->
-    <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 16px; border-radius: 0 0 11px 11px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none; text-align: left;">
+    <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 16px; border-radius: 0 0 11px 11px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none; text-align: left;">
       <div style="margin-bottom: 8px;">
         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,7 +299,7 @@ async function showDropdownForm(originData, eventIndex) {
           </svg>
           제목
         </label>
-        <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="제목을 입력하세요" />
+        <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="제목을 입력하세요" />
           </div>
       <div style="margin-bottom: 8px;">
         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
@@ -308,7 +308,7 @@ async function showDropdownForm(originData, eventIndex) {
           </svg>
           시작
         </label>
-        <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
+        <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
       </div>
       <div style="margin-bottom: 8px;">
         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
@@ -317,7 +317,7 @@ async function showDropdownForm(originData, eventIndex) {
           </svg>
           종료
         </label>
-        <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
+        <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
       </div>
       <div style="margin-bottom: 8px;">
         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
@@ -327,7 +327,7 @@ async function showDropdownForm(originData, eventIndex) {
           </svg>
           장소
         </label>
-        <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="장소를 입력하세요" />
+        <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="장소를 입력하세요" />
       </div>
       <div style="margin-bottom: 12px;">
         <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
@@ -336,9 +336,9 @@ async function showDropdownForm(originData, eventIndex) {
           </svg>
           설명
         </label>
-        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
         </div>
-      <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #1e3a8a, #1e40af); color: #e7e7e9; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1);">
+      <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #1e3a8a, #1e40af); color: #e7e7e9; border: none; border-radius: 8px !important; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1);">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -616,7 +616,7 @@ function showToastMessage(message, type = "success") {
     left: 50%;
     transform: translateX(-50%);
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: 8px !important;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     font-size: 12px;
     font-weight: 500;
@@ -730,7 +730,7 @@ function showModal(selectedText, isAutoDetected = false) {
         if (resultContent) {
           resultContent.style.display = 'block';
           resultContent.innerHTML = `
-            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px;">
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px !important; padding: 12px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <svg width="16" height="16" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -738,7 +738,7 @@ function showModal(selectedText, isAutoDetected = false) {
                 <span style="color: #991b1b; font-weight: 500; font-size: 14px;">분석 실패: ${response?.error || '알 수 없는 오류'}</span>
               </div>
               ${isAutoDetected ? `
-                <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px; font-size: 12px; color: #0369a1;">
+                <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px !important; font-size: 12px; color: #0369a1;">
                   💡 텍스트를 직접 선택하고 우클릭해보세요!
                 </div>
               ` : ''}
@@ -921,7 +921,7 @@ class BookingPageDetector {
       right: 20px;
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px);
-      border-radius: 12px;
+      border-radius: 12px !important;
       padding: 16px 20px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -938,7 +938,7 @@ class BookingPageDetector {
     
     notification.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div id="notification-icon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #E83941, #d32f2f); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <div id="notification-icon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #E83941, #d32f2f); border-radius: 50% !important; display: flex; align-items: center; justify-content: center;">
           <svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
