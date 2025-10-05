@@ -31,7 +31,7 @@ function createModal() {
   // 모달 HTML - 새로운 디자인
   modalInstance.innerHTML = `
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); pointer-events: auto;" id="modal-backdrop"></div>
-    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto;" id="modal-content">
+    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto; overflow: hidden;" id="modal-content">
       <!-- 헤더 -->
       <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
         <!-- 로고 배너 -->
@@ -202,14 +202,32 @@ function displayResult(data) {
                   <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/>
                 </svg>
                 <div style="font-size: 12px; color: #303030; flex: 1; min-width: 0; line-height: 1.4;">
-                  <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    ${eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || ''}${eventData.end?.dateTime || eventData.end?.date ? ' ~' : ''}
-                  </div>
-                  ${eventData.end?.dateTime || eventData.end?.date ? `
-                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      ${eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || ''}
-                    </div>
-                  ` : ''}
+                  ${(() => {
+                    const hasTime = eventData.start?.dateTime || eventData.end?.dateTime;
+                    const startStr = eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || '';
+                    const endStr = eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || '';
+
+                    if (hasTime) {
+                      // 시간 정보 있음 - 두 줄로 표시
+                      return `
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          ${startStr}${endStr ? ' ~' : ''}
+                        </div>
+                        ${endStr ? `
+                          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${endStr}
+                          </div>
+                        ` : ''}
+                      `;
+                    } else {
+                      // 시간 정보 없음 (하루종일) - 한 줄로 표시
+                      return `
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          ${startStr}${endStr ? ` ~ ${endStr}` : ''}
+                        </div>
+                      `;
+                    }
+                  })()}
                 </div>
               </div>
               ${eventData.location ? `
@@ -240,6 +258,9 @@ function displayResult(data) {
   resultContent.innerHTML = eventsHtml;
   
   // 각 이벤트 카드에 대한 이벤트 리스너 설정
+  const dropdownControllers = new Map();
+  let activeDropdownIndex = null;
+
   eventsArray.forEach((eventData, index) => {
     const card = resultContent.querySelector(`#tk-compact-card-${index}`);
     const dropdown = resultContent.querySelector(`#tk-dropdown-${index}`);
@@ -247,6 +268,139 @@ function displayResult(data) {
     let dropdownOpen = false;
     
     if (!card || !dropdown || !addBtn) return;
+
+    const openDropdown = async () => {
+      dropdownOpen = true;
+      activeDropdownIndex = index;
+
+      card.style.transform = 'translateY(0)';
+      card.style.borderRadius = '0';
+      card.style.zIndex = '1';
+      card.style.boxShadow = 'none';
+      card.style.background = 'transparent';
+      card.style.position = 'relative';
+
+      const modalBody = modalInstance.querySelector('#modal-body');
+      if (modalBody) {
+        modalBody.style.maxHeight = '600px';
+      }
+
+      await showDropdownForm(eventData, index);
+
+      dropdown.style.maxHeight = '0';
+      dropdown.style.opacity = '0';
+      dropdown.style.transform = 'translateY(6px)';
+      dropdown.style.borderRadius = '0';
+      dropdown.style.zIndex = '100';
+      dropdown.style.background = 'transparent';
+      dropdown.style.marginTop = '8px';
+      dropdown.style.overflow = 'visible';
+      dropdown.style.boxShadow = 'none';
+      dropdown.style.pointerEvents = 'auto';
+
+      setTimeout(() => {
+        dropdown.style.maxHeight = '700px';
+        dropdown.style.opacity = '1';
+        dropdown.style.transform = 'translateY(0)';
+        dropdown.style.borderRadius = '0';
+
+        setTimeout(() => {
+          const eventCard = card.closest('.event-card');
+          if (eventCard && modalBody) {
+            const cardRect = eventCard.getBoundingClientRect();
+            const modalBodyRect = modalBody.getBoundingClientRect();
+            const scrollTop = modalBody.scrollTop;
+
+            const cardBottom = cardRect.bottom;
+            const modalBottom = modalBodyRect.bottom;
+
+            if (cardBottom > modalBottom - 20) {
+              const scrollDistance = cardBottom - modalBottom + 40;
+              modalBody.scrollTo({
+                top: scrollTop + scrollDistance,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }, 350);
+      }, 50);
+
+      addBtn.style.display = 'none';
+    };
+
+    const closeDropdown = (options = {}) => {
+      if (!dropdownOpen) return Promise.resolve();
+
+      const { forSwitch = false } = options;
+      dropdownOpen = false;
+      if (activeDropdownIndex === index) {
+        activeDropdownIndex = null;
+      }
+
+      card.style.transform = 'translateY(0) scale(1)';
+      card.style.borderRadius = '0';
+      card.style.zIndex = '1';
+      card.style.boxShadow = 'none';
+      card.style.background = 'transparent';
+      card.style.position = 'relative';
+
+      const modalBody = modalInstance.querySelector('#modal-body');
+      if (modalBody) {
+        const anyDropdownOpen = Array.from(dropdownControllers.entries()).some(
+          ([controllerIndex, controller]) => controllerIndex !== index && controller.isOpen()
+        );
+        if (!anyDropdownOpen) {
+          modalBody.style.maxHeight = '320px';
+        }
+      }
+
+      const currentHeight = dropdown.scrollHeight;
+      dropdown.style.maxHeight = `${currentHeight}px`;
+      dropdown.style.opacity = '1';
+      dropdown.style.transform = 'translateY(0)';
+      dropdown.style.borderRadius = '0';
+      dropdown.style.boxShadow = 'none';
+      dropdown.style.zIndex = '50';
+      dropdown.style.marginTop = '8px';
+      dropdown.style.pointerEvents = 'none';
+
+      requestAnimationFrame(() => {
+        dropdown.style.maxHeight = '0';
+        dropdown.style.opacity = '0';
+        dropdown.style.transform = 'translateY(-6px)';
+      });
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          if (!(isCreatingEvent && creatingEventIndex === index)) {
+            dropdown.innerHTML = '';
+          }
+          dropdown.style.pointerEvents = '';
+          dropdown.style.transform = 'translateY(0)';
+        }, 450);
+
+        setTimeout(() => {
+          if (!(isCreatingEvent && creatingEventIndex === index)) {
+            addBtn.style.display = 'flex';
+            addBtn.style.opacity = '0';
+            addBtn.style.transition = 'opacity 0.2s ease-out';
+            setTimeout(() => {
+              addBtn.style.opacity = '1';
+            }, 10);
+          }
+        }, 260);
+
+        const resolveDelay = forSwitch ? 250 : 140;
+        setTimeout(() => {
+          resolve();
+        }, resolveDelay);
+      });
+    };
+
+    dropdownControllers.set(index, {
+      close: (options) => closeDropdown(options),
+      isOpen: () => dropdownOpen
+    });
     
     // 카드 호버 효과 - 미세한 리프트와 글로우
     card.addEventListener('mouseenter', () => {
@@ -283,74 +437,17 @@ function displayResult(data) {
     // 카드 클릭 이벤트 (수정 폼 토글)
     card.addEventListener('click', async (e) => {
       if (e.target.closest(`#tk-add-btn-${index}`) || (isCreatingEvent && creatingEventIndex === index)) return;
-      
-      dropdownOpen = !dropdownOpen;
-      if (dropdownOpen) {
-        // 카드 스타일 - 쉐도우 없음, 배경색만
-        card.style.transform = 'translateY(0)';
-        card.style.borderRadius = '0';
-        card.style.zIndex = '1';
-        card.style.boxShadow = 'none';
-        card.style.background = 'transparent';
-        card.style.position = 'relative';
 
-        await showDropdownForm(eventData, index);
-
-        // 드롭다운만 쉐도우 적용
-        dropdown.style.maxHeight = '0';
-        dropdown.style.opacity = '0';
-        dropdown.style.transform = 'translateY(0)';
-        dropdown.style.borderRadius = '0';
-        dropdown.style.zIndex = '100';
-        dropdown.style.background = 'transparent';
-        dropdown.style.marginTop = '8px';
-        dropdown.style.overflow = 'visible';
-        dropdown.style.boxShadow = 'none';
-
-        // 애니메이션 시작
-        setTimeout(() => {
-          dropdown.style.maxHeight = '700px';
-          dropdown.style.opacity = '1';
-          dropdown.style.transform = 'translateY(0)';
-          dropdown.style.borderRadius = '0';
-        }, 50);
-
-        addBtn.style.display = 'none';
+      if (!dropdownOpen) {
+        if (activeDropdownIndex !== null && activeDropdownIndex !== index) {
+          const activeController = dropdownControllers.get(activeDropdownIndex);
+          if (activeController) {
+            await activeController.close({ forSwitch: true });
+          }
+        }
+        await openDropdown();
       } else {
-        // 카드 원래대로
-        card.style.transform = 'translateY(0) scale(1)';
-        card.style.borderRadius = '0';
-        card.style.zIndex = '1';
-        card.style.boxShadow = 'none';
-        card.style.background = 'transparent';
-        card.style.position = 'relative';
-
-        // 드롭다운 닫기
-        dropdown.style.maxHeight = '0';
-        dropdown.style.opacity = '0';
-        dropdown.style.transform = 'translateY(0)';
-        dropdown.style.borderRadius = '0';
-        dropdown.style.boxShadow = 'none';
-        dropdown.style.zIndex = '50';
-        dropdown.style.marginTop = '8px';
-        
-        setTimeout(() => { 
-          if (!(isCreatingEvent && creatingEventIndex === index)) {
-            dropdown.innerHTML = ''; 
-          }
-        }, 500);
-        
-        // + 버튼을 드롭다운 애니메이션 완료 후에 부드럽게 나타나게 함
-        setTimeout(() => {
-          if (!(isCreatingEvent && creatingEventIndex === index)) {
-            addBtn.style.display = 'flex';
-            addBtn.style.opacity = '0';
-            addBtn.style.transition = 'opacity 0.2s ease-out';
-            setTimeout(() => {
-              addBtn.style.opacity = '1';
-            }, 10);
-          }
-        }, 300);
+        await closeDropdown();
       }
     });
     
@@ -1375,6 +1472,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         end: { dateTime: '2025-10-16T16:00:00+09:00', timeZone: 'Asia/Seoul' },
         location: '강남역',
         description: ''
+      },
+      {
+        summary: '하루종일 이벤트 테스트',
+        start: { date: '2025-10-17', timeZone: 'Asia/Seoul' },
+        end: { date: '2025-10-18', timeZone: 'Asia/Seoul' },
+        location: '제주도',
+        description: '시간 정보가 없는 하루종일 이벤트'
       }
     ];
 

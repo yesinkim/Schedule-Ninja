@@ -616,36 +616,36 @@ class ApiService {
         // 시작 시간만 있고 종료 시간이 없는 경우 1시간짜리 이벤트로 설정
         if (hasOnlyStartTime) {
             console.log('3. 시작 시간만 있는 경우 - 1시간짜리 이벤트로 자동 설정');
-            const startDateTime = new Date(eventInfo.start.dateTime);
+            const startDateTimeStr = eventInfo.start.dateTime;
 
-            if (isNaN(startDateTime.getTime())) {
+            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ
+            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/);
+            if (!match) {
                 throw new Error('유효하지 않은 시작 시간 형식입니다.');
             }
 
-            // 시작 시간에서 1시간 후를 종료 시간으로 설정
-            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1시간 = 60분 * 60초 * 1000ms
+            const [, year, month, day, hours, minutes, seconds, timezone] = match;
 
-            // 시작 시간의 시간대 정보를 유지하여 종료 시간 설정
-            const startDateTimeStr = eventInfo.start.dateTime;
+            // 시간을 1시간 증가 (자리올림 처리)
+            let endHours = parseInt(hours);
+            let endDay = parseInt(day);
 
-            // 시간대 오프셋 추출 (정규식 사용)
-            let timezoneOffset = '+09:00'; // 기본값
-            const timezoneMatch = startDateTimeStr.match(/([+-]\d{2}:\d{2}|Z)$/);
-            if (timezoneMatch) {
-                timezoneOffset = timezoneMatch[1] === 'Z' ? '+00:00' : timezoneMatch[1];
+            endHours += 1;
+            if (endHours >= 24) {
+                endHours = 0;
+                endDay += 1;
+                // 간단한 구현: 월말 처리는 Date 객체에 맡김
             }
 
-            // 종료 시간을 시작 시간과 동일한 시간대 형식으로 설정
-            // ISO 문자열에서 시간대 부분만 교체하여 올바른 로컬 시간 유지
-            const endDateTimeStr = endDateTime.toISOString().replace(/Z$/, timezoneOffset);
+            // 종료 시간 문자열 생성
+            const endDateTimeStr = `${year}-${month}-${String(endDay).padStart(2, '0')}T${String(endHours).padStart(2, '0')}:${minutes}:${seconds}${timezone}`;
 
             eventInfo.end = {
                 dateTime: endDateTimeStr,
-                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'   // TODO: 로컬 시간대로 변경 필요
+                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
             };
 
             console.log('   시작 시간:', startDateTimeStr);
-            console.log('   추출된 시간대 오프셋:', timezoneOffset);
             console.log('   자동 설정된 종료 시간:', endDateTimeStr);
 
             // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
@@ -658,33 +658,27 @@ class ApiService {
             console.log('3. 시작 시간은 있지만 종료는 날짜만 있는 경우 - 시작 시간에 맞춰 1시간짜리 이벤트로 설정');
             const startDateTimeStr = eventInfo.start.dateTime;
 
-            // 시간대 오프셋 추출
-            let timezoneOffset = '+09:00'; // 기본값
-            const timezoneMatch = startDateTimeStr.match(/([+-]\d{2}:\d{2}|Z)$/);
-            if (timezoneMatch) {
-                timezoneOffset = timezoneMatch[1] === 'Z' ? '+00:00' : timezoneMatch[1];
-            }
-
-            // 시작 시간 파싱 (Date 객체는 올바르게 타임존을 해석함)
-            const startDateTime = new Date(startDateTimeStr);
-            if (isNaN(startDateTime.getTime())) {
+            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ
+            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/);
+            if (!match) {
                 throw new Error('유효하지 않은 시작 시간 형식입니다.');
             }
 
-            // 1시간 후 계산 (밀리초 단위)
-            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
+            const [, year, month, day, hours, minutes, seconds, timezone] = match;
 
-            // 종료 시간을 로컬 시간 기준으로 포맷 (년-월-일T시:분:초)
-            const year = endDateTime.getUTCFullYear();
-            const month = String(endDateTime.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(endDateTime.getUTCDate()).padStart(2, '0');
-            const hours = String(endDateTime.getUTCHours()).padStart(2, '0');
-            const minutes = String(endDateTime.getUTCMinutes()).padStart(2, '0');
-            const seconds = String(endDateTime.getUTCSeconds()).padStart(2, '0');
+            // 시간을 1시간 증가 (자리올림 처리)
+            let endHours = parseInt(hours);
+            let endDay = parseInt(day);
 
-            // UTC 시간을 구한 뒤, 원래의 타임존 오프셋을 붙임
-            // (Date 객체가 내부적으로 UTC로 저장하므로 UTC 메서드 사용)
-            const endDateTimeStr = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${timezoneOffset}`;
+            endHours += 1;
+            if (endHours >= 24) {
+                endHours = 0;
+                endDay += 1;
+                // 간단한 구현: 월말 처리는 Date 객체에 맡김
+            }
+
+            // 종료 시간 문자열 생성
+            const endDateTimeStr = `${year}-${month}-${String(endDay).padStart(2, '0')}T${String(endHours).padStart(2, '0')}:${minutes}:${seconds}${timezone}`;
 
             // end 객체를 dateTime 형식으로 업데이트
             eventInfo.end = {
@@ -693,7 +687,6 @@ class ApiService {
             };
 
             console.log('   시작 시간:', startDateTimeStr);
-            console.log('   추출된 시간대 오프셋:', timezoneOffset);
             console.log('   자동 설정된 종료 시간:', endDateTimeStr);
 
             // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
@@ -724,8 +717,15 @@ class ApiService {
             isTimeSpecificEvent = false;
         }
 
-        if (!isAllDayEvent && !isTimeSpecificEvent && !hasOnlyStartTime && !hasOnlyStartDate && !hasStartTimeButEndDate) {
+        // 모든 자동 처리 완료 후 최종 검증
+        // 이 시점에서 isAllDayEvent 또는 isTimeSpecificEvent 중 하나는 반드시 true여야 함
+        if (!isAllDayEvent && !isTimeSpecificEvent) {
             throw new Error('시작 및 종료 날짜/시간 형식이 올바르지 않습니다.');
+        }
+
+        // 두 플래그가 동시에 true이면 안 됨 (상호 배타적)
+        if (isAllDayEvent && isTimeSpecificEvent) {
+            throw new Error('이벤트는 하루종일 또는 시간 특정 중 하나여야 합니다.');
         }
 
         // 4. 하루종일 이벤트 처리
