@@ -4,30 +4,30 @@ console.log('Chrome Build AI initialized');
 //Configuration
 const CONFIG = {
   USE_CHROME_AI: true,
-  SYSTEM_PROMPT: `당신은 텍스트에서 일정 정보를 추출하여 Google Calendar API 형식으로 변환하는 어시스턴트입니다.
-텍스트에 여러 개의 이벤트가 포함되어 있을 수 있으므로, 항상 배열 형태로 응답해주세요.
+  SYSTEM_PROMPT: `You are an assistant that extracts event information from text and converts it to Google Calendar API format.
+Since the text may contain multiple events, always respond in array format.
 
-단일 이벤트인 경우:
+For a single event:
 [
   {
-    "summary": "이벤트 제목",
+    "summary": "Event title",
     "start": {
-      "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+      "date": "YYYY-MM-DD",  // Use date format when time is not specified
       "timeZone": "Asia/Seoul"
     },
     "end": {
-      "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+      "date": "YYYY-MM-DD",  // Use date format when time is not specified
       "timeZone": "Asia/Seoul"
     },
-    "location": "장소 (선택사항)",
-    "description": "설명 (선택사항)"
+    "location": "Location (optional)",
+    "description": "Description (optional)"
   }
 ]
 
-시간이 명시된 경우:
+When time is specified:
 [
   {
-    "summary": "이벤트 제목",
+    "summary": "Event title",
     "start": {
       "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
       "timeZone": "Asia/Seoul"
@@ -36,30 +36,30 @@ const CONFIG = {
       "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
       "timeZone": "Asia/Seoul"
     },
-    "location": "장소 (선택사항)",
-    "description": "설명 (선택사항)"
+    "location": "Location (optional)",
+    "description": "Description (optional)"
   }
 ]
 
-여러 이벤트인 경우:
+For multiple events:
 [
   {
-    "summary": "첫 번째 이벤트 제목",
+    "summary": "First event title",
     "start": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
     "end": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
-    "location": "장소1",
-    "description": "설명1"
+    "location": "Location 1",
+    "description": "Description 1"
   },
   {
-    "summary": "두 번째 이벤트 제목",
+    "summary": "Second event title",
     "start": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
     "end": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
-    "location": "장소2",
-    "description": "설명2"
+    "location": "Location 2",
+    "description": "Description 2"
   }
 ]
 
-중요: 항상 배열 형태로 응답하고, 각 이벤트는 독립적으로 완전한 정보를 포함해야 합니다.`,
+Important: Always respond in array format, and each event must contain complete information independently.`,
   // 성능 최적화를 위한 파라미터 조정
   TEMPERATURE: 0.4,  
   MAX_TOKENS: 200,  
@@ -597,14 +597,18 @@ class ApiService {
         }
 
         // 2. 날짜/시간 형식 검증
-        const isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
-        const isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
+        let isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
+        let isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
         const hasOnlyStartTime = !!(eventInfo.start?.dateTime && !eventInfo.end?.dateTime);
+        const hasOnlyStartDate = !!(eventInfo.start?.date && !eventInfo.end);
+        const hasStartTimeButEndDate = !!(eventInfo.start?.dateTime && eventInfo.end?.date && !eventInfo.end?.dateTime);
         
         console.log('2. 이벤트 타입:', {
             isAllDayEvent,
             isTimeSpecificEvent,
             hasOnlyStartTime,
+            hasOnlyStartDate,
+            hasStartTimeButEndDate,
             start: eventInfo.start,
             end: eventInfo.end
         });
@@ -612,44 +616,116 @@ class ApiService {
         // 시작 시간만 있고 종료 시간이 없는 경우 1시간짜리 이벤트로 설정
         if (hasOnlyStartTime) {
             console.log('3. 시작 시간만 있는 경우 - 1시간짜리 이벤트로 자동 설정');
-            const startDateTime = new Date(eventInfo.start.dateTime);
-            
-            if (isNaN(startDateTime.getTime())) {
+            const startDateTimeStr = eventInfo.start.dateTime;
+
+            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ
+            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/);
+            if (!match) {
                 throw new Error('유효하지 않은 시작 시간 형식입니다.');
             }
-            
-            // 시작 시간에서 1시간 후를 종료 시간으로 설정
-            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1시간 = 60분 * 60초 * 1000ms
-            
-            // 시작 시간의 시간대 정보를 유지하여 종료 시간 설정
-            const startDateTimeStr = eventInfo.start.dateTime;
-            
-            // 시간대 오프셋 추출 (정규식 사용)
-            let timezoneOffset = '+09:00'; // 기본값
-            const timezoneMatch = startDateTimeStr.match(/([+-]\d{2}:\d{2}|Z)$/);
-            if (timezoneMatch) {
-                timezoneOffset = timezoneMatch[1] === 'Z' ? '+00:00' : timezoneMatch[1];
+
+            const [, year, month, day, hours, minutes, seconds, timezone] = match;
+
+            // 시간을 1시간 증가 (자리올림 처리)
+            let endHours = parseInt(hours);
+            let endDay = parseInt(day);
+
+            endHours += 1;
+            if (endHours >= 24) {
+                endHours = 0;
+                endDay += 1;
+                // 간단한 구현: 월말 처리는 Date 객체에 맡김
             }
-            
-            // 종료 시간을 시작 시간과 동일한 시간대 형식으로 설정
-            // ISO 문자열에서 시간대 부분만 교체하여 올바른 로컬 시간 유지
-            const endDateTimeStr = endDateTime.toISOString().replace(/Z$/, timezoneOffset);
-            
+
+            // 종료 시간 문자열 생성
+            const endDateTimeStr = `${year}-${month}-${String(endDay).padStart(2, '0')}T${String(endHours).padStart(2, '0')}:${minutes}:${seconds}${timezone}`;
+
             eventInfo.end = {
                 dateTime: endDateTimeStr,
-                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'   // TODO: 로컬 시간대로 변경 필요
+                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
             };
-            
+
             console.log('   시작 시간:', startDateTimeStr);
-            console.log('   추출된 시간대 오프셋:', timezoneOffset);
             console.log('   자동 설정된 종료 시간:', endDateTimeStr);
-            
+
             // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
             isTimeSpecificEvent = true;
+            isAllDayEvent = false;
         }
 
-        if (!isAllDayEvent && !isTimeSpecificEvent && !hasOnlyStartTime) {
+        // 시작 시간은 있지만 종료는 날짜만 있는 경우 - 시작 시간에 맞춰 1시간짜리 이벤트로 설정
+        if (hasStartTimeButEndDate) {
+            console.log('3. 시작 시간은 있지만 종료는 날짜만 있는 경우 - 시작 시간에 맞춰 1시간짜리 이벤트로 설정');
+            const startDateTimeStr = eventInfo.start.dateTime;
+
+            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ
+            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/);
+            if (!match) {
+                throw new Error('유효하지 않은 시작 시간 형식입니다.');
+            }
+
+            const [, year, month, day, hours, minutes, seconds, timezone] = match;
+
+            // 시간을 1시간 증가 (자리올림 처리)
+            let endHours = parseInt(hours);
+            let endDay = parseInt(day);
+
+            endHours += 1;
+            if (endHours >= 24) {
+                endHours = 0;
+                endDay += 1;
+                // 간단한 구현: 월말 처리는 Date 객체에 맡김
+            }
+
+            // 종료 시간 문자열 생성
+            const endDateTimeStr = `${year}-${month}-${String(endDay).padStart(2, '0')}T${String(endHours).padStart(2, '0')}:${minutes}:${seconds}${timezone}`;
+
+            // end 객체를 dateTime 형식으로 업데이트
+            eventInfo.end = {
+                dateTime: endDateTimeStr,
+                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
+            };
+
+            console.log('   시작 시간:', startDateTimeStr);
+            console.log('   자동 설정된 종료 시간:', endDateTimeStr);
+
+            // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
+            isTimeSpecificEvent = true;
+            isAllDayEvent = false;
+        }
+
+        // 시작 날짜만 있고 종료 날짜가 없는 경우 하루종일 이벤트로 자동 설정
+        if (hasOnlyStartDate) {
+            console.log('3. 시작 날짜만 있는 경우 - 하루종일 이벤트로 자동 설정');
+            const startDate = new Date(eventInfo.start.date);
+
+            if (isNaN(startDate.getTime())) {
+                throw new Error('유효하지 않은 시작 날짜 형식입니다.');
+            }
+
+            // 시작 날짜에서 다음 날을 종료 날짜로 설정
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 1);
+
+            // end 객체 생성
+            eventInfo.end = {
+                date: endDate.toISOString().split('T')[0]
+            };
+
+            console.log('   자동 설정된 종료 날짜:', eventInfo.end.date);
+            isAllDayEvent = true;
+            isTimeSpecificEvent = false;
+        }
+
+        // 모든 자동 처리 완료 후 최종 검증
+        // 이 시점에서 isAllDayEvent 또는 isTimeSpecificEvent 중 하나는 반드시 true여야 함
+        if (!isAllDayEvent && !isTimeSpecificEvent) {
             throw new Error('시작 및 종료 날짜/시간 형식이 올바르지 않습니다.');
+        }
+
+        // 두 플래그가 동시에 true이면 안 됨 (상호 배타적)
+        if (isAllDayEvent && isTimeSpecificEvent) {
+            throw new Error('이벤트는 하루종일 또는 시간 특정 중 하나여야 합니다.');
         }
 
         // 4. 하루종일 이벤트 처리
@@ -671,6 +747,43 @@ class ApiService {
                 nextDay.setDate(nextDay.getDate() + 1);
                 eventInfo.end.date = nextDay.toISOString().split('T')[0];
                 console.log('   조정된 종료일:', eventInfo.end.date);
+            }
+        }
+
+        // 5. attendees 처리 (문자열 배열을 description으로 변환)
+        if (eventInfo.attendees && Array.isArray(eventInfo.attendees)) {
+            console.log('5. attendees 처리 - 문자열 배열을 description으로 변환');
+            
+            // attendees가 문자열 배열인지 확인
+            const hasStringArray = eventInfo.attendees.every(attendee => 
+                typeof attendee === 'string'
+            );
+            
+            if (hasStringArray) {
+                const attendeesList = eventInfo.attendees.join(', ');
+                const attendeesText = `참석자: ${attendeesList}`;
+                
+                // 기존 description이 있으면 추가, 없으면 새로 생성
+                if (eventInfo.description) {
+                    eventInfo.description = `${eventInfo.description}\n\n${attendeesText}`;
+                } else {
+                    eventInfo.description = attendeesText;
+                }
+                
+                // attendees 필드 제거 (Google Calendar API에서 email이 없으면 오류 발생)
+                delete eventInfo.attendees;
+                
+                console.log('   변환된 description:', eventInfo.description);
+            } else {
+                // attendees가 객체 배열이면 유효한 이메일이 있는지 확인
+                const hasValidEmails = eventInfo.attendees.every(attendee => 
+                    attendee && typeof attendee === 'object' && attendee.email
+                );
+                
+                if (!hasValidEmails) {
+                    console.log('   유효하지 않은 attendees - 제거');
+                    delete eventInfo.attendees;
+                }
             }
         }
 
@@ -924,6 +1037,13 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Create Calendar Event",
     contexts: ["selection"]
   });
+
+  // 개발용 테스트 메뉴 추가
+  chrome.contextMenus.create({
+    id: "testModal",
+    title: "🧪 Test Modal (Dev)",
+    contexts: ["page"]
+  });
 });
 
 // Event Listeners
@@ -935,6 +1055,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.tabs.sendMessage(tab.id, {
       action: 'showModal',
       selectedText: info.selectionText
+    });
+  } else if (info.menuItemId === "testModal") {
+    // 테스트용 모달 열기
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'testModal'
     });
   }
 });

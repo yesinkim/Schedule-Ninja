@@ -41,7 +41,7 @@
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "web_accessible_resources": [{
-    "resources": ["css/*"],
+    "resources": ["css/*", "assets/*"],
     "matches": ["<all_urls>"]
   }]
 }

@@ -28,26 +28,30 @@ function createModal() {
     pointer-events: auto;
   `;
 
-  // 모달 HTML
+  // 모달 HTML - 새로운 디자인
   modalInstance.innerHTML = `
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); pointer-events: auto;" id="modal-backdrop"></div>
-    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: rgba(231, 231, 233, 0.95); backdrop-filter: blur(20px); border-radius: 16px; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto;" id="modal-content">
-      <div style="background: linear-gradient(to right, #E83941, #d32f2f); padding: 12px; color: #e7e7e9; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: bold; font-size: 16px;">Schedule Ninja</span>
-        <button id="modal-close" style="width: 28px; height: 28px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto; overflow: hidden;" id="modal-content">
+      <!-- 헤더 -->
+      <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
+        <!-- 로고 배너 -->
+        <img src="${chrome.runtime.getURL('assets/logo_banner.png')}" alt="Schedule Ninja" style="height: 20px; object-fit: contain;">
+        <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50% !important; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
-      <div style="padding: 12px; max-height: 320px; overflow-y: auto;">
+      
+      <!-- 모달 본문 -->
+      <div id="modal-body" style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto; scroll-behavior: smooth;">
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
-            <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
+            <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
             <span id="loading-text" style="font-size: 12px; font-weight: 500;">Snagging...</span>
           </div>
           <div id="progress-container" style="margin-top: 12px; display: none;">
-            <div style="background: rgba(255,255,255,0.3); border-radius: 8px; height: 4px; overflow: hidden;">
+            <div style="background: rgba(255,255,255,0.3); border-radius: 8px !important; height: 4px; overflow: hidden;">
               <div id="progress-bar" style="background: linear-gradient(to right, #E83941, #d32f2f); height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
             </div>
             <div id="progress-text" style="font-size: 10px; color: #6b7280; margin-top: 4px; text-align: center;"></div>
@@ -60,6 +64,26 @@ function createModal() {
     </div>
     <style>
       @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes expandEllipse { 
+        0% { 
+          border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+          transform: scale(0.8) translateY(10px);
+        }
+        100% { 
+          border-radius: 16px 16px 0 0;
+          transform: scale(1) translateY(0);
+        }
+      }
+      @keyframes slideUpContent {
+        0% { 
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% { 
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   `;
 
@@ -74,7 +98,7 @@ function openModal() {
   }
   modalInstance.style.display = 'block';
   
-  // 애니메이션
+  // 애니메이션 - 우측에서 슬라이드인
   const content = modalInstance.querySelector('#modal-content');
   content.style.transform = 'translateX(100%)';
   setTimeout(() => {
@@ -133,7 +157,7 @@ function displayResult(data) {
     if (loadingIndicator) loadingIndicator.style.display = 'none';
     resultContent.style.display = 'block';
     resultContent.innerHTML = `
-      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; text-align: center;">
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px !important; padding: 12px; text-align: center;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
           <svg width="16" height="16" fill="none" stroke="#d97706" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -156,33 +180,77 @@ function displayResult(data) {
   
   let eventsHtml = '';
   eventsArray.forEach((eventData, index) => {
+    // 구분선 추가 (첫 번째 카드가 아닐 때만)
+    const divider = index > 0 ? `<div style="height: 1px; background: #E0E0E0; margin: 0;"></div>` : '';
+
     eventsHtml += `
-      <div class="event-card" data-event-index="${index}" style="margin-bottom: 12px;">
-        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); padding: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2);">
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-            <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
-              <span style="font-size: 20px;">🗓️</span>
-              <span style="font-weight: bold; font-size: 16px; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${eventData.summary || '제목 없음'}</span>
+      ${divider}
+      <div class="event-card" data-event-index="${index}" style="position: relative; background: #F6F6F6; border-radius: 0; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+        <!-- 기본 상태: 전체 영역 클릭 가능한 카드 -->
+        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: transparent; border-radius: 0; box-shadow: none; padding: 16px; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: none; margin: 0; position: relative; z-index: 1;">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow: hidden;">
+            <!-- 제목 -->
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden;">
+              <svg width="18" height="18" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 4H7v5h5v-5z"/>
+              </svg>
+              <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">${eventData.summary || '제목 없음'}</span>
             </div>
-            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; min-width: 0;">
-              <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
-                ${eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || ''}
-              </span>
-              <span style="font-size: 12px; color: #9ca3af;">~</span>
-              <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">
-                ${eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || ''}
-              </span>
-              <span style="font-size: 12px; color: #9ca3af;">|</span>
-              <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">${eventData.location || ''}</span>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden;">
+              <div style="display: flex; align-items: flex-start; gap: 6px; min-width: 0; overflow: hidden;">
+                <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+                  <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/>
+                </svg>
+                <div style="font-size: 12px; color: #303030; flex: 1; min-width: 0; line-height: 1.4;">
+                  ${(() => {
+                    const hasTime = eventData.start?.dateTime || eventData.end?.dateTime;
+                    const startStr = eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || '';
+                    const endStr = eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || '';
+
+                    if (hasTime) {
+                      // 시간 정보 있음 - 두 줄로 표시
+                      return `
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          ${startStr}${endStr ? ' ~' : ''}
+                        </div>
+                        ${endStr ? `
+                          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${endStr}
+                          </div>
+                        ` : ''}
+                      `;
+                    } else {
+                      // 시간 정보 없음 (하루종일) - 한 줄로 표시
+                      return `
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          ${startStr}${endStr ? ` ~ ${endStr}` : ''}
+                        </div>
+                      `;
+                    }
+                  })()}
+                </div>
+              </div>
+              ${eventData.location ? `
+                <div style="display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden;">
+                  <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                  <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">
+                    ${eventData.location}
+                  </span>
+                </div>
+              ` : ''}
             </div>
           </div>
-          <button id="tk-add-btn-${index}" style="margin-left: 12px; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; flex-shrink: 0;">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
+          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50% !important; background: #313B43; color: white; border: none; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(49, 59, 67, 0.2); flex-shrink: 0;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
           </button>
         </div>
-        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(-10px); overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.3s, transform 0.4s;"></div>
+        
+        <!-- 펼쳐진 상태: 수정폼만 위쪽 쉐도우 -->
+        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(0); overflow: visible; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out; box-shadow: none; background: transparent; border-radius: 0; margin: 8px 0 0 0; padding: 0; position: relative; z-index: 100;"></div>
       </div>
     `;
   });
@@ -190,6 +258,9 @@ function displayResult(data) {
   resultContent.innerHTML = eventsHtml;
   
   // 각 이벤트 카드에 대한 이벤트 리스너 설정
+  const dropdownControllers = new Map();
+  let activeDropdownIndex = null;
+
   eventsArray.forEach((eventData, index) => {
     const card = resultContent.querySelector(`#tk-compact-card-${index}`);
     const dropdown = resultContent.querySelector(`#tk-dropdown-${index}`);
@@ -197,43 +268,117 @@ function displayResult(data) {
     let dropdownOpen = false;
     
     if (!card || !dropdown || !addBtn) return;
-    
-    // 카드 호버 효과
-    card.addEventListener('mouseenter', () => {
-      card.style.transform = 'translateY(-2px)';
-      card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)';
-    });
-    
-    card.addEventListener('mouseleave', () => {
+
+    const openDropdown = async () => {
+      dropdownOpen = true;
+      activeDropdownIndex = index;
+
       card.style.transform = 'translateY(0)';
-      card.style.boxShadow = '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)';
-    });
-    
-    // 카드 클릭 이벤트 (수정 폼 토글)
-    card.addEventListener('click', async (e) => {
-      if (e.target.closest(`#tk-add-btn-${index}`) || (isCreatingEvent && creatingEventIndex === index)) return;
-      
-      dropdownOpen = !dropdownOpen;
-      if (dropdownOpen) {
-        // 카드 하단 모서리를 직각으로 변경 (연결된 느낌)
-        card.style.borderRadius = '12px 12px 0 0';
-        await showDropdownForm(eventData, index);
+      card.style.borderRadius = '0';
+      card.style.zIndex = '1';
+      card.style.boxShadow = 'none';
+      card.style.background = 'transparent';
+      card.style.position = 'relative';
+
+      const modalBody = modalInstance.querySelector('#modal-body');
+      if (modalBody) {
+        modalBody.style.maxHeight = '600px';
+      }
+
+      await showDropdownForm(eventData, index);
+
+      dropdown.style.maxHeight = '0';
+      dropdown.style.opacity = '0';
+      dropdown.style.transform = 'translateY(6px)';
+      dropdown.style.borderRadius = '0';
+      dropdown.style.zIndex = '100';
+      dropdown.style.background = 'transparent';
+      dropdown.style.marginTop = '8px';
+      dropdown.style.overflow = 'visible';
+      dropdown.style.boxShadow = 'none';
+      dropdown.style.pointerEvents = 'auto';
+
+      setTimeout(() => {
         dropdown.style.maxHeight = '700px';
         dropdown.style.opacity = '1';
         dropdown.style.transform = 'translateY(0)';
-        addBtn.style.display = 'none';
-      } else {
-        // 카드 모서리를 다시 둥글게 변경
-        card.style.borderRadius = '12px';
+        dropdown.style.borderRadius = '0';
+
+        setTimeout(() => {
+          const eventCard = card.closest('.event-card');
+          if (eventCard && modalBody) {
+            const cardRect = eventCard.getBoundingClientRect();
+            const modalBodyRect = modalBody.getBoundingClientRect();
+            const scrollTop = modalBody.scrollTop;
+
+            const cardBottom = cardRect.bottom;
+            const modalBottom = modalBodyRect.bottom;
+
+            if (cardBottom > modalBottom - 20) {
+              const scrollDistance = cardBottom - modalBottom + 40;
+              modalBody.scrollTo({
+                top: scrollTop + scrollDistance,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }, 350);
+      }, 50);
+
+      addBtn.style.display = 'none';
+    };
+
+    const closeDropdown = (options = {}) => {
+      if (!dropdownOpen) return Promise.resolve();
+
+      const { forSwitch = false } = options;
+      dropdownOpen = false;
+      if (activeDropdownIndex === index) {
+        activeDropdownIndex = null;
+      }
+
+      card.style.transform = 'translateY(0) scale(1)';
+      card.style.borderRadius = '0';
+      card.style.zIndex = '1';
+      card.style.boxShadow = 'none';
+      card.style.background = 'transparent';
+      card.style.position = 'relative';
+
+      const modalBody = modalInstance.querySelector('#modal-body');
+      if (modalBody) {
+        const anyDropdownOpen = Array.from(dropdownControllers.entries()).some(
+          ([controllerIndex, controller]) => controllerIndex !== index && controller.isOpen()
+        );
+        if (!anyDropdownOpen) {
+          modalBody.style.maxHeight = '320px';
+        }
+      }
+
+      const currentHeight = dropdown.scrollHeight;
+      dropdown.style.maxHeight = `${currentHeight}px`;
+      dropdown.style.opacity = '1';
+      dropdown.style.transform = 'translateY(0)';
+      dropdown.style.borderRadius = '0';
+      dropdown.style.boxShadow = 'none';
+      dropdown.style.zIndex = '50';
+      dropdown.style.marginTop = '8px';
+      dropdown.style.pointerEvents = 'none';
+
+      requestAnimationFrame(() => {
         dropdown.style.maxHeight = '0';
         dropdown.style.opacity = '0';
-        dropdown.style.transform = 'translateY(-10px)';
-        setTimeout(() => { 
+        dropdown.style.transform = 'translateY(-6px)';
+      });
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
           if (!(isCreatingEvent && creatingEventIndex === index)) {
-            dropdown.innerHTML = ''; 
+            dropdown.innerHTML = '';
           }
-        }, 500);
-        // + 버튼을 드롭다운 애니메이션 완료 후에 부드럽게 나타나게 함
+          dropdown.style.pointerEvents = '';
+          dropdown.style.transform = 'translateY(0)';
+        }, 450);
+
         setTimeout(() => {
           if (!(isCreatingEvent && creatingEventIndex === index)) {
             addBtn.style.display = 'flex';
@@ -243,10 +388,89 @@ function displayResult(data) {
               addBtn.style.opacity = '1';
             }, 10);
           }
-        }, 300);
+        }, 260);
+
+        const resolveDelay = forSwitch ? 250 : 140;
+        setTimeout(() => {
+          resolve();
+        }, resolveDelay);
+      });
+    };
+
+    dropdownControllers.set(index, {
+      close: (options) => closeDropdown(options),
+      isOpen: () => dropdownOpen
+    });
+    
+    // 카드 호버 효과 - 미세한 리프트와 글로우
+    card.addEventListener('mouseenter', () => {
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(-1px)';
+        card.style.borderRadius = '10px';
+        card.style.boxShadow = '0 4px 20px rgba(0,0,0,0.06)';
+        card.style.background = 'rgba(255,255,255,0.5)';
+      }
+    });
+
+    card.addEventListener('mouseleave', () => {
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(0)';
+        card.style.borderRadius = '0';
+        card.style.boxShadow = 'none';
+        card.style.background = 'transparent';
+      }
+    });
+
+    // 카드 클릭 효과 - 부드러운 프레스
+    card.addEventListener('mousedown', () => {
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(0) scale(0.995)';
+      }
+    });
+
+    card.addEventListener('mouseup', () => {
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(-1px)';
       }
     });
     
+    // 카드 클릭 이벤트 (수정 폼 토글)
+    card.addEventListener('click', async (e) => {
+      if (e.target.closest(`#tk-add-btn-${index}`) || (isCreatingEvent && creatingEventIndex === index)) return;
+
+      if (!dropdownOpen) {
+        if (activeDropdownIndex !== null && activeDropdownIndex !== index) {
+          const activeController = dropdownControllers.get(activeDropdownIndex);
+          if (activeController) {
+            await activeController.close({ forSwitch: true });
+          }
+        }
+        await openDropdown();
+      } else {
+        await closeDropdown();
+      }
+    });
+    
+    // + 버튼 호버 효과
+    addBtn.addEventListener('mouseenter', () => {
+      addBtn.style.transform = 'scale(1.1)';
+      addBtn.style.boxShadow = '0 4px 12px rgba(49, 59, 67, 0.35)';
+    });
+
+    addBtn.addEventListener('mouseleave', () => {
+      addBtn.style.transform = 'scale(1)';
+      addBtn.style.boxShadow = '0 2px 6px rgba(49, 59, 67, 0.2)';
+    });
+
+    // + 버튼 클릭 효과
+    addBtn.addEventListener('mousedown', () => {
+      addBtn.style.transform = 'scale(0.95)';
+    });
+
+    addBtn.addEventListener('mouseup', () => {
+      addBtn.style.transform = 'scale(1.1)';
+    });
+
     // + 버튼 클릭 이벤트 (일정 추가)
     addBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -268,35 +492,46 @@ async function showDropdownForm(originData, eventIndex) {
   const showSourceInfo = settings.settings?.showSourceInfo;
   
   dropdown.innerHTML = `
-    <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 20px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none; text-align: left;">
-      <div style="margin-bottom: 8px;">
-        <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">제목</label>
-        <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="제목을 입력하세요" />
-          </div>
-      <div style="margin-bottom: 8px;">
-        <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">시작</label>
-        <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
-      </div>
-      <div style="margin-bottom: 8px;">
-        <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">종료</label>
-        <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
-      </div>
-      <div style="margin-bottom: 8px;">
-        <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">장소</label>
-        <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="장소를 입력하세요" />
+    <!-- 수정 폼 -->
+    <form id="editForm" style="background: white; padding: 16px; border-radius: 12px !important; border: none; text-align: left; margin: 0; box-shadow: 0 -4px 12px rgba(0,0,0,0.08);">
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            TITLE
+          </label>
+          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="제목을 입력하세요" />
         </div>
-      <div style="margin-bottom: 12px;">
-        <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">설명</label>
-        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            START
+          </label>
+          <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" />
         </div>
-      <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1);">
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            END
+          </label>
+          <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" />
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            PLACE
+          </label>
+          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="장소를 입력하세요" />
+        </div>
+        <div style="margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            DESCRIPTION
+          </label>
+          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+        </div>
+      <button id="tk-dropdown-save" type="button" style="width: 100%; background: #313B43; color: white; border: none; border-radius: 6px !important; padding: 8px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1); box-shadow: 0 4px 12px rgba(49, 59, 67, 0.3); height: auto;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
-            일정 저장
-          </button>
+        일정 저장
+      </button>
       </form>
-    `;
+  `;
   
   // 저장 버튼 클릭 이벤트
   const saveBtn = dropdown.querySelector('#tk-dropdown-save');
@@ -316,7 +551,7 @@ async function showDropdownForm(originData, eventIndex) {
       saveBtn.addEventListener('mouseenter', () => {
         if (!saveBtn.classList.contains('completed')) {
           saveBtn.style.transform = 'scale(1.02)';
-          saveBtn.style.boxShadow = '0 4px 12px rgba(232, 57, 65, 0.3)';
+          saveBtn.style.boxShadow = '0 4px 12px rgba(30, 58, 138, 0.4)';
         }
       });
       
@@ -364,74 +599,107 @@ async function showDropdownForm(originData, eventIndex) {
 // 저장 버튼 상태 변경 함수
 function updateSaveButtonState(saveBtn, state) {
   if (!saveBtn) return;
-  
+
+  // 부드러운 트랜지션 설정
+  saveBtn.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+
   switch (state) {
     case 'loading':
       saveBtn.innerHTML = `
-        <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 16px; height: 16px; object-fit: contain; filter: brightness(0) invert(1);">
-        <span>Saving...</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;"></div>
+          <span style="flex-shrink: 0;">저장 중...</span>
+        </div>
       `;
-      saveBtn.style.background = '#6b7280';
+      saveBtn.style.background = '#6B7280';
+      saveBtn.style.boxShadow = 'none';
+      saveBtn.style.transform = 'scale(0.98)';
       saveBtn.disabled = true;
       break;
-      
+
     case 'success':
       saveBtn.innerHTML = `
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span>저장 완료!</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: checkmarkPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>저장 완료!</span>
+        </div>
       `;
-      saveBtn.style.background = 'linear-gradient(to right, #065f46, #047857)';
+      saveBtn.style.background = '#4A5568';
+      saveBtn.style.boxShadow = '0 4px 8px rgba(74, 85, 104, 0.2)';
+      saveBtn.style.transform = 'scale(1.02)';
       saveBtn.classList.add('completed');
-      
-      // 완료 애니메이션: 확대 + 펄스 효과
-      saveBtn.style.transform = 'scale(1.1)';
-      saveBtn.style.boxShadow = '0 8px 20px rgba(6, 95, 70, 0.5)';
-      
+
+      // 체크마크 애니메이션 스타일 추가
+      if (!document.querySelector('#checkmark-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'checkmark-animation-style';
+        style.textContent = `
+          @keyframes checkmarkPop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // 부드러운 펄스 효과 (1회)
       setTimeout(() => {
         saveBtn.style.transform = 'scale(1)';
-        saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.4)';
-      }, 300);
-      
-      // 펄스 효과
-      let pulseCount = 0;
-      const pulseInterval = setInterval(() => {
-        if (pulseCount >= 3) {
-          clearInterval(pulseInterval);
-          return;
-        }
-        
-        saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.7)';
+        saveBtn.style.boxShadow = '0 6px 12px rgba(74, 85, 104, 0.25)';
         setTimeout(() => {
-          saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.4)';
-        }, 200);
-        
-        pulseCount++;
-      }, 600);
-      
+          saveBtn.style.boxShadow = '0 4px 8px rgba(74, 85, 104, 0.15)';
+        }, 400);
+      }, 300);
+
       break;
-      
+
     case 'error':
       saveBtn.innerHTML = `
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-        <span>다시 시도</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: errorShake 0.5s ease-in-out;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>다시 시도</span>
+        </div>
       `;
-      saveBtn.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+      saveBtn.style.background = 'linear-gradient(135deg, #EF4444, #DC2626)';
+      saveBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.35)';
+      saveBtn.style.transform = 'scale(1)';
       saveBtn.disabled = false;
+
+      // 쉐이크 애니메이션 스타일 추가
+      if (!document.querySelector('#error-shake-animation-style')) {
+        const shakeStyle = document.createElement('style');
+        shakeStyle.id = 'error-shake-animation-style';
+        shakeStyle.textContent = `
+          @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+          }
+        `;
+        document.head.appendChild(shakeStyle);
+      }
       break;
-      
+
     default:
       // 기본 상태로 복원
       saveBtn.innerHTML = `
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        <span>일정 저장</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          <span>일정 저장</span>
+        </div>
       `;
-      saveBtn.style.background = 'linear-gradient(to right, #E83941, #d32f2f)';
+      saveBtn.style.background = '#313B43';
+      saveBtn.style.boxShadow = '0 4px 12px rgba(49, 59, 67, 0.3)';
+      saveBtn.style.transform = 'scale(1)';
       saveBtn.disabled = false;
       saveBtn.classList.remove('completed');
       break;
@@ -445,8 +713,9 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   creatingEventIndex = eventIndex;
   
   addBtn.innerHTML = `
-    <div style="width: 20px; height: 20px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;"></div>
   `;
+  
   addBtn.disabled = true;
   
   try {
@@ -476,21 +745,23 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
       `;
-      addBtn.style.background = '#10b981';
-      
+      addBtn.style.background = '#4A5568';
+      addBtn.style.boxShadow = '0 2px 8px rgba(74, 85, 104, 0.25)';
+      addBtn.setAttribute('data-added', 'true');
+
       // 저장 버튼 상태를 성공으로 업데이트
       if (saveBtn) {
         updateSaveButtonState(saveBtn, 'success');
       }
-      
+
       // 상태 리셋
       isCreatingEvent = false;
       creatingEventIndex = -1;
-      
+
       // 모든 이벤트가 추가되었는지 확인
       const allEventsAdded = lastParsedData.every((_, index) => {
         const btn = modalInstance.querySelector(`#tk-add-btn-${index}`);
-        return btn && btn.style.background === '#10b981';
+        return btn && btn.getAttribute('data-added') === 'true';
       });
       
       if (allEventsAdded) {
@@ -567,7 +838,7 @@ function showToastMessage(message, type = "success") {
     left: 50%;
     transform: translateX(-50%);
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: 8px !important;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     font-size: 12px;
     font-weight: 500;
@@ -681,7 +952,7 @@ function showModal(selectedText, isAutoDetected = false) {
         if (resultContent) {
           resultContent.style.display = 'block';
           resultContent.innerHTML = `
-            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px;">
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px !important; padding: 12px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <svg width="16" height="16" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -689,7 +960,7 @@ function showModal(selectedText, isAutoDetected = false) {
                 <span style="color: #991b1b; font-weight: 500; font-size: 14px;">분석 실패: ${response?.error || '알 수 없는 오류'}</span>
               </div>
               ${isAutoDetected ? `
-                <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px; font-size: 12px; color: #0369a1;">
+                <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px !important; font-size: 12px; color: #0369a1;">
                   💡 텍스트를 직접 선택하고 우클릭해보세요!
                 </div>
               ` : ''}
@@ -872,7 +1143,7 @@ class BookingPageDetector {
       right: 20px;
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px);
-      border-radius: 12px;
+      border-radius: 12px !important;
       padding: 16px 20px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -889,7 +1160,7 @@ class BookingPageDetector {
     
     notification.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div id="notification-icon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #E83941, #d32f2f); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <div id="notification-icon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #E83941, #d32f2f); border-radius: 50% !important; display: flex; align-items: center; justify-content: center;">
           <svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
@@ -1149,5 +1420,68 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === 'updateProgress') {
     // 진행률 업데이트 처리
     updateProgress(request.progress, request.stage);
+  } else if (request.action === 'testModal') {
+    // 테스트용 모달 - 더미 데이터로 바로 표시
+    openModal();
+    const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
+    const resultContent = modalInstance.querySelector('#timekeeper-result-content');
+
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    if (resultContent) resultContent.style.display = 'block';
+
+    // 닫기 이벤트 설정
+    const closeBtn = modalInstance.querySelector('#modal-close');
+    const backdrop = modalInstance.querySelector('#modal-backdrop');
+
+    function closeHandler() {
+      closeModal();
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeHandler);
+    if (backdrop) backdrop.addEventListener('click', closeHandler);
+
+    // Escape 키로 닫기
+    const escapeHandler = (e) => {
+      if (e.key === 'Escape') {
+        closeHandler();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+
+    // 페이지 정보 설정
+    pageInfo = {
+      title: 'Test Page',
+      url: window.location.href,
+      domain: window.location.hostname,
+      isAutoDetected: false
+    };
+
+    // 테스트 데이터
+    const testData = [
+      {
+        summary: '테스트 일정 제목이 길어지면 어떻게 표시될까요',
+        start: { dateTime: '2025-10-15T19:30:00+09:00', timeZone: 'Asia/Seoul' },
+        end: { dateTime: '2025-10-15T22:00:00+09:00', timeZone: 'Asia/Seoul' },
+        location: '서울시 마포구 홍대입구역 근처 어딘가 긴 주소',
+        description: '테스트 설명입니다.\n여러 줄로 작성할 수도 있습니다.'
+      },
+      {
+        summary: '두 번째 일정',
+        start: { dateTime: '2025-10-16T14:00:00+09:00', timeZone: 'Asia/Seoul' },
+        end: { dateTime: '2025-10-16T16:00:00+09:00', timeZone: 'Asia/Seoul' },
+        location: '강남역',
+        description: ''
+      },
+      {
+        summary: '하루종일 이벤트 테스트',
+        start: { date: '2025-10-17', timeZone: 'Asia/Seoul' },
+        end: { date: '2025-10-18', timeZone: 'Asia/Seoul' },
+        location: '제주도',
+        description: '시간 정보가 없는 하루종일 이벤트'
+      }
+    ];
+
+    displayResult(testData);
   }
 });
