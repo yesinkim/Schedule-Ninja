@@ -28,7 +28,7 @@ function createModal() {
     pointer-events: auto;
   `;
 
-  // 모달 HTML - 닌자 눈 디자인
+  // 모달 HTML - 새로운 디자인
   modalInstance.innerHTML = `
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); pointer-events: auto;" id="modal-backdrop"></div>
     <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto;" id="modal-content">
@@ -36,7 +36,7 @@ function createModal() {
       <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
         <!-- 닌자 눈 아이콘 -->
         <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${chrome.runtime.getURL('ninja_eyes.png')}" alt="ninja eyes" style="width: 24px; height: 24px; object-fit: contain;">
+          <img src="${chrome.runtime.getURL('assets/ninja_eyes.png')}" alt="ninja eyes" style="width: 24px; height: 24px; object-fit: contain;">
           <span style="font-weight: bold; font-size: 14px; color: white;">Schedule Ninja</span>
         </div>
         <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50% !important; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
@@ -50,7 +50,7 @@ function createModal() {
       <div style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto;">
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
-            <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
+            <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
             <span id="loading-text" style="font-size: 12px; font-weight: 500;">Snagging...</span>
           </div>
           <div id="progress-container" style="margin-top: 12px; display: none;">
@@ -67,6 +67,26 @@ function createModal() {
     </div>
     <style>
       @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes expandEllipse { 
+        0% { 
+          border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+          transform: scale(0.8) translateY(10px);
+        }
+        100% { 
+          border-radius: 16px 16px 0 0;
+          transform: scale(1) translateY(0);
+        }
+      }
+      @keyframes slideUpContent {
+        0% { 
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% { 
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   `;
 
@@ -164,47 +184,50 @@ function displayResult(data) {
   let eventsHtml = '';
   eventsArray.forEach((eventData, index) => {
     eventsHtml += `
-      <div class="event-card" data-event-index="${index}" style="margin-bottom: 8px;">
-        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-radius: 11px !important; box-shadow: 0 7px 28px rgba(0,0,0,0.11), 0 2px 7px rgba(0,0,0,0.07); padding: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2);">
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
-            <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
-              <svg width="20" height="20" fill="none" stroke="#E83941" viewBox="0 0 24 24" style="flex-shrink: 0;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"></path>
-              </svg>
-              <span style="font-weight: bold; font-size: 16px; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${eventData.summary || '제목 없음'}</span>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 3px; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 4px;">
-                <svg width="12" height="12" fill="none" stroke="#6b7280" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      <div class="event-card" data-event-index="${index}" style="position: relative; background: #F6F6F6; border-radius: 0; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+        <!-- 기본 상태: 전체 영역과 구분이 없는 아이템 -->
+        <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: transparent; border-radius: 0; box-shadow: none; padding: 16px; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: none; margin: 0; position: relative; z-index: 1;">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+            <!-- 제목 -->
+            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <svg width="18" height="18" fill="#303030" viewBox="0 0 24 24">
+                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 4H7v5h5v-5z"/>
                 </svg>
-                <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
+                <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${eventData.summary || '제목 없음'}</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24">
+                  <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/>
+                </svg>
+                <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                   ${eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || ''}
                   ${eventData.end?.dateTime ? ' ~ ' + eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date ? ' ~ ' + eventData.end.date : ''}
                 </span>
               </div>
               ${eventData.location ? `
-                <span style="font-size: 12px; color: #9ca3af;">|</span>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <svg width="12" height="12" fill="none" stroke="#6b7280" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
-                  <span style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px;">
+                  <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     ${eventData.location}
                   </span>
                 </div>
               ` : ''}
             </div>
           </div>
-          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50% !important; background: linear-gradient(to right, #E83941, #d32f2f); color: #e7e7e9; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; flex-shrink: 0;">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
+          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50% !important; background: #313B43; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(49, 59, 67, 0.3); flex-shrink: 0;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
           </button>
         </div>
-        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(-10px); overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.3s, transform 0.4s;"></div>
+        
+        <!-- 펼쳐진 상태: 수정폼만 위쪽 쉐도우 -->
+        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(0); overflow: visible; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: none; background: transparent; border-radius: 0; margin: 8px 0 0 0; padding: 0; position: relative; z-index: 100;"></div>
       </div>
     `;
   });
@@ -220,15 +243,21 @@ function displayResult(data) {
     
     if (!card || !dropdown || !addBtn) return;
     
-    // 카드 호버 효과
+    // 카드 호버 효과 - 둥근 모서리로 부드럽게
     card.addEventListener('mouseenter', () => {
-      card.style.transform = 'translateY(-2px)';
-      card.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1)';
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(-2px) scale(1.01)';
+        card.style.borderRadius = '8px';
+        card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04)';
+      }
     });
-    
+
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'translateY(0)';
-      card.style.boxShadow = '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)';
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(0) scale(1)';
+        card.style.borderRadius = '0';
+        card.style.boxShadow = 'none';
+      }
     });
     
     // 카드 클릭 이벤트 (수정 폼 토글)
@@ -237,24 +266,60 @@ function displayResult(data) {
       
       dropdownOpen = !dropdownOpen;
       if (dropdownOpen) {
-        // 카드 하단 모서리를 직각으로 변경 (연결된 느낌)
-        card.style.setProperty('border-radius', '12px 12px 0 0', 'important');
+        // 카드 스타일 - 쉐도우 없음, 배경색만
+        card.style.transform = 'translateY(0)';
+        card.style.borderRadius = '0';
+        card.style.zIndex = '1';
+        card.style.boxShadow = 'none';
+        card.style.background = 'transparent';
+        card.style.position = 'relative';
+
         await showDropdownForm(eventData, index);
-        dropdown.style.maxHeight = '700px';
-        dropdown.style.opacity = '1';
-        dropdown.style.transform = 'translateY(0)';
-        addBtn.style.display = 'none';
-      } else {
-        // 카드 모서리를 다시 둥글게 변경
-        card.style.setProperty('border-radius', '12px', 'important');
+
+        // 드롭다운만 쉐도우 적용
         dropdown.style.maxHeight = '0';
         dropdown.style.opacity = '0';
-        dropdown.style.transform = 'translateY(-10px)';
+        dropdown.style.transform = 'translateY(0) scale(0.95)';
+        dropdown.style.borderRadius = '0';
+        dropdown.style.zIndex = '100';
+        dropdown.style.background = 'transparent';
+        dropdown.style.marginTop = '8px';
+        dropdown.style.overflow = 'visible';
+        dropdown.style.boxShadow = 'none';
+
+        // 애니메이션 시작
+        setTimeout(() => {
+          dropdown.style.maxHeight = '700px';
+          dropdown.style.opacity = '1';
+          dropdown.style.transform = 'translateY(0) scale(1)';
+          dropdown.style.borderRadius = '0';
+        }, 50);
+
+        addBtn.style.display = 'none';
+      } else {
+        // 카드 원래대로
+        card.style.transform = 'translateY(0) scale(1)';
+        card.style.borderRadius = '0';
+        card.style.zIndex = '1';
+        card.style.boxShadow = 'none';
+        card.style.background = 'transparent';
+        card.style.position = 'relative';
+
+        // 드롭다운 닫기
+        dropdown.style.maxHeight = '0';
+        dropdown.style.opacity = '0';
+        dropdown.style.transform = 'translateY(0) scale(0.95)';
+        dropdown.style.borderRadius = '0';
+        dropdown.style.boxShadow = 'none';
+        dropdown.style.zIndex = '50';
+        dropdown.style.marginTop = '8px';
+        
         setTimeout(() => { 
           if (!(isCreatingEvent && creatingEventIndex === index)) {
             dropdown.innerHTML = ''; 
           }
         }, 500);
+        
         // + 버튼을 드롭다운 애니메이션 완료 후에 부드럽게 나타나게 함
         setTimeout(() => {
           if (!(isCreatingEvent && creatingEventIndex === index)) {
@@ -291,61 +356,45 @@ async function showDropdownForm(originData, eventIndex) {
   
   dropdown.innerHTML = `
     <!-- 수정 폼 -->
-    <form id="editForm" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); padding: 16px; border-radius: 0 0 11px 11px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); margin-top: -1px; border: 1px solid rgba(255,255,255,0.2); border-top: none; text-align: left;">
-      <div style="margin-bottom: 8px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-          </svg>
-          제목
-        </label>
-        <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="제목을 입력하세요" />
-          </div>
-      <div style="margin-bottom: 8px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          시작
-        </label>
-        <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
-      </div>
-      <div style="margin-bottom: 8px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          종료
-        </label>
-        <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" />
-      </div>
-      <div style="margin-bottom: 8px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-          장소
-        </label>
-        <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr;" placeholder="장소를 입력하세요" />
-      </div>
-      <div style="margin-bottom: 12px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          설명
-        </label>
-        <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #f5f5f5; border: 1px solid #d1d5db; border-radius: 4px !important; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+    <form id="editForm" style="background: white; padding: 16px; border-radius: 12px !important; border: none; text-align: left; margin: 0; box-shadow: 0 -4px 12px rgba(0,0,0,0.08);">
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            TITLE
+          </label>
+          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="제목을 입력하세요" />
         </div>
-      <button id="tk-dropdown-save" type="button" style="width: 100%; background: linear-gradient(to right, #1e3a8a, #1e40af); color: #e7e7e9; border: none; border-radius: 8px !important; padding: 8px 12px; font-weight: 500; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1);">
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            START
+          </label>
+          <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" />
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            END
+          </label>
+          <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" />
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            PLACE
+          </label>
+          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="장소를 입력하세요" />
+        </div>
+        <div style="margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            DESCRIPTION
+          </label>
+          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+        </div>
+      <button id="tk-dropdown-save" type="button" style="width: 100%; background: #313B43; color: white; border: none; border-radius: 6px !important; padding: 8px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1); box-shadow: 0 4px 12px rgba(49, 59, 67, 0.3); height: auto;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
-            일정 저장
-          </button>
+        일정 저장
+      </button>
       </form>
-    `;
+  `;
   
   // 저장 버튼 클릭 이벤트
   const saveBtn = dropdown.querySelector('#tk-dropdown-save');
@@ -496,6 +545,7 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   addBtn.innerHTML = `
     <div style="width: 20px; height: 20px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
   `;
+  
   addBtn.disabled = true;
   
   try {

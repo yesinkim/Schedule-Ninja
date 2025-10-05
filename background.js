@@ -597,14 +597,18 @@ class ApiService {
         }
 
         // 2. 날짜/시간 형식 검증
-        const isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
-        const isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
+        let isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
+        let isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
         const hasOnlyStartTime = !!(eventInfo.start?.dateTime && !eventInfo.end?.dateTime);
+        const hasOnlyStartDate = !!(eventInfo.start?.date && !eventInfo.end);
+        const hasStartTimeButEndDate = !!(eventInfo.start?.dateTime && eventInfo.end?.date && !eventInfo.end?.dateTime);
         
         console.log('2. 이벤트 타입:', {
             isAllDayEvent,
             isTimeSpecificEvent,
             hasOnlyStartTime,
+            hasOnlyStartDate,
+            hasStartTimeButEndDate,
             start: eventInfo.start,
             end: eventInfo.end
         });
@@ -648,7 +652,68 @@ class ApiService {
             isTimeSpecificEvent = true;
         }
 
-        if (!isAllDayEvent && !isTimeSpecificEvent && !hasOnlyStartTime) {
+        // 시작 시간은 있지만 종료는 날짜만 있는 경우 - 시작 시간에 맞춰 1시간짜리 이벤트로 설정
+        if (hasStartTimeButEndDate) {
+            console.log('3. 시작 시간은 있지만 종료는 날짜만 있는 경우 - 시작 시간에 맞춰 1시간짜리 이벤트로 설정');
+            const startDateTime = new Date(eventInfo.start.dateTime);
+            
+            if (isNaN(startDateTime.getTime())) {
+                throw new Error('유효하지 않은 시작 시간 형식입니다.');
+            }
+            
+            // 시작 시간에서 1시간 후를 종료 시간으로 설정
+            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1시간 = 60분 * 60초 * 1000ms
+            
+            // 시작 시간의 시간대 정보를 유지하여 종료 시간 설정
+            const startDateTimeStr = eventInfo.start.dateTime;
+            
+            // 시간대 오프셋 추출 (정규식 사용)
+            let timezoneOffset = '+09:00'; // 기본값
+            const timezoneMatch = startDateTimeStr.match(/([+-]\d{2}:\d{2}|Z)$/);
+            if (timezoneMatch) {
+                timezoneOffset = timezoneMatch[1] === 'Z' ? '+00:00' : timezoneMatch[1];
+            }
+            
+            // 종료 시간을 ISO 형식으로 변환
+            const endDateTimeStr = endDateTime.toISOString().replace('Z', timezoneOffset);
+            
+            // end 객체를 dateTime 형식으로 업데이트
+            eventInfo.end = {
+                dateTime: endDateTimeStr,
+                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
+            };
+            
+            console.log('   시작 시간:', startDateTimeStr);
+            console.log('   추출된 시간대 오프셋:', timezoneOffset);
+            console.log('   자동 설정된 종료 시간:', endDateTimeStr);
+            
+            // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
+            isTimeSpecificEvent = true;
+        }
+
+        // 시작 날짜만 있고 종료 날짜가 없는 경우 하루종일 이벤트로 자동 설정
+        if (hasOnlyStartDate) {
+            console.log('3. 시작 날짜만 있는 경우 - 하루종일 이벤트로 자동 설정');
+            const startDate = new Date(eventInfo.start.date);
+            
+            if (isNaN(startDate.getTime())) {
+                throw new Error('유효하지 않은 시작 날짜 형식입니다.');
+            }
+            
+            // 시작 날짜에서 다음 날을 종료 날짜로 설정
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 1);
+            
+            // end 객체 생성
+            eventInfo.end = {
+                date: endDate.toISOString().split('T')[0]
+            };
+            
+            console.log('   자동 설정된 종료 날짜:', eventInfo.end.date);
+            isAllDayEvent = true;
+        }
+
+        if (!isAllDayEvent && !isTimeSpecificEvent && !hasOnlyStartTime && !hasOnlyStartDate && !hasStartTimeButEndDate) {
             throw new Error('시작 및 종료 날짜/시간 형식이 올바르지 않습니다.');
         }
 
@@ -671,6 +736,43 @@ class ApiService {
                 nextDay.setDate(nextDay.getDate() + 1);
                 eventInfo.end.date = nextDay.toISOString().split('T')[0];
                 console.log('   조정된 종료일:', eventInfo.end.date);
+            }
+        }
+
+        // 5. attendees 처리 (문자열 배열을 description으로 변환)
+        if (eventInfo.attendees && Array.isArray(eventInfo.attendees)) {
+            console.log('5. attendees 처리 - 문자열 배열을 description으로 변환');
+            
+            // attendees가 문자열 배열인지 확인
+            const hasStringArray = eventInfo.attendees.every(attendee => 
+                typeof attendee === 'string'
+            );
+            
+            if (hasStringArray) {
+                const attendeesList = eventInfo.attendees.join(', ');
+                const attendeesText = `참석자: ${attendeesList}`;
+                
+                // 기존 description이 있으면 추가, 없으면 새로 생성
+                if (eventInfo.description) {
+                    eventInfo.description = `${eventInfo.description}\n\n${attendeesText}`;
+                } else {
+                    eventInfo.description = attendeesText;
+                }
+                
+                // attendees 필드 제거 (Google Calendar API에서 email이 없으면 오류 발생)
+                delete eventInfo.attendees;
+                
+                console.log('   변환된 description:', eventInfo.description);
+            } else {
+                // attendees가 객체 배열이면 유효한 이메일이 있는지 확인
+                const hasValidEmails = eventInfo.attendees.every(attendee => 
+                    attendee && typeof attendee === 'object' && attendee.email
+                );
+                
+                if (!hasValidEmails) {
+                    console.log('   유효하지 않은 attendees - 제거');
+                    delete eventInfo.attendees;
+                }
             }
         }
 
