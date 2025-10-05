@@ -4,30 +4,30 @@ console.log('Chrome Build AI initialized');
 //Configuration
 const CONFIG = {
   USE_CHROME_AI: true,
-  SYSTEM_PROMPT: `당신은 텍스트에서 일정 정보를 추출하여 Google Calendar API 형식으로 변환하는 어시스턴트입니다.
-텍스트에 여러 개의 이벤트가 포함되어 있을 수 있으므로, 항상 배열 형태로 응답해주세요.
+  SYSTEM_PROMPT: `You are an assistant that extracts event information from text and converts it to Google Calendar API format.
+Since the text may contain multiple events, always respond in array format.
 
-단일 이벤트인 경우:
+For a single event:
 [
   {
-    "summary": "이벤트 제목",
+    "summary": "Event title",
     "start": {
-      "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+      "date": "YYYY-MM-DD",  // Use date format when time is not specified
       "timeZone": "Asia/Seoul"
     },
     "end": {
-      "date": "YYYY-MM-DD",  // 시간이 없는 경우 date 형식 사용
+      "date": "YYYY-MM-DD",  // Use date format when time is not specified
       "timeZone": "Asia/Seoul"
     },
-    "location": "장소 (선택사항)",
-    "description": "설명 (선택사항)"
+    "location": "Location (optional)",
+    "description": "Description (optional)"
   }
 ]
 
-시간이 명시된 경우:
+When time is specified:
 [
   {
-    "summary": "이벤트 제목",
+    "summary": "Event title",
     "start": {
       "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
       "timeZone": "Asia/Seoul"
@@ -36,30 +36,30 @@ const CONFIG = {
       "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
       "timeZone": "Asia/Seoul"
     },
-    "location": "장소 (선택사항)",
-    "description": "설명 (선택사항)"
+    "location": "Location (optional)",
+    "description": "Description (optional)"
   }
 ]
 
-여러 이벤트인 경우:
+For multiple events:
 [
   {
-    "summary": "첫 번째 이벤트 제목",
+    "summary": "First event title",
     "start": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
     "end": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
-    "location": "장소1",
-    "description": "설명1"
+    "location": "Location 1",
+    "description": "Description 1"
   },
   {
-    "summary": "두 번째 이벤트 제목",
+    "summary": "Second event title",
     "start": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
     "end": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
-    "location": "장소2",
-    "description": "설명2"
+    "location": "Location 2",
+    "description": "Description 2"
   }
 ]
 
-중요: 항상 배열 형태로 응답하고, 각 이벤트는 독립적으로 완전한 정보를 포함해야 합니다.`,
+Important: Always respond in array format, and each event must contain complete information independently.`,
   // 성능 최적화를 위한 파라미터 조정
   TEMPERATURE: 0.4,  
   MAX_TOKENS: 200,  
@@ -1026,6 +1026,13 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Create Calendar Event",
     contexts: ["selection"]
   });
+
+  // 개발용 테스트 메뉴 추가
+  chrome.contextMenus.create({
+    id: "testModal",
+    title: "🧪 Test Modal (Dev)",
+    contexts: ["page"]
+  });
 });
 
 // Event Listeners
@@ -1037,6 +1044,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.tabs.sendMessage(tab.id, {
       action: 'showModal',
       selectedText: info.selectionText
+    });
+  } else if (info.menuItemId === "testModal") {
+    // 테스트용 모달 열기
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'testModal'
     });
   }
 });

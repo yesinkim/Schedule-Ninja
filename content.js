@@ -32,13 +32,10 @@ function createModal() {
   modalInstance.innerHTML = `
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); pointer-events: auto;" id="modal-backdrop"></div>
     <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto;" id="modal-content">
-      <!-- 닌자 눈 헤더 -->
+      <!-- 헤더 -->
       <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
-        <!-- 닌자 눈 아이콘 -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${chrome.runtime.getURL('assets/ninja_eyes.png')}" alt="ninja eyes" style="width: 24px; height: 24px; object-fit: contain;">
-          <span style="font-weight: bold; font-size: 14px; color: white;">Schedule Ninja</span>
-        </div>
+        <!-- 로고 배너 -->
+        <img src="${chrome.runtime.getURL('assets/logo_banner.png')}" alt="Schedule Ninja" style="height: 20px; object-fit: contain;">
         <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50% !important; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -47,7 +44,7 @@ function createModal() {
       </div>
       
       <!-- 모달 본문 -->
-      <div style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto;">
+      <div id="modal-body" style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto; scroll-behavior: smooth;">
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
             <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
@@ -183,36 +180,44 @@ function displayResult(data) {
   
   let eventsHtml = '';
   eventsArray.forEach((eventData, index) => {
+    // 구분선 추가 (첫 번째 카드가 아닐 때만)
+    const divider = index > 0 ? `<div style="height: 1px; background: #E0E0E0; margin: 0;"></div>` : '';
+
     eventsHtml += `
+      ${divider}
       <div class="event-card" data-event-index="${index}" style="position: relative; background: #F6F6F6; border-radius: 0; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
-        <!-- 기본 상태: 전체 영역과 구분이 없는 아이템 -->
+        <!-- 기본 상태: 전체 영역 클릭 가능한 카드 -->
         <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: transparent; border-radius: 0; box-shadow: none; padding: 16px; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: none; margin: 0; position: relative; z-index: 1;">
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow: hidden;">
             <!-- 제목 -->
-            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <svg width="18" height="18" fill="#303030" viewBox="0 0 24 24">
-                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 4H7v5h5v-5z"/>
-                </svg>
-                <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${eventData.summary || '제목 없음'}</span>
-              </div>
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden;">
+              <svg width="18" height="18" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 4H7v5h5v-5z"/>
+              </svg>
+              <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">${eventData.summary || '제목 없음'}</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24">
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden;">
+              <div style="display: flex; align-items: flex-start; gap: 6px; min-width: 0; overflow: hidden;">
+                <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
                   <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/>
                 </svg>
-                <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                  ${eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || ''}
-                  ${eventData.end?.dateTime ? ' ~ ' + eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date ? ' ~ ' + eventData.end.date : ''}
-                </span>
+                <div style="font-size: 12px; color: #303030; flex: 1; min-width: 0; line-height: 1.4;">
+                  <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || ''}${eventData.end?.dateTime || eventData.end?.date ? ' ~' : ''}
+                  </div>
+                  ${eventData.end?.dateTime || eventData.end?.date ? `
+                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || ''}
+                    </div>
+                  ` : ''}
+                </div>
               </div>
               ${eventData.location ? `
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24">
+                <div style="display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden;">
+                  <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
-                  <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">
                     ${eventData.location}
                   </span>
                 </div>
@@ -227,7 +232,7 @@ function displayResult(data) {
         </div>
         
         <!-- 펼쳐진 상태: 수정폼만 위쪽 쉐도우 -->
-        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(0); overflow: visible; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: none; background: transparent; border-radius: 0; margin: 8px 0 0 0; padding: 0; position: relative; z-index: 100;"></div>
+        <div id="tk-dropdown-${index}" style="max-height: 0; opacity: 0; transform: translateY(0); overflow: visible; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out; box-shadow: none; background: transparent; border-radius: 0; margin: 8px 0 0 0; padding: 0; position: relative; z-index: 100;"></div>
       </div>
     `;
   });
@@ -279,7 +284,7 @@ function displayResult(data) {
         // 드롭다운만 쉐도우 적용
         dropdown.style.maxHeight = '0';
         dropdown.style.opacity = '0';
-        dropdown.style.transform = 'translateY(0) scale(0.95)';
+        dropdown.style.transform = 'translateY(0)';
         dropdown.style.borderRadius = '0';
         dropdown.style.zIndex = '100';
         dropdown.style.background = 'transparent';
@@ -291,7 +296,7 @@ function displayResult(data) {
         setTimeout(() => {
           dropdown.style.maxHeight = '700px';
           dropdown.style.opacity = '1';
-          dropdown.style.transform = 'translateY(0) scale(1)';
+          dropdown.style.transform = 'translateY(0)';
           dropdown.style.borderRadius = '0';
         }, 50);
 
@@ -308,7 +313,7 @@ function displayResult(data) {
         // 드롭다운 닫기
         dropdown.style.maxHeight = '0';
         dropdown.style.opacity = '0';
-        dropdown.style.transform = 'translateY(0) scale(0.95)';
+        dropdown.style.transform = 'translateY(0)';
         dropdown.style.borderRadius = '0';
         dropdown.style.boxShadow = 'none';
         dropdown.style.zIndex = '50';
@@ -1248,5 +1253,61 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === 'updateProgress') {
     // 진행률 업데이트 처리
     updateProgress(request.progress, request.stage);
+  } else if (request.action === 'testModal') {
+    // 테스트용 모달 - 더미 데이터로 바로 표시
+    openModal();
+    const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
+    const resultContent = modalInstance.querySelector('#timekeeper-result-content');
+
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    if (resultContent) resultContent.style.display = 'block';
+
+    // 닫기 이벤트 설정
+    const closeBtn = modalInstance.querySelector('#modal-close');
+    const backdrop = modalInstance.querySelector('#modal-backdrop');
+
+    function closeHandler() {
+      closeModal();
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeHandler);
+    if (backdrop) backdrop.addEventListener('click', closeHandler);
+
+    // Escape 키로 닫기
+    const escapeHandler = (e) => {
+      if (e.key === 'Escape') {
+        closeHandler();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+
+    // 페이지 정보 설정
+    pageInfo = {
+      title: 'Test Page',
+      url: window.location.href,
+      domain: window.location.hostname,
+      isAutoDetected: false
+    };
+
+    // 테스트 데이터
+    const testData = [
+      {
+        summary: '테스트 일정 제목이 길어지면 어떻게 표시될까요',
+        start: { dateTime: '2025-10-15T19:30:00+09:00', timeZone: 'Asia/Seoul' },
+        end: { dateTime: '2025-10-15T22:00:00+09:00', timeZone: 'Asia/Seoul' },
+        location: '서울시 마포구 홍대입구역 근처 어딘가 긴 주소',
+        description: '테스트 설명입니다.\n여러 줄로 작성할 수도 있습니다.'
+      },
+      {
+        summary: '두 번째 일정',
+        start: { dateTime: '2025-10-16T14:00:00+09:00', timeZone: 'Asia/Seoul' },
+        end: { dateTime: '2025-10-16T16:00:00+09:00', timeZone: 'Asia/Seoul' },
+        location: '강남역',
+        description: ''
+      }
+    ];
+
+    displayResult(testData);
   }
 });
