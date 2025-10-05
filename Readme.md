@@ -1,43 +1,49 @@
-## Problem Statement
+# Schedule Ninja
 
-- 일정관리에 드는 시간과 노력을 줄이고 싶다는 개인적인 귀찮음에서 비롯되었습니다.
-- 일정 정보를 수동으로 캘린더에 입력하는 과정이 번거롭고 비효율적입니다.
+> AI assistant that turns any schedule hint on the web into a clean Google Calendar event without leaving the page.
 
-## Solution
+[한국어](README.ko.md)
 
-- 가장 점유율이 높은 크롬 브라우저에 확장프로그램으로 일정 파싱 및 등록을 자동화합니다.
-- 드래그 및 오른쪽 클릭으로 텍스트, 이미지 데이터를 LLM을 이용해 간편하게 파싱합니다.
-- 파싱된 정보를 사용자 확인 후 구글 캘린더에 자동 등록합니다.
-- (추가 확장) 장소가 파싱되는 일정일 시 주변 음식점/카페 등을 추천하여 일정 관리의 편의성을 높입니다.
+## Overview
+Schedule Ninja is a Chrome extension designed to remove the friction of capturing meetings, deadlines, and invitations encountered while browsing. Highlight a sentence in an article, a date in an email, or an image of a poster—Schedule Ninja interprets the context, pre-fills a structured event, and streamlines confirmation. By combining on-device intelligence with a focused review experience, it keeps calendars accurate without slowing you down.
 
-## Technical Breakdown
+## Key Benefits
+- **Immediate capture**: Create calendar events the moment you notice them, instead of saving links or drafting reminders.
+- **Reduced errors**: Natural language parsing ensures dates, times, and locations are interpreted correctly.
+- **Decision-ready preview**: A single popup concentrates the essential fields so you can approve, adjust, or discard in seconds.
+- **Privacy-aware AI**: Core understanding runs locally using Gemini Nano, keeping sensitive browsing context on the device.
 
-- [크롬 확장 프로그램](https://developer.chrome.com/docs/extensions?hl=ko): JavaScript, HTML/CSS
-- 데이터 파싱: OCR, LLM(Gemini 1.5 Pro 예정) API
-- 캘린더 연동: Google Calendar API
-- 데이터 저장: (😅불필요시 덜어낼 예정입니다.)
-- 장소 추천: (확장 시 고려)
+## Workflow
+1. Drag or right-click any text or image that mentions a potential meeting or deadline.
+2. Schedule Ninja collects the relevant context from the page and prepares an event draft.
+3. Review the populated title, attendees, location, time, and notes in the popup.
+4. Confirm to send the event to Google Calendar, or tweak details before saving.
+5. Track recent actions and revisit edits through the in-extension activity log.
 
-## Impact
+## Intelligent Capabilities
+- **Prompt API** converts highlighted content into a structured event schema ready for Calendar insertion.
+- **Summarizer API** condenses lengthy sources—newsletters, briefs, meeting notes—into concise scheduling cards.
+- **Proofreader API** polishes event descriptions for clarity when you add manual notes.
+- **Translator API** (planned) will normalize multilingual invitations into a consistent format.
 
-- 사용자의 일정 관리 시간 단축 및 효율성 증대
-- 웹 브라우징 중 일정 관리의 편의성 향상
-- 장소 기반 추천을 통한 사용자 경험 개선
+## Product Architecture
+| Component | Role |
+| --- | --- |
+| `manifest.json` | Defines the MV3 configuration, permissions, and extension entry points. |
+| `content.js` | Observes DOM context, captures user selections, and renders the inline modal. |
+| `background.js` | Orchestrates AI requests, manages API credentials, and submits events to Google Calendar. |
+| `popup.html` / `popup.js` | Provides the review and confirmation interface with recent activity snapshots. |
+| `assets/`, `icons/` | Houses brand visuals and shared UI elements that express the ninja identity. |
 
-## Roadmap
+## Design Principles
+- Follow the palette, typography, and rounded geometry specified in `design-guide.md` for visual consistency.
+- Keep focus on the primary decision—approve, modify, or dismiss—by limiting noise in the popup layout.
+- Use microfeedback (subtle loading states, confirmation toasts) to communicate background AI activity.
 
-- Phase 1: 기본 기능 개발 (1-2개월)
-    - 프로젝트 요구사항 상세화
-    - 기본 UI/UX 설계 및 구현
-    - 확장 프로그램 기본 구조 개발
-    - 텍스트 파싱 기능 구현
-    - 이미지 파싱 기능(OCR) 구현
-    - 파싱된 일정 구글 캘린더 저장 기능 구현
-- Phase 2: 추가 기능 개발 (1-2개월)
-    - 장소 기반 주변 시설 추천 기능 구현
-    - 사용자 인터페이스 개선 및 베타 테스트
-- Phase 3: 마켓 등록 (1개월)
-    - 프로젝트 아이콘 및 배너 이미지 디자인
-    - 개인정보 및 데이터 보안 정책 확인
-    - 크롬 웹 스토어 등록 준비 및 제출
-- 발전 가능성 : 사용자 개인의 데이터 저장 (데이터 저장 방식에 대한 고민 필요)
+## Looking Ahead
+- Extend location-aware events with contextual suggestions such as nearby cafés or meeting rooms.
+- Explore collaborative timelines so teams can confirm shared availability directly from captured content.
+- Introduce follow-up tasks generated from recurring meeting notes and agendas.
+
+## Contributing
+Feedback fuels iteration. File issues for bugs, enhancement ideas, or API experiments. Designers, prompt engineers, and productivity enthusiasts are all welcome to shape the next release of Schedule Ninja.
