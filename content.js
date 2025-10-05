@@ -650,6 +650,7 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
       `;
       addBtn.style.background = '#4A5568';
       addBtn.style.boxShadow = '0 2px 8px rgba(74, 85, 104, 0.25)';
+      addBtn.setAttribute('data-added', 'true');
 
       // 저장 버튼 상태를 성공으로 업데이트
       if (saveBtn) {
@@ -663,7 +664,7 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
       // 모든 이벤트가 추가되었는지 확인
       const allEventsAdded = lastParsedData.every((_, index) => {
         const btn = modalInstance.querySelector(`#tk-add-btn-${index}`);
-        return btn && btn.style.background === 'rgb(74, 85, 104)';
+        return btn && btn.getAttribute('data-added') === 'true';
       });
       
       if (allEventsAdded) {
