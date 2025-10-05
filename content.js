@@ -224,8 +224,8 @@ function displayResult(data) {
               ` : ''}
             </div>
           </div>
-          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50% !important; background: #313B43; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(49, 59, 67, 0.3); flex-shrink: 0;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.3s;">
+          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50% !important; background: #313B43; color: white; border: none; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(49, 59, 67, 0.2); flex-shrink: 0;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
           </button>
@@ -248,20 +248,35 @@ function displayResult(data) {
     
     if (!card || !dropdown || !addBtn) return;
     
-    // 카드 호버 효과 - 둥근 모서리로 부드럽게
+    // 카드 호버 효과 - 미세한 리프트와 글로우
     card.addEventListener('mouseenter', () => {
       if (!dropdownOpen) {
-        card.style.transform = 'translateY(-2px) scale(1.01)';
-        card.style.borderRadius = '8px';
-        card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04)';
+        card.style.transform = 'translateY(-1px)';
+        card.style.borderRadius = '10px';
+        card.style.boxShadow = '0 4px 20px rgba(0,0,0,0.06)';
+        card.style.background = 'rgba(255,255,255,0.5)';
       }
     });
 
     card.addEventListener('mouseleave', () => {
       if (!dropdownOpen) {
-        card.style.transform = 'translateY(0) scale(1)';
+        card.style.transform = 'translateY(0)';
         card.style.borderRadius = '0';
         card.style.boxShadow = 'none';
+        card.style.background = 'transparent';
+      }
+    });
+
+    // 카드 클릭 효과 - 부드러운 프레스
+    card.addEventListener('mousedown', () => {
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(0) scale(0.995)';
+      }
+    });
+
+    card.addEventListener('mouseup', () => {
+      if (!dropdownOpen) {
+        card.style.transform = 'translateY(-1px)';
       }
     });
     
@@ -339,6 +354,26 @@ function displayResult(data) {
       }
     });
     
+    // + 버튼 호버 효과
+    addBtn.addEventListener('mouseenter', () => {
+      addBtn.style.transform = 'scale(1.1)';
+      addBtn.style.boxShadow = '0 4px 12px rgba(49, 59, 67, 0.35)';
+    });
+
+    addBtn.addEventListener('mouseleave', () => {
+      addBtn.style.transform = 'scale(1)';
+      addBtn.style.boxShadow = '0 2px 6px rgba(49, 59, 67, 0.2)';
+    });
+
+    // + 버튼 클릭 효과
+    addBtn.addEventListener('mousedown', () => {
+      addBtn.style.transform = 'scale(0.95)';
+    });
+
+    addBtn.addEventListener('mouseup', () => {
+      addBtn.style.transform = 'scale(1.1)';
+    });
+
     // + 버튼 클릭 이벤트 (일정 추가)
     addBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -467,74 +502,107 @@ async function showDropdownForm(originData, eventIndex) {
 // 저장 버튼 상태 변경 함수
 function updateSaveButtonState(saveBtn, state) {
   if (!saveBtn) return;
-  
+
+  // 부드러운 트랜지션 설정
+  saveBtn.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+
   switch (state) {
     case 'loading':
       saveBtn.innerHTML = `
-        <img src="${chrome.runtime.getURL('running-ninja.gif')}" alt="running-ninja" style="width: 16px; height: 16px; object-fit: contain; filter: brightness(0) invert(1);">
-        <span>Saving...</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;"></div>
+          <span style="flex-shrink: 0;">저장 중...</span>
+        </div>
       `;
-      saveBtn.style.background = '#6b7280';
+      saveBtn.style.background = '#6B7280';
+      saveBtn.style.boxShadow = 'none';
+      saveBtn.style.transform = 'scale(0.98)';
       saveBtn.disabled = true;
       break;
-      
+
     case 'success':
       saveBtn.innerHTML = `
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span>저장 완료!</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: checkmarkPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>저장 완료!</span>
+        </div>
       `;
-      saveBtn.style.background = 'linear-gradient(to right, #065f46, #047857)';
+      saveBtn.style.background = '#4A5568';
+      saveBtn.style.boxShadow = '0 4px 8px rgba(74, 85, 104, 0.2)';
+      saveBtn.style.transform = 'scale(1.02)';
       saveBtn.classList.add('completed');
-      
-      // 완료 애니메이션: 확대 + 펄스 효과
-      saveBtn.style.transform = 'scale(1.1)';
-      saveBtn.style.boxShadow = '0 8px 20px rgba(6, 95, 70, 0.5)';
-      
+
+      // 체크마크 애니메이션 스타일 추가
+      if (!document.querySelector('#checkmark-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'checkmark-animation-style';
+        style.textContent = `
+          @keyframes checkmarkPop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // 부드러운 펄스 효과 (1회)
       setTimeout(() => {
         saveBtn.style.transform = 'scale(1)';
-        saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.4)';
-      }, 300);
-      
-      // 펄스 효과
-      let pulseCount = 0;
-      const pulseInterval = setInterval(() => {
-        if (pulseCount >= 3) {
-          clearInterval(pulseInterval);
-          return;
-        }
-        
-        saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.7)';
+        saveBtn.style.boxShadow = '0 6px 12px rgba(74, 85, 104, 0.25)';
         setTimeout(() => {
-          saveBtn.style.boxShadow = '0 4px 12px rgba(6, 95, 70, 0.4)';
-        }, 200);
-        
-        pulseCount++;
-      }, 600);
-      
+          saveBtn.style.boxShadow = '0 4px 8px rgba(74, 85, 104, 0.15)';
+        }, 400);
+      }, 300);
+
       break;
-      
+
     case 'error':
       saveBtn.innerHTML = `
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-        <span>다시 시도</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: errorShake 0.5s ease-in-out;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>다시 시도</span>
+        </div>
       `;
-      saveBtn.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+      saveBtn.style.background = 'linear-gradient(135deg, #EF4444, #DC2626)';
+      saveBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.35)';
+      saveBtn.style.transform = 'scale(1)';
       saveBtn.disabled = false;
+
+      // 쉐이크 애니메이션 스타일 추가
+      if (!document.querySelector('#error-shake-animation-style')) {
+        const shakeStyle = document.createElement('style');
+        shakeStyle.id = 'error-shake-animation-style';
+        shakeStyle.textContent = `
+          @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+          }
+        `;
+        document.head.appendChild(shakeStyle);
+      }
       break;
-      
+
     default:
       // 기본 상태로 복원
       saveBtn.innerHTML = `
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        <span>일정 저장</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          <span>일정 저장</span>
+        </div>
       `;
-      saveBtn.style.background = 'linear-gradient(to right, #1e3a8a, #1e40af)';
+      saveBtn.style.background = '#313B43';
+      saveBtn.style.boxShadow = '0 4px 12px rgba(49, 59, 67, 0.3)';
+      saveBtn.style.transform = 'scale(1)';
       saveBtn.disabled = false;
       saveBtn.classList.remove('completed');
       break;
@@ -548,7 +616,7 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   creatingEventIndex = eventIndex;
   
   addBtn.innerHTML = `
-    <div style="width: 20px; height: 20px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;"></div>
   `;
   
   addBtn.disabled = true;
@@ -580,21 +648,22 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
       `;
-      addBtn.style.background = '#10b981';
-      
+      addBtn.style.background = '#4A5568';
+      addBtn.style.boxShadow = '0 2px 8px rgba(74, 85, 104, 0.25)';
+
       // 저장 버튼 상태를 성공으로 업데이트
       if (saveBtn) {
         updateSaveButtonState(saveBtn, 'success');
       }
-      
+
       // 상태 리셋
       isCreatingEvent = false;
       creatingEventIndex = -1;
-      
+
       // 모든 이벤트가 추가되었는지 확인
       const allEventsAdded = lastParsedData.every((_, index) => {
         const btn = modalInstance.querySelector(`#tk-add-btn-${index}`);
-        return btn && btn.style.background === '#10b981';
+        return btn && btn.style.background === 'rgb(74, 85, 104)';
       });
       
       if (allEventsAdded) {
