@@ -6,7 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginBtn = document.getElementById('loginBtn');
   const settingsBtn = document.getElementById('settingsBtn');
   const backBtn = document.getElementById('backBtn');
-  
+
+  const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
+
+  applyI18n();
+  document.title = t('popupTitle');
+
   // 설정 토글들
   const sourceToggle = document.getElementById('sourceToggle');
   const sourceLabel = document.getElementById('sourceLabel');
@@ -24,7 +29,33 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 초기화
   init();
-  
+
+  function applyI18n() {
+    const textTargets = document.querySelectorAll('[data-i18n]');
+    textTargets.forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (!key) return;
+      const attr = el.getAttribute('data-i18n-attr');
+      const message = t(key);
+      if (!message) return;
+      if (attr) {
+        el[attr] = message;
+      } else {
+        el.textContent = message;
+      }
+    });
+
+    const placeholderTargets = document.querySelectorAll('[data-i18n-placeholder]');
+    placeholderTargets.forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (!key) return;
+      const message = t(key);
+      if (message) {
+        el.setAttribute('placeholder', message);
+      }
+    });
+  }
+
   function init() {
     // 이벤트 리스너 설정
     setupEventListeners();

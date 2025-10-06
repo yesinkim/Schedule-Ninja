@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Schedule Ninja Settings</title>
+  <title>Schedule Ninja</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -458,23 +458,24 @@
           <div class="header-content">
             <div class="logo">
               <div class="logo-mark">
-                <img src="icons/icon48.png" alt="Schedule Ninja">
+                <img src="icons/icon48.png" alt="" data-i18n-attr="alt" data-i18n="appName">
               </div>
               <div class="logo-text">
-                <span class="logo-title">Schedule Ninja</span>
-                <span class="logo-caption">calendar assistant</span>
+                <span class="logo-title" data-i18n="appName"></span>
+                <span class="logo-caption" data-i18n="logoCaption"></span>
               </div>
             </div>
-            <div class="subtitle">Google Calendar와 연결하여 일정을 관리하세요</div>
+            <div class="subtitle" data-i18n="popupSubtitle"></div>
             <div class="status-badge">
               <span class="status-dot"></span>
-              <span>Google Calendar 미연결</span>
+              <span data-i18n="statusDisconnected"></span>
             </div>
           </div>
         </div>
 
         <div class="content-area">
           <div class="login-actions">
+            <p class="login-description" data-i18n="popupIntro"></p>
             <button id="googleLoginBtn" class="google-btn">
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -482,7 +483,7 @@
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span>Sign in with Google</span>
+              <span data-i18n="signInWithGoogle"></span>
             </button>
           </div>
         </div>
@@ -494,142 +495,142 @@
           <div class="header-content">
             <div class="logo">
               <div class="logo-mark">
-                <img src="icons/icon48.png" alt="Schedule Ninja">
+                <img src="icons/icon48.png" alt="" data-i18n-attr="alt" data-i18n="appName">
               </div>
               <div class="logo-text">
-                <span class="logo-title">Schedule Ninja</span>
-                <span class="logo-caption">calendar assistant</span>
+                <span class="logo-title" data-i18n="appName"></span>
+                <span class="logo-caption" data-i18n="logoCaption"></span>
               </div>
             </div>
-            <div class="subtitle">Google Calendar 연동 상태와 선호 설정을 관리하세요</div>
+            <div class="subtitle" data-i18n="settingsSubtitle"></div>
             <div class="status-badge">
               <span class="status-dot"></span>
-              <span>Google Calendar 연결됨</span>
+              <span data-i18n="statusConnected"></span>
             </div>
           </div>
         </div>
 
         <div class="content-area">
-          <div class="settings-group">
-            <div class="settings-title">
-              <span>⚙️</span>
-              <span>설정</span>
-            </div>
-            
-            <!-- 테마 설정 -->
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">다크 모드</div>
-                <div class="setting-description">어두운 테마로 변경합니다</div>
+            <div class="settings-group">
+              <div class="settings-title">
+                <span>⚙️</span>
+                <span data-i18n="settingsTitle"></span>
               </div>
-              <div class="toggle-container">
-                <span id="themeLabel" class="toggle-label">라이트</span>
-                <div id="themeToggle" class="toggle-switch">
-                  <div class="toggle-slider"></div>
+              
+              <!-- 테마 설정 -->
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label" data-i18n="settingDarkModeLabel"></div>
+                  <div class="setting-description" data-i18n="settingDarkModeDescription"></div>
+                </div>
+                <div class="toggle-container">
+                  <span id="themeLabel" class="toggle-label" data-i18n="toggleOff"></span>
+                  <div id="themeToggle" class="toggle-switch">
+                    <div class="toggle-slider"></div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- 언어 설정 -->
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">언어 설정</div>
-                <div class="setting-description">텍스트 파싱 및 UI 언어를<br>선택합니다</div>
-              </div>
-              <div class="select-container">
-                <select id="languageSelect" class="language-select">
-                  <option value="ko">한국어</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- 시간대 설정 -->
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">시간대 설정</div>
-                <div class="setting-description">일정 생성 시 사용할<br>시간대를 선택합니다</div>
-              </div>
-              <div class="select-container">
-                <select id="timezoneSelect" class="timezone-select">
-                  <option value="Asia/Seoul">한국 표준시 (KST)</option>
-                  <option value="America/New_York">미국 동부 (EST)</option>
-                  <option value="America/Los_Angeles">미국 서부 (PST)</option>
-                  <option value="Europe/London">영국 (GMT)</option>
-                  <option value="Asia/Tokyo">일본 표준시 (JST)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- 출처 정보 설정 -->
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">출처 정보 표시</div>
-                <div class="setting-description">일정에 페이지 링크와 출처를<br>자동으로 추가합니다</div>
-              </div>
-              <div class="toggle-container">
-                <span id="sourceLabel" class="toggle-label">끄기</span>
-                <div id="sourceToggle" class="toggle-switch">
-                  <div class="toggle-slider"></div>
+              <!-- 언어 설정 -->
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label" data-i18n="settingLanguageLabel"></div>
+                  <div class="setting-description" data-i18n="settingLanguageDescription"></div>
+                </div>
+                <div class="select-container">
+                  <select id="languageSelect" class="language-select">
+                    <option value="ko" data-i18n="languageOptionKo"></option>
+                    <option value="en" data-i18n="languageOptionEn"></option>
+                  </select>
                 </div>
               </div>
-            </div>
 
-            <!-- 자동 감지 설정 -->
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">자동 감지</div>
-                <div class="setting-description">예매완료 페이지에서 일정을<br>자동으로 감지하고 추천합니다</div>
-              </div>
-              <div class="toggle-container">
-                <span id="autoDetectLabel" class="toggle-label">끄기</span>
-                <div id="autoDetectToggle" class="toggle-switch">
-                  <div class="toggle-slider"></div>
+              <!-- 시간대 설정 -->
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label" data-i18n="settingTimezoneLabel"></div>
+                  <div class="setting-description" data-i18n="settingTimezoneDescription"></div>
+                </div>
+                <div class="select-container">
+                  <select id="timezoneSelect" class="timezone-select">
+                    <option value="Asia/Seoul" data-i18n="timezoneOptionAsiaSeoul"></option>
+                    <option value="America/New_York" data-i18n="timezoneOptionAmericaNewYork"></option>
+                    <option value="America/Los_Angeles" data-i18n="timezoneOptionAmericaLosAngeles"></option>
+                    <option value="Europe/London" data-i18n="timezoneOptionEuropeLondon"></option>
+                    <option value="Asia/Tokyo" data-i18n="timezoneOptionAsiaTokyo"></option>
+                  </select>
                 </div>
               </div>
-            </div>
 
-            <!-- 연결 해제 -->
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">Google Calendar 연결 해제</div>
-                <div class="setting-description">Google 계정 연결을 해제합니다</div>
+              <!-- 출처 정보 설정 -->
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label" data-i18n="settingSourceLabel"></div>
+                  <div class="setting-description" data-i18n="settingSourceDescription"></div>
+                </div>
+                <div class="toggle-container">
+                  <span id="sourceLabel" class="toggle-label" data-i18n="toggleOff"></span>
+                  <div id="sourceToggle" class="toggle-switch">
+                    <div class="toggle-slider"></div>
+                  </div>
+                </div>
               </div>
-              <button id="disconnectBtn" class="disconnect-btn">
-                연결 해제
-              </button>
-            </div>
-          </div>
 
-          <!-- 사용법 안내 -->
-          <div class="guide-section">
+              <!-- 자동 감지 설정 -->
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label" data-i18n="settingAutoDetectLabel"></div>
+                  <div class="setting-description" data-i18n="settingAutoDetectDescription"></div>
+                </div>
+                <div class="toggle-container">
+                  <span id="autoDetectLabel" class="toggle-label" data-i18n="toggleOff"></span>
+                  <div id="autoDetectToggle" class="toggle-switch">
+                    <div class="toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 연결 해제 -->
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label" data-i18n="settingDisconnectLabel"></div>
+                  <div class="setting-description" data-i18n="settingDisconnectDescription"></div>
+                </div>
+                <button id="disconnectBtn" class="disconnect-btn">
+                  <span data-i18n="disconnectButtonText"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 사용법 안내 -->
+            <div class="guide-section">
             <div class="guide-title">
               <span>📖</span>
-              <span>사용법</span>
+              <span data-i18n="guideTitle"></span>
             </div>
-            <ol class="guide-steps">
-              <li class="guide-step">
-                <div class="step-number">1</div>
-                <div class="step-text">웹페이지에서 일정이 포함된 텍스트를 선택하세요</div>
-              </li>
-              <li class="guide-step">
-                <div class="step-number">2</div>
-                <div class="step-text">우클릭 후 "Create Calendar Event"를 선택하세요</div>
-              </li>
-              <li class="guide-step">
-                <div class="step-number">3</div>
-                <div class="step-text">파싱된 일정을 확인하고 필요한 내용을 수정하세요</div>
-              </li>
-              <li class="guide-step">
-                <div class="step-number">4</div>
-                <div class="step-text">+ 버튼을 눌러 Google Calendar에 일정을 추가하세요</div>
-              </li>
-              <li class="guide-step">
-                <div class="step-number">✨</div>
-                <div class="step-text">예매완료 페이지에서는 자동으로 일정을 감지해 추천합니다</div>
-              </li>
-            </ol>
-          </div>
+              <ol class="guide-steps">
+                <li class="guide-step">
+                  <div class="step-number">1</div>
+                  <div class="step-text" data-i18n="guideStep1"></div>
+                </li>
+                <li class="guide-step">
+                  <div class="step-number">2</div>
+                  <div class="step-text" data-i18n="guideStep2"></div>
+                </li>
+                <li class="guide-step">
+                  <div class="step-number">3</div>
+                  <div class="step-text" data-i18n="guideStep3"></div>
+                </li>
+                <li class="guide-step">
+                  <div class="step-number">4</div>
+                  <div class="step-text" data-i18n="guideStep4"></div>
+                </li>
+                <li class="guide-step">
+                  <div class="step-number">✨</div>
+                  <div class="step-text" data-i18n="guideStep5"></div>
+                </li>
+              </ol>
+            </div>
         </div>
       </div>
     </div>
