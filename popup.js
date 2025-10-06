@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginBtn = document.getElementById('loginBtn');
   const settingsBtn = document.getElementById('settingsBtn');
   const backBtn = document.getElementById('backBtn');
-  
+
+  const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
+
   // 설정 토글들
   const sourceToggle = document.getElementById('sourceToggle');
   const sourceLabel = document.getElementById('sourceLabel');
@@ -81,66 +83,71 @@ document.addEventListener('DOMContentLoaded', function() {
   function loadSettings() {
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
-      
+
       // 출처 정보 설정
       const showSourceInfo = settings.showSourceInfo !== false; // 기본값: true
       updateToggleUI(sourceToggle, sourceLabel, showSourceInfo);
-      
+
       // 자동 감지 설정
       const autoDetectEnabled = settings.autoDetectEnabled !== false; // 기본값: true
       updateToggleUI(autoDetectToggle, autoDetectLabel, autoDetectEnabled);
-      
+
       // 다크 모드 설정
       const darkMode = settings.darkMode || false;
       updateToggleUI(darkModeToggle, darkModeLabel, darkMode);
-      
+
       // 언어 설정
       if (languageSelect) {
-        languageSelect.value = settings.language || 'ko';
+        const resolvedLanguage = settings.language || detectDefaultLanguage();
+        if (!settings.language) {
+          settings.language = resolvedLanguage;
+          chrome.storage.sync.set({ settings: settings });
+        }
+        languageSelect.value = resolvedLanguage;
       }
-      
+
       // 시간대 설정
       if (timezoneSelect) {
         timezoneSelect.value = settings.timezone || 'Asia/Seoul';
       }
     });
   }
-  
+
   function updateToggleUI(toggle, label, isActive) {
     if (!toggle || !label) return;
-    
+
     if (isActive) {
       toggle.classList.add('active');
-      label.textContent = '켜기';
+      label.textContent = t('toggleOn');
     } else {
       toggle.classList.remove('active');
-      label.textContent = '끄기';
+      label.textContent = t('toggleOff');
     }
   }
-  
+
   function toggleSourceInfo() {
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
       const newValue = !settings.showSourceInfo;
-      
+
       settings.showSourceInfo = newValue;
       chrome.storage.sync.set({ settings: settings });
-      
+
       updateToggleUI(sourceToggle, sourceLabel, newValue);
-      showNotification('출처 정보 설정이 변경되었습니다.', 'success');
+      showNotification(t('notifySourceToggled'), 'success');
     });
   }
-  
+
   function toggleAutoDetect() {
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
       const newValue = !settings.autoDetectEnabled;
-      
+
       settings.autoDetectEnabled = newValue;
       chrome.storage.sync.set({ settings: settings });
-      
+
       updateToggleUI(autoDetectToggle, autoDetectLabel, newValue);
-      
+
       // 모든 탭에 설정 변경 알림
       chrome.tabs.query({}, function(tabs) {
         tabs.forEach(tab => {
@@ -152,48 +159,48 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         });
       });
-      
-      showNotification('자동 감지 설정이 변경되었습니다.', 'success');
+
+      showNotification(t('notifyAutoDetectToggled'), 'success');
     });
   }
-  
+
   function toggleDarkMode() {
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
       const newValue = !settings.darkMode;
-      
+
       settings.darkMode = newValue;
       chrome.storage.sync.set({ settings: settings });
-      
+
       updateToggleUI(darkModeToggle, darkModeLabel, newValue);
-      showNotification('다크 모드 설정이 변경되었습니다.', 'success');
+      showNotification(t('notifyDarkModeToggled'), 'success');
     });
   }
-  
+
   function updateLanguage() {
     const language = languageSelect.value;
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
       settings.language = language;
       chrome.storage.sync.set({ settings: settings });
-      showNotification('언어 설정이 변경되었습니다.', 'success');
+      showNotification(t('notifyLanguageUpdated'), 'success');
     });
   }
-  
+
   function updateTimezone() {
     const timezone = timezoneSelect.value;
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
       settings.timezone = timezone;
       chrome.storage.sync.set({ settings: settings });
-      showNotification('시간대 설정이 변경되었습니다.', 'success');
+      showNotification(t('notifyTimezoneUpdated'), 'success');
     });
   }
-  
+
   function disconnectGoogle() {
-    if (confirm('Google Calendar 연결을 해제하시겠습니까?')) {
+    if (confirm(t('confirmDisconnect'))) {
       chrome.identity.clearAllCachedAuthTokens(function() {
-        showNotification('Google Calendar 연결이 해제되었습니다.', 'success');
+        showNotification(t('disconnectSuccess'), 'success');
         setTimeout(() => {
           showLoginSection();
         }, 1000);
@@ -229,14 +236,27 @@ document.addEventListener('DOMContentLoaded', function() {
     googleLoginBtn.addEventListener('click', function() {
       chrome.identity.getAuthToken({ interactive: true }, function(token) {
         if (token) {
-          showNotification('Google Calendar에 성공적으로 연결되었습니다!', 'success');
+          showNotification(t('authSuccess'), 'success');
           setTimeout(() => {
             showSettingsSection();
           }, 1000);
         } else {
-          showNotification('Google Calendar 연결에 실패했습니다.', 'danger');
+          showNotification(t('authFailure'), 'danger');
         }
       });
     });
+  }
+
+  function detectDefaultLanguage() {
+    const languages = [
+      chrome.i18n.getUILanguage(),
+      ...(navigator.languages || [])
+    ].map(lang => (lang || '').toLowerCase());
+
+    if (languages.some(lang => lang.startsWith('ko'))) {
+      return 'ko';
+    }
+
+    return 'en';
   }
 });

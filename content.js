@@ -6,6 +6,7 @@ let lastParsedData = null; // 이제 배열 형태로 저장
 let pageInfo = null; // 페이지 정보 저장
 let isCreatingEvent = false;
 let creatingEventIndex = -1; // 현재 추가 중인 이벤트 인덱스
+const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
 
 // 모달 생성 함수
 function createModal() {
@@ -48,7 +49,7 @@ function createModal() {
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
             <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
-            <span id="loading-text" style="font-size: 12px; font-weight: 500;">Snagging...</span>
+            <span id="loading-text" style="font-size: 12px; font-weight: 500;">${t('loadingTextDefault')}</span>
           </div>
           <div id="progress-container" style="margin-top: 12px; display: none;">
             <div style="background: rgba(255,255,255,0.3); border-radius: 8px !important; height: 4px; overflow: hidden;">
@@ -162,10 +163,10 @@ function displayResult(data) {
           <svg width="16" height="16" fill="none" stroke="#d97706" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <span style="color: #92400e; font-weight: 500; font-size: 14px;">일정 정보를 찾을 수 없습니다</span>
+          <span style="color: #92400e; font-weight: 500; font-size: 14px;">${t('noScheduleFoundTitle')}</span>
         </div>
         <div style="margin-top: 8px; font-size: 12px; color: #92400e;">
-          텍스트에 날짜나 시간 정보가 포함되어 있는지 확인해주세요.
+          ${t('noScheduleFoundHint')}
         </div>
       </div>
     `;
@@ -194,7 +195,7 @@ function displayResult(data) {
               <svg width="18" height="18" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
                 <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 4H7v5h5v-5z"/>
               </svg>
-              <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">${eventData.summary || '제목 없음'}</span>
+              <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">${eventData.summary || t('defaultEventTitle')}</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden;">
               <div style="display: flex; align-items: flex-start; gap: 6px; min-width: 0; overflow: hidden;">
@@ -498,7 +499,7 @@ async function showDropdownForm(originData, eventIndex) {
           <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
             TITLE
           </label>
-          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="제목을 입력하세요" />
+          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="${t('placeholderSummary')}" />
         </div>
         <div style="margin-bottom: 8px;">
           <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
@@ -516,19 +517,19 @@ async function showDropdownForm(originData, eventIndex) {
           <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
             PLACE
           </label>
-          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="장소를 입력하세요" />
+          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="${t('placeholderLocation')}" />
         </div>
         <div style="margin-bottom: 12px;">
             <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
             DESCRIPTION
           </label>
-          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="${t('placeholderDescription')}">${originData.description || ''}</textarea>
         </div>
       <button id="tk-dropdown-save" type="button" style="width: 100%; background: #313B43; color: white; border: none; border-radius: 6px !important; padding: 8px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1); box-shadow: 0 4px 12px rgba(49, 59, 67, 0.3); height: auto;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
-        일정 저장
+        ${t('saveEventButton')}
       </button>
       </form>
   `;
@@ -608,7 +609,7 @@ function updateSaveButtonState(saveBtn, state) {
       saveBtn.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
           <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;"></div>
-          <span style="flex-shrink: 0;">저장 중...</span>
+          <span style="flex-shrink: 0;">${t('savingLabel')}</span>
         </div>
       `;
       saveBtn.style.background = '#6B7280';
@@ -623,7 +624,7 @@ function updateSaveButtonState(saveBtn, state) {
           <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: checkmarkPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
           </svg>
-          <span>저장 완료!</span>
+          <span>${t('saveCompleteLabel')}</span>
         </div>
       `;
       saveBtn.style.background = '#4A5568';
@@ -662,7 +663,7 @@ function updateSaveButtonState(saveBtn, state) {
           <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: errorShake 0.5s ease-in-out;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <span>다시 시도</span>
+          <span>${t('retryLabel')}</span>
         </div>
       `;
       saveBtn.style.background = 'linear-gradient(135deg, #EF4444, #DC2626)';
@@ -694,7 +695,7 @@ function updateSaveButtonState(saveBtn, state) {
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
-          <span>일정 저장</span>
+          <span>${t('saveEventButton')}</span>
         </div>
       `;
       saveBtn.style.background = '#313B43';
@@ -895,8 +896,8 @@ function showModal(selectedText, isAutoDetected = false) {
     // 자동 감지된 경우 로딩 메시지 변경
     if (isAutoDetected) {
       const loadingText = loadingIndicator.querySelector('span');
-    if (loadingText) {
-        loadingText.textContent = '예매 정보 분석 중...';
+      if (loadingText) {
+        loadingText.textContent = t('autoDetectToastBody');
       }
     }
   }
@@ -943,7 +944,7 @@ function showModal(selectedText, isAutoDetected = false) {
         // 자동 감지된 경우 추가 안내 메시지
         if (isAutoDetected) {
           setTimeout(() => {
-            showToastMessage("💡 팁: 텍스트를 선택하고 우클릭해도 일정을 추가할 수 있어요!", "info");
+            showToastMessage(t('manualSelectionTip'), 'info');
           }, 2000);
         }
       } else {
@@ -957,11 +958,11 @@ function showModal(selectedText, isAutoDetected = false) {
                 <svg width="16" height="16" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span style="color: #991b1b; font-weight: 500; font-size: 14px;">분석 실패: ${response?.error || '알 수 없는 오류'}</span>
+                <span style="color: #991b1b; font-weight: 500; font-size: 14px;">${t('analysisFailedLabel')}: ${response?.error || t('unknownError')}</span>
               </div>
               ${isAutoDetected ? `
                 <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px !important; font-size: 12px; color: #0369a1;">
-                  💡 텍스트를 직접 선택하고 우클릭해보세요!
+                  ${t('manualSelectionTip')}
                 </div>
               ` : ''}
             </div>
@@ -1166,10 +1167,10 @@ class BookingPageDetector {
           </svg>
         </div>
         <div style="flex: 1;">
-          <div style="font-weight: 600; margin-bottom: 4px;">예매완료 페이지로 추측됩니다</div>
+          <div id="notification-title" style="font-weight: 600; margin-bottom: 4px;">${t('autoDetectToastTitle')}</div>
           <div id="notification-message" style="font-size: 12px; color: #6b7280; line-height: 1.4;">
-            일정 정보를 분석 중입니다...<br>
-            <span style="color: #E83941; font-weight: 500;">클릭하면 일정을 추가할 수 있어요</span>
+            ${t('autoDetectToastBody')}<br>
+            <span style="color: #E83941; font-weight: 500;">${t('autoDetectToastHint')}</span>
           </div>
         </div>
         <button id="close-soft-notification" style="width: 24px; height: 24px; background: none; border: none; cursor: pointer; color: #9ca3af; display: flex; align-items: center; justify-content: center;">
@@ -1253,8 +1254,8 @@ class BookingPageDetector {
       
       // 메시지 업데이트
       message.innerHTML = `
-        일정 분석이 완료되었습니다!<br>
-        <span style="color: #10b981; font-weight: 500;">클릭하면 일정을 추가할 수 있어요</span>
+        ${t('autoDetectCompleteTitle')}<br>
+        <span style="color: #10b981; font-weight: 500;">${t('autoDetectCompleteHint')}</span>
       `;
       
       // 배경색을 성공 색상으로 변경
@@ -1276,8 +1277,8 @@ class BookingPageDetector {
       
       // 메시지 업데이트
       message.innerHTML = `
-        일정 분석에 실패했습니다<br>
-        <span style="color: #E83941; font-weight: 500;">텍스트를 직접 선택해보세요</span>
+        ${t('autoDetectFailTitle')}<br>
+        <span style="color: #E83941; font-weight: 500;">${t('autoDetectFailHint')}</span>
       `;
       
       // 배경색을 경고 색상으로 변경
@@ -1364,7 +1365,7 @@ class BookingPageDetector {
     // 자동 추천임을 알리는 토스트 메시지
     setTimeout(() => {
       if (modalInstance) {
-        showToastMessage("예매 정보를 자동으로 감지했습니다! 🎫", "success");
+        showToastMessage(t('autoDetectToastShort'), 'success');
       }
     }, 500);
   }
@@ -1389,14 +1390,14 @@ function updateProgress(progress, stage) {
     
     // 단계별 메시지
     const stageMessages = {
-      'cache_check': '캐시 확인 중...',
-      'downloading': 'AI 모델 로딩 중...',
-      'parsing': '텍스트 분석 중...',
-      'processing': '일정 정보 추출 중...',
-      'complete': '완료!'
+      'cache_check': t('progressCacheCheck'),
+      'downloading': t('progressDownloading'),
+      'parsing': t('progressParsing'),
+      'processing': t('progressProcessing'),
+      'complete': t('progressComplete')
     };
     
-    const message = stageMessages[stage] || '처리 중...';
+    const message = stageMessages[stage] || t('progressDefault');
     progressText.textContent = `${progress}% - ${message}`;
     
     // 로딩 텍스트 업데이트
