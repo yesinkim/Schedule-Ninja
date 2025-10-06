@@ -1036,7 +1036,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Context Menu Setup
   chrome.contextMenus.create({
     id: "createEvent",
-    title: t('contextMenuCreate'),
+    title: "Create Calendar Event",
     contexts: ["selection"]
   });
 

@@ -73,7 +73,6 @@
   "progressComplete": { "message": "완료!" },
   "progressDefault": { "message": "처리 중..." },
   "loadingTextDefault": { "message": "가져오는 중..." },
-  "contextMenuCreate": { "message": "캘린더 이벤트 만들기" },
   "notificationPerformanceCleared": { "message": "성능 측정 데이터가 초기화되었습니다." },
   "notificationSessionCleared": { "message": "LanguageModel 세션이 정리되었습니다." },
   "notificationCacheCleared": { "message": "캐시가 클리어되었습니다." }

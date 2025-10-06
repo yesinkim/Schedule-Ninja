@@ -73,7 +73,6 @@
   "progressComplete": { "message": "Done!" },
   "progressDefault": { "message": "Working..." },
   "loadingTextDefault": { "message": "Fetching..." },
-  "contextMenuCreate": { "message": "Create Calendar Event" },
   "notificationPerformanceCleared": { "message": "Performance metrics reset." },
   "notificationSessionCleared": { "message": "LanguageModel session cleared." },
   "notificationCacheCleared": { "message": "Cache cleared." }
