@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Schedule Ninja",
+  "default_locale": "en",
+  "name": "__MSG_extName__",
   "version": "1.1",
-  "description": "Don't miss a beat. We got your back.",
+  "description": "__MSG_extDescription__",
   "permissions": [
     "activeTab",
     "storage",
