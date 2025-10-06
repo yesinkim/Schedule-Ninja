@@ -6,268 +6,259 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --color-background: #313B43;
+      --color-header: #343A40;
+      --color-surface: #F8F9FA;
+      --color-text: #2C3E50;
+      --color-text-muted: #61707C;
+      --color-accent: #E83941;
+      --color-success: #4CAF50;
+      --radius-card: 16px;
+      --radius-control: 12px;
+    }
+
     * {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       box-sizing: border-box;
     }
     
     body {
-      background: linear-gradient(135deg, #313B43 0%, #2c3e50 100%);
+      background: #10161c;
       margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      overflow-x: hidden;
-      border-radius: 16px;
+      padding: 14px 16px 6px;
+      display: flex;
+      justify-content: center;
+      color: var(--color-text);
     }
     
     .container {
-      padding: 20px;
-      min-width: 400px;
-      max-width: 450px;
-      min-height: 600px;
-      height: auto;
+      width: 356px;
       display: flex;
       flex-direction: column;
-      border-radius: 20px;
-      overflow: hidden;
+      gap: 10px;
     }
-    
+
     .main-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(25px);
-      border-radius: 24px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      box-shadow: 
-        0 32px 64px rgba(0, 0, 0, 0.2),
-        0 16px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      overflow: hidden;
-      position: relative;
-    }
-    
-    .main-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    }
-    
-    .header {
-      background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
-      color: #e7e7e9;
-      padding: 24px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      border-radius: 24px 24px 0 0;
-      box-shadow: 
-        0 8px 16px rgba(232, 57, 65, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-    
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
-      animation: shimmer 4s ease-in-out infinite;
-    }
-    
-    @keyframes shimmer {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.8; }
-    }
-    
-    .header-content {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .logo {
-      font-size: 24px;
-      margin-bottom: 6px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .subtitle {
-      opacity: 0.9;
-      font-weight: 400;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-    
-    .content-area {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(0,0,0,0.2) transparent;
-    }
-    
-    .content-area::-webkit-scrollbar {
-      width: 4px;
-    }
-    
-    .content-area::-webkit-scrollbar-track {
       background: transparent;
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 16px 32px rgba(19, 27, 35, 0.2);
+      overflow: hidden;
     }
-    
-    .content-area::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.2);
-      border-radius: 2px;
-    }
-    
+
     .login-section {
-      text-align: center;
-      padding: 30px 0;
+      display: block;
     }
-    
+
     .settings-section {
       display: none;
     }
-    
-    .google-btn {
-      background: white;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: #3c4043;
-      font-weight: 500;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .header {
+      background: var(--color-header);
+      color: #f5f6f8;
+      padding: 22px 24px 36px;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: rgba(245, 246, 248, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      margin: 0 auto;
-      min-width: 200px;
-      position: relative;
-      overflow: hidden;
-      font-family: 'Google Sans', 'Inter', sans-serif;
     }
-    
-    .google-btn:hover {
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      border-color: #c4c7c5;
+
+    .logo-mark img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
     }
-    
-    .google-btn:active {
-      background: #f8f9fa;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
     }
-    
-    
-    .google-btn.is-loading {
-      opacity: 0.7;
-      cursor: not-allowed;
+
+    .logo-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
-    
+
+    .logo-caption {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(245, 246, 248, 0.6);
+    }
+
+    .subtitle {
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(245, 246, 248, 0.8);
+      max-width: 320px;
+      margin-top: 6px;
+    }
+
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(76, 175, 80, 0.15);
-      color: #4CAF50;
-      padding: 6px 12px;
+      background: rgba(76, 175, 80, 0.18);
+      color: #f5fdf5;
+      padding: 5px 12px;
       border-radius: 16px;
-      font-size: 12px;
-      font-weight: 500;
-      margin-top: 8px;
-      border: 1px solid rgba(76, 175, 80, 0.2);
+      font-size: 11px;
+      font-weight: 600;
+      align-self: flex-start;
+      margin-top: 10px;
     }
-    
+
     .status-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #4CAF50;
+      background: #aff1af;
       animation: pulse 2s infinite;
     }
-    
+
     @keyframes pulse {
       0% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.6; transform: scale(1.1); }
       100% { opacity: 1; transform: scale(1); }
     }
-    
-    .settings-group {
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(15px);
-      box-shadow: 
-        0 8px 24px rgba(0, 0, 0, 0.08),
-        0 4px 12px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      position: relative;
-      overflow: hidden;
+
+    .content-area {
+      flex: 1;
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: #ffffff;
+      border-radius: 18px 18px 14px 14px;
+      border: none;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+      margin: -18px 0 10px;
     }
-    
-    .settings-group::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+
+    .login-section .content-area {
+      gap: 12px;
+      align-items: stretch;
+      padding: 20px 24px 22px;
     }
-    
-    .settings-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 14px;
+
+    .settings-section .content-area {
+      padding: 20px 20px 20px;
+      gap: 16px;
+    }
+
+    .login-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .login-description {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #7f8c8d;
+      text-align: center;
+      margin: 0;
+    }
+
+    .google-btn {
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #3c4043;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      font-family: 'Google Sans', 'Inter', sans-serif;
     }
-    
+
+    .google-btn:active {
+      background: #f8f9fa;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .google-btn.is-loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .settings-group {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .settings-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .setting-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 14px 0;
+      justify-content: space-between;
+      padding: 10px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     }
-    
+
     .setting-item:last-child {
       border-bottom: none;
     }
-    
+
     .setting-info {
       flex: 1;
-      margin-right: 12px;
+      margin-right: 14px;
     }
     
     .setting-label {
       font-weight: 600;
-      color: #2c3e50;
-      font-size: 14px;
+      color: var(--color-text);
+      font-size: 13px;
       margin-bottom: 3px;
       line-height: 1.3;
     }
     
     .setting-description {
-      font-size: 12px;
-      color: #7f8c8d;
+      font-size: 11px;
+      color: var(--color-text-muted);
       line-height: 1.4;
       word-wrap: break-word;
     }
@@ -275,53 +266,53 @@
     .toggle-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     
     .toggle-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
-      color: #7f8c8d;
-      min-width: 35px;
+      color: var(--color-text-muted);
+      min-width: 32px;
       text-align: right;
     }
     
     .toggle-switch {
       position: relative;
-      width: 48px;
-      height: 26px;
+      width: 40px;
+      height: 22px;
       background: #e0e0e0;
-      border-radius: 13px;
+      border-radius: 11px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 2px solid transparent;
     }
-    
+
     .toggle-switch.active {
-      background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
+      background: linear-gradient(135deg, var(--color-accent) 0%, #d32f2f 100%);
       border-color: rgba(232, 57, 65, 0.2);
     }
-    
+
     .toggle-slider {
       position: absolute;
       top: 2px;
       left: 2px;
-      width: 18px;
-      height: 18px;
+      width: 14px;
+      height: 14px;
       background: white;
       border-radius: 50%;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
-    
+
     .toggle-switch.active .toggle-slider {
-      transform: translateX(22px);
+      transform: translateX(18px);
     }
     
     .select-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     
     .language-select,
@@ -329,19 +320,19 @@
       background: rgba(255, 255, 255, 0.9);
       border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 13px;
+      padding: 6px 10px;
+      font-size: 12px;
       font-weight: 500;
-      color: #2c3e50;
+      color: var(--color-text);
       cursor: pointer;
       transition: all 0.3s ease;
-      min-width: 140px;
+      min-width: 130px;
       appearance: none;
       background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
       background-repeat: no-repeat;
-      background-position: right 8px center;
-      background-size: 16px;
-      padding-right: 32px;
+      background-position: right 6px center;
+      background-size: 14px;
+      padding-right: 26px;
     }
     
     .language-select:hover,
@@ -353,15 +344,15 @@
     .language-select:focus,
     .timezone-select:focus {
       outline: none;
-      border-color: #E83941;
+      border-color: var(--color-accent);
       box-shadow: 0 0 0 3px rgba(232, 57, 65, 0.1);
     }
     
     .disconnect-btn {
       background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
       border: none;
-      border-radius: 12px;
-      padding: 8px 16px;
+      border-radius: 10px;
+      padding: 5px 12px;
       color: white;
       font-weight: 500;
       font-size: 12px;
@@ -374,65 +365,55 @@
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(255, 107, 107, 0.35);
     }
-    
+
     .guide-section {
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 20px;
-      padding: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(15px);
-      box-shadow: 
-        0 8px 24px rgba(0, 0, 0, 0.08),
-        0 4px 12px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      position: relative;
-      overflow: hidden;
+      padding: 16px;
+      background: var(--color-surface);
+      border-radius: 14px;
+      border: 1px solid rgba(44, 62, 80, 0.04);
+      box-shadow: 0 8px 18px rgba(19, 27, 35, 0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
-    
-    .guide-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-    }
-    
+
     .guide-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 14px;
+      color: var(--color-text);
+      margin: 0;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     
     .guide-steps {
       list-style: none;
       padding: 0;
       margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    
+
     .guide-step {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      gap: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(44, 62, 80, 0.08);
     }
-    
+
     .guide-step:last-child {
       border-bottom: none;
     }
     
     .step-number {
-      background: linear-gradient(135deg, #E83941 0%, #d32f2f 100%);
-      color: #e7e7e9;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      background: rgba(232, 57, 65, 0.16);
+      color: var(--color-accent);
+      width: 24px;
+      height: 24px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -440,14 +421,13 @@
       font-weight: 600;
       flex-shrink: 0;
     }
-    
+
     .step-text {
-      color: #2c3e50;
-      font-size: 13px;
-      line-height: 1.4;
-      word-wrap: break-word;
+      color: var(--color-text);
+      font-size: 12px;
+      line-height: 1.5;
     }
-    
+
     .notification {
       position: fixed;
       top: 20px;
@@ -460,7 +440,7 @@
       backdrop-filter: blur(20px);
       animation: slideIn 0.3s ease-out;
     }
-    
+
     @keyframes slideIn {
       from {
         transform: translateX(100%);
@@ -471,21 +451,10 @@
         opacity: 1;
       }
     }
-    
-    .notification.is-success {
-      background: rgba(76, 175, 80, 0.9);
-      color: white;
-    }
-    
-    .notification.is-danger {
-      background: rgba(244, 67, 54, 0.9);
-      color: white;
-    }
-    
-    .notification.is-info {
-      background: rgba(33, 150, 243, 0.9);
-      color: white;
-    }
+
+    .notification.is-success { background: rgba(76, 175, 80, 0.9); color: white; }
+    .notification.is-danger { background: rgba(244, 67, 54, 0.9); color: white; }
+    .notification.is-info { background: rgba(33, 150, 243, 0.9); color: white; }
   </style>
 </head>
 <body>
@@ -496,33 +465,34 @@
         <div class="header">
           <div class="header-content">
             <div class="logo">
-              <svg width="32" height="32" viewBox="0 0 574 584" style="margin-right: 8px; vertical-align: middle;">
-                <path fill="currentColor" d="M267.45,795.59C246.86,779.18 235.82,757.99 232.51,732.37C231.63,725.53 231.68,718.76 231.68,711.96C231.64,603.48 231.64,495 231.65,386.52C231.65,348.21 260.93,313 298.48,305.59C309.39,303.44 320.31,303.75 331.28,303.61C334.78,303.57 335.32,305.33 335.39,308.28C335.59,318.07 334.53,327.92 336.37,337.66C340.07,357.32 350.27,371.89 369.81,378.19C389.27,384.47 406.86,380.31 421.02,365.45C429.61,356.44 434.21,345.13 434.62,332.48C434.87,324.82 434.86,317.15 434.79,309.48C434.75,305.39 436.08,303.56 440.58,303.57C489.08,303.70 537.57,303.69 586.06,303.57C590.26,303.56 591.45,305.00 591.43,309.06C591.34,321.01 590.91,332.92 594.13,344.74C599.46,364.31 618.70,383.39 647.41,380.51C667.39,378.51 684.81,363.04 689.66,340.20C690.98,333.95 690.71,327.63 690.97,321.33C691.20,315.72 688.60,308.71 692.42,304.90C696.01,301.31 702.90,303.74 708.32,303.72C722.13,303.67 735.50,306.30 747.84,312.60C773.92,325.91 789.46,347.08 794.44,376.02C795.26,380.83 795.35,385.61 795.35,390.43C795.35,500.74 795.82,611.06 795.07,721.36C794.83,756.19 779.51,784.22 748.61,802.33C736.20,809.60 722.42,812.18 708.35,812.20C576.71,812.38 445.07,812.46 313.43,812.23C296.58,812.20 281.17,806.29 267.45,795.59"/>
-                <path fill="currentColor" d="M383.10,239.64C400.97,239.66 411.46,246.54 415.66,260.86C416.69,264.36 417.34,267.96 417.33,271.65C417.33,291.48 417.41,311.30 417.32,331.12C417.26,344.19 408.56,356.85 396.96,361.13C383.68,366.05 369.72,362.74 360.46,352.59C355.98,347.68 353.73,341.87 353.70,335.35C353.59,313.03 353.51,290.71 353.71,268.39C353.85,251.93 366.23,239.84 383.10,239.64"/>
-                <path fill="currentColor" d="M656.98,242.78C668.52,248.97 672.94,259.13 673.19,271.05C673.61,291.21 673.53,311.38 673.26,331.55C673.07,345.97 662.37,359.18 649.11,362.32C634.21,365.85 620.05,360.02 613.17,347.45C610.89,343.31 609.68,338.82 609.67,334.09C609.64,312.59 609.45,291.08 609.72,269.59C609.95,250.87 624.17,238.83 640.16,239.55C645.86,239.81 651.48,239.72 656.98,242.78"/>
-                <path fill="currentColor" d="M645.43,555.27C642.53,557.29 644.38,559.31 644.94,561.23C649.06,575.51 648.67,589.48 641.66,602.83C635.03,615.47 623.77,620.50 610.20,619.78C590.39,618.72 580.89,610.52 575.74,591.29C574.84,587.93 573.41,586.66 570.12,588.14C563.81,590.95 556.85,586.51 554.65,581.72C552.00,575.93 553.23,569.16 558.72,565.31C567.47,559.17 577.37,555.11 587.12,550.84C610.72,540.50 634.08,529.63 658.15,520.34C668.72,516.26 678.52,523.91 677.32,533.55C676.62,539.12 673.15,542.35 668.33,544.56C660.78,548.03 653.26,551.58 645.43,555.27"/>
-                <path fill="currentColor" d="M363.93,547.22C360.88,545.79 358.10,544.64 355.50,543.18C349.05,539.54 346.91,532.84 349.90,526.07C352.49,520.22 359.23,517.42 365.84,519.90C399.02,532.34 431.25,546.92 462.96,562.69C470.68,566.53 473.55,571.40 472.66,577.31C471.36,585.97 464.29,590.51 456.05,588.00C454.96,587.67 453.82,587.48 452.72,587.23C451.12,588.87 450.85,590.88 450.38,592.77C445.89,610.83 432.88,620.52 414.30,619.62C393.35,618.60 379.72,604.25 379.67,583.05C379.65,575.10 378.84,567.05 382.19,559.45C383.35,556.82 381.95,555.39 379.72,554.38C374.57,552.04 369.43,549.70 363.93,547.22"/>
-              </svg>
-              __MSG_appName__
+              <div class="logo-mark">
+                <img src="icons/icon48.png" alt="__MSG_appName__">
+              </div>
+              <div class="logo-text">
+                <span class="logo-title">__MSG_appName__</span>
+                <span class="logo-caption">__MSG_logoCaption__</span>
+              </div>
             </div>
             <div class="subtitle">__MSG_popupSubtitle__</div>
+            <div class="status-badge">
+              <span class="status-dot"></span>
+              <span>__MSG_statusDisconnected__</span>
+            </div>
           </div>
         </div>
-        
+
         <div class="content-area">
-          <div class="settings-group">
-            <div class="content has-text-centered">
-              <p class="mb-4" style="color: #7f8c8d; line-height: 1.5; font-size: 13px;">__MSG_popupIntro__</p>
-              <button id="googleLoginBtn" class="google-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" style="display: block;">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                <span>__MSG_signInWithGoogle__</span>
-              </button>
-            </div>
+          <div class="login-actions">
+            <p class="login-description">__MSG_popupIntro__</p>
+            <button id="googleLoginBtn" class="google-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              <span>__MSG_signInWithGoogle__</span>
+            </button>
           </div>
         </div>
       </div>
@@ -532,17 +502,17 @@
         <div class="header">
           <div class="header-content">
             <div class="logo">
-              <svg width="32" height="32" viewBox="0 0 574 584" style="margin-right: 8px; vertical-align: middle;">
-                <path fill="currentColor" d="M267.45,795.59C246.86,779.18 235.82,757.99 232.51,732.37C231.63,725.53 231.68,718.76 231.68,711.96C231.64,603.48 231.64,495 231.65,386.52C231.65,348.21 260.93,313 298.48,305.59C309.39,303.44 320.31,303.75 331.28,303.61C334.78,303.57 335.32,305.33 335.39,308.28C335.59,318.07 334.53,327.92 336.37,337.66C340.07,357.32 350.27,371.89 369.81,378.19C389.27,384.47 406.86,380.31 421.02,365.45C429.61,356.44 434.21,345.13 434.62,332.48C434.87,324.82 434.86,317.15 434.79,309.48C434.75,305.39 436.08,303.56 440.58,303.57C489.08,303.70 537.57,303.69 586.06,303.57C590.26,303.56 591.45,305.00 591.43,309.06C591.34,321.01 590.91,332.92 594.13,344.74C599.46,364.31 618.70,383.39 647.41,380.51C667.39,378.51 684.81,363.04 689.66,340.20C690.98,333.95 690.71,327.63 690.97,321.33C691.20,315.72 688.60,308.71 692.42,304.90C696.01,301.31 702.90,303.74 708.32,303.72C722.13,303.67 735.50,306.30 747.84,312.60C773.92,325.91 789.46,347.08 794.44,376.02C795.26,380.83 795.35,385.61 795.35,390.43C795.35,500.74 795.82,611.06 795.07,721.36C794.83,756.19 779.51,784.22 748.61,802.33C736.20,809.60 722.42,812.18 708.35,812.20C576.71,812.38 445.07,812.46 313.43,812.23C296.58,812.20 281.17,806.29 267.45,795.59"/>
-                <path fill="currentColor" d="M383.10,239.64C400.97,239.66 411.46,246.54 415.66,260.86C416.69,264.36 417.34,267.96 417.33,271.65C417.33,291.48 417.41,311.30 417.32,331.12C417.26,344.19 408.56,356.85 396.96,361.13C383.68,366.05 369.72,362.74 360.46,352.59C355.98,347.68 353.73,341.87 353.70,335.35C353.59,313.03 353.51,290.71 353.71,268.39C353.85,251.93 366.23,239.84 383.10,239.64"/>
-                <path fill="currentColor" d="M656.98,242.78C668.52,248.97 672.94,259.13 673.19,271.05C673.61,291.21 673.53,311.38 673.26,331.55C673.07,345.97 662.37,359.18 649.11,362.32C634.21,365.85 620.05,360.02 613.17,347.45C610.89,343.31 609.68,338.82 609.67,334.09C609.64,312.59 609.45,291.08 609.72,269.59C609.95,250.87 624.17,238.83 640.16,239.55C645.86,239.81 651.48,239.72 656.98,242.78"/>
-                <path fill="currentColor" d="M645.43,555.27C642.53,557.29 644.38,559.31 644.94,561.23C649.06,575.51 648.67,589.48 641.66,602.83C635.03,615.47 623.77,620.50 610.20,619.78C590.39,618.72 580.89,610.52 575.74,591.29C574.84,587.93 573.41,586.66 570.12,588.14C563.81,590.95 556.85,586.51 554.65,581.72C552.00,575.93 553.23,569.16 558.72,565.31C567.47,559.17 577.37,555.11 587.12,550.84C610.72,540.50 634.08,529.63 658.15,520.34C668.72,516.26 678.52,523.91 677.32,533.55C676.62,539.12 673.15,542.35 668.33,544.56C660.78,548.03 653.26,551.58 645.43,555.27"/>
-                <path fill="currentColor" d="M363.93,547.22C360.88,545.79 358.10,544.64 355.50,543.18C349.05,539.54 346.91,532.84 349.90,526.07C352.49,520.22 359.23,517.42 365.84,519.90C399.02,532.34 431.25,546.92 462.96,562.69C470.68,566.53 473.55,571.40 472.66,577.31C471.36,585.97 464.29,590.51 456.05,588.00C454.96,587.67 453.82,587.48 452.72,587.23C451.12,588.87 450.85,590.88 450.38,592.77C445.89,610.83 432.88,620.52 414.30,619.62C393.35,618.60 379.72,604.25 379.67,583.05C379.65,575.10 378.84,567.05 382.19,559.45C383.35,556.82 381.95,555.39 379.72,554.38C374.57,552.04 369.43,549.70 363.93,547.22"/>
-              </svg>
-              __MSG_appName__
+              <div class="logo-mark">
+                <img src="icons/icon48.png" alt="__MSG_appName__">
+              </div>
+              <div class="logo-text">
+                <span class="logo-title">__MSG_appName__</span>
+                <span class="logo-caption">__MSG_logoCaption__</span>
+              </div>
             </div>
+            <div class="subtitle">__MSG_settingsSubtitle__</div>
             <div class="status-badge">
-              <div class="status-dot"></div>
+              <span class="status-dot"></span>
               <span>__MSG_statusConnected__</span>
             </div>
           </div>
