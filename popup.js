@@ -248,13 +248,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function detectDefaultLanguage() {
-    const uiLanguage = (chrome.i18n.getUILanguage() || '').toLowerCase();
-    if (uiLanguage.startsWith('ko')) {
-      return 'ko';
-    }
+    const languages = [
+      chrome.i18n.getUILanguage(),
+      ...(navigator.languages || [])
+    ].map(lang => (lang || '').toLowerCase());
 
-    const preferredLanguages = (navigator.languages || []).map(lang => (lang || '').toLowerCase());
-    if (preferredLanguages.some(lang => lang.startsWith('ko'))) {
+    if (languages.some(lang => lang.startsWith('ko'))) {
       return 'ko';
     }
 
