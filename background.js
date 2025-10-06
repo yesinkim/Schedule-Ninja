@@ -68,8 +68,6 @@ Important: Always respond in array format, and each event must contain complete 
   CACHE_DURATION: 5 * 60 * 1000, // 5분
 };
 
-const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
-
 //State management
 let state = {
   selectedText: '',
@@ -872,7 +870,7 @@ class MessageHandler {
           PerformanceMonitor.clearMeasurements();
           sendResponse({
             success: true,
-            message: t('notificationPerformanceCleared')
+            message: '성능 측정 데이터가 초기화되었습니다.'
           });
         } catch (error) {
           sendResponse({
@@ -887,7 +885,7 @@ class MessageHandler {
           LanguageModelManager.destroySession();
           sendResponse({
             success: true,
-            message: t('notificationSessionCleared')
+            message: 'LanguageModel 세션이 정리되었습니다.'
           });
         } catch (error) {
           sendResponse({
@@ -948,7 +946,7 @@ class MessageHandler {
           responseCache.clear();
           sendResponse({
             success: true,
-            message: t('notificationCacheCleared')
+            message: '캐시가 클리어되었습니다.'
           });
         } catch (error) {
           sendResponse({
