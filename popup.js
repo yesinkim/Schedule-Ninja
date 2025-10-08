@@ -7,10 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const settingsBtn = document.getElementById('settingsBtn');
   const backBtn = document.getElementById('backBtn');
 
-  const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key;
+  const fallbackLocale = 'en';
+  const localeCache = {};
+  let currentLocale = null;
 
-  applyI18n();
-  document.title = t('popupTitle');
+  const t = (key, substitutions) => getMessage(key, substitutions);
+
+  applyI18n().catch(error => {
+    console.error('applyI18n failed on init', error);
+  });
 
   // 설정 토글들
   const sourceToggle = document.getElementById('sourceToggle');
@@ -30,16 +35,26 @@ document.addEventListener('DOMContentLoaded', function() {
   // 초기화
   init();
 
-  function applyI18n() {
+  async function applyI18n() {
+    const settings = await getStoredSettings();
+    const preferredLocale = settings.language || detectDefaultLanguage();
+
+    await ensureLocaleLoaded(fallbackLocale);
+    await ensureLocaleLoaded(preferredLocale);
+
+    currentLocale = localeCache[preferredLocale] ? preferredLocale : fallbackLocale;
+
+    document.title = getMessage('popupTitle');
+
     const textTargets = document.querySelectorAll('[data-i18n]');
     textTargets.forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (!key) return;
       const attr = el.getAttribute('data-i18n-attr');
-      const message = t(key);
+      const message = getMessage(key);
       if (!message) return;
       if (attr) {
-        el[attr] = message;
+        el.setAttribute(attr, message);
       } else {
         el.textContent = message;
       }
@@ -49,11 +64,22 @@ document.addEventListener('DOMContentLoaded', function() {
     placeholderTargets.forEach(el => {
       const key = el.getAttribute('data-i18n-placeholder');
       if (!key) return;
-      const message = t(key);
+      const message = getMessage(key);
       if (message) {
         el.setAttribute('placeholder', message);
       }
     });
+
+    // 토글 라벨 등 동적으로 변경되는 요소들도 현재 언어로 갱신
+    if (sourceToggle && sourceLabel) {
+      updateToggleUI(sourceToggle, sourceLabel, sourceToggle.classList.contains('active'));
+    }
+    if (autoDetectToggle && autoDetectLabel) {
+      updateToggleUI(autoDetectToggle, autoDetectLabel, autoDetectToggle.classList.contains('active'));
+    }
+    if (darkModeToggle && darkModeLabel) {
+      updateToggleUI(darkModeToggle, darkModeLabel, darkModeToggle.classList.contains('active'));
+    }
   }
 
   function init() {
@@ -142,10 +168,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (isActive) {
       toggle.classList.add('active');
-      label.textContent = '켜기';
+      label.textContent = getMessage('toggleOn');
     } else {
       toggle.classList.remove('active');
-      label.textContent = '끄기';
+      label.textContent = getMessage('toggleOff');
     }
   }
   
@@ -158,7 +184,8 @@ document.addEventListener('DOMContentLoaded', function() {
       chrome.storage.sync.set({ settings: settings });
       
       updateToggleUI(sourceToggle, sourceLabel, newValue);
-      showNotification('출처 정보 설정이 변경되었습니다.', 'success');
+      const messageId = newValue ? 'notifySourceEnabled' : 'notifySourceDisabled';
+      showNotification(getMessage(messageId), 'success');
     });
   }
   
@@ -183,8 +210,9 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         });
       });
-      
-      showNotification('자동 감지 설정이 변경되었습니다.', 'success');
+
+      const messageId = newValue ? 'notifyAutoDetectEnabled' : 'notifyAutoDetectDisabled';
+      showNotification(getMessage(messageId), 'success');
     });
   }
   
@@ -197,7 +225,8 @@ document.addEventListener('DOMContentLoaded', function() {
       chrome.storage.sync.set({ settings: settings });
       
       updateToggleUI(darkModeToggle, darkModeLabel, newValue);
-      showNotification('다크 모드 설정이 변경되었습니다.', 'success');
+      const messageId = newValue ? 'notifyDarkModeEnabled' : 'notifyDarkModeDisabled';
+      showNotification(getMessage(messageId), 'success');
     });
   }
   
@@ -206,8 +235,15 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.storage.sync.get(['settings'], function(result) {
       const settings = result.settings || {};
       settings.language = language;
-      chrome.storage.sync.set({ settings: settings });
-      showNotification('언어 설정이 변경되었습니다.', 'success');
+      chrome.storage.sync.set({ settings: settings }, () => {
+        applyI18n()
+          .then(() => {
+            showNotification(getMessage('notifyLanguageUpdated'), 'success');
+          })
+          .catch(error => {
+            console.error('applyI18n failed after language change', error);
+          });
+      });
     });
   }
   
@@ -217,14 +253,14 @@ document.addEventListener('DOMContentLoaded', function() {
       const settings = result.settings || {};
       settings.timezone = timezone;
       chrome.storage.sync.set({ settings: settings });
-      showNotification('시간대 설정이 변경되었습니다.', 'success');
+      showNotification(getMessage('notifyTimezoneUpdated'), 'success');
     });
   }
   
   function disconnectGoogle() {
-    if (confirm('Google Calendar 연결을 해제하시겠습니까?')) {
+    if (confirm(getMessage('confirmDisconnect'))) {
       chrome.identity.clearAllCachedAuthTokens(function() {
-        showNotification('Google Calendar 연결이 해제되었습니다.', 'success');
+        showNotification(getMessage('disconnectSuccess'), 'success');
         setTimeout(() => {
           showLoginSection();
         }, 1000);
@@ -260,13 +296,69 @@ document.addEventListener('DOMContentLoaded', function() {
     googleLoginBtn.addEventListener('click', function() {
       chrome.identity.getAuthToken({ interactive: true }, function(token) {
         if (token) {
-          showNotification('Google Calendar에 성공적으로 연결되었습니다!', 'success');
+          showNotification(getMessage('authSuccess'), 'success');
           setTimeout(() => {
             showSettingsSection();
           }, 1000);
         } else {
-          showNotification('Google Calendar 연결에 실패했습니다.', 'danger');
+          showNotification(getMessage('authFailure'), 'danger');
         }
+      });
+    });
+  }
+
+  function detectDefaultLanguage() {
+    const languages = [
+      chrome.i18n.getUILanguage(),
+      ...(navigator.languages || [])
+    ].map(lang => (lang || '').toLowerCase());
+
+    if (languages.some(lang => lang.startsWith('ko'))) {
+      return 'ko';
+    }
+
+    return 'en';
+  }
+
+  function getMessage(key, substitutions) {
+    if (currentLocale && localeCache[currentLocale] && localeCache[currentLocale][key]) {
+      return localeCache[currentLocale][key].message;
+    }
+
+    if (localeCache[fallbackLocale] && localeCache[fallbackLocale][key]) {
+      return localeCache[fallbackLocale][key].message;
+    }
+
+    const message = chrome.i18n.getMessage(key, substitutions);
+    return message || key;
+  }
+
+  function ensureLocaleLoaded(locale) {
+    if (localeCache[locale] !== undefined) {
+      return Promise.resolve(localeCache[locale]);
+    }
+
+    return fetch(chrome.runtime.getURL(`_locales/${locale}/messages.json`))
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load locale: ${locale}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        localeCache[locale] = data;
+        return data;
+      })
+      .catch(() => {
+        localeCache[locale] = null;
+        return null;
+      });
+  }
+
+  function getStoredSettings() {
+    return new Promise(resolve => {
+      chrome.storage.sync.get(['settings'], result => {
+        resolve(result.settings || {});
       });
     });
   }
