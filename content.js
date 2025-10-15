@@ -1456,19 +1456,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     isDarkMode = request.enabled;
     // 모달이 열려있으면 재생성
     if (modalInstance && modalInstance.style.display !== 'none') {
-      const wasOpen = true;
       const currentData = lastParsedData;
-      const currentPageInfo = pageInfo;
+      // closeModal()의 비동기 처리를 고려하여 300ms 후에 새 모달 생성
       closeModal();
-      if (wasOpen && currentData) {
-        openModal();
-        displayResults(currentData);
-        // 닫기 이벤트 다시 설정
-        const closeBtn = modalInstance.querySelector('#modal-close');
-        const backdrop = modalInstance.querySelector('#modal-backdrop');
-        if (closeBtn) closeBtn.addEventListener('click', () => closeModal());
-        if (backdrop) backdrop.addEventListener('click', () => closeModal());
-      }
+      setTimeout(() => {
+        if (currentData) {
+          openModal();
+          displayResult(currentData);
+          // 닫기 이벤트 다시 설정
+          const closeBtn = modalInstance.querySelector('#modal-close');
+          const backdrop = modalInstance.querySelector('#modal-backdrop');
+          if (closeBtn) closeBtn.addEventListener('click', () => closeModal());
+          if (backdrop) backdrop.addEventListener('click', () => closeModal());
+        }
+      }, 350); // closeModal의 300ms + 여유시간 50ms
     }
   } else if (request.action === 'updateProgress') {
     // 진행률 업데이트 처리
