@@ -6,6 +6,68 @@ let lastParsedData = null; // 이제 배열 형태로 저장
 let pageInfo = null; // 페이지 정보 저장
 let isCreatingEvent = false;
 let creatingEventIndex = -1; // 현재 추가 중인 이벤트 인덱스
+let isDarkMode = false; // 다크 모드 상태
+
+// 색상 팔레트 정의
+const COLOR_PALETTE = {
+  light: {
+    // 모달 색상
+    backdrop: 'rgba(0, 0, 0, 0.3)',
+    modalBg: '#313B43',
+    headerBg: '#343A40',
+    bodyBg: '#F8F9FA',
+    text: '#2C3E50',
+    textMuted: '#61707C',
+    accent: '#E83941',
+    
+    // 카드 색상
+    cardBg: '#F6F6F6',
+    dividerColor: '#E0E0E0',
+    iconFill: '#303030',
+    buttonBg: '#313B43',
+    
+    // 폼 색상
+    formBg: 'white',
+    labelColor: '#303030',
+    inputBg: '#F6F6F6',
+    inputColor: '#303030',
+    
+    // 기타
+    progressBg: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.1)'
+  },
+  dark: {
+    // 모달 색상
+    backdrop: 'rgba(0, 0, 0, 0.5)',
+    modalBg: '#22272e',
+    headerBg: '#2d333b',
+    bodyBg: '#1c2128',
+    text: '#e6edf3',
+    textMuted: '#8b949e',
+    accent: '#ff6b6b',
+    
+    // 카드 색상
+    cardBg: 'rgba(255,255,255,0.03)',
+    dividerColor: 'rgba(255,255,255,0.05)',
+    iconFill: '#e6edf3',
+    buttonBg: '#2d333b',
+    
+    // 폼 색상
+    formBg: '#1c2128',
+    labelColor: '#e6edf3',
+    inputBg: 'rgba(255,255,255,0.05)',
+    inputColor: '#e6edf3',
+    
+    // 기타
+    progressBg: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.05)'
+  }
+};
+
+// 색상 팔레트 반환 헬퍼 함수
+function getColors() {
+  return isDarkMode ? COLOR_PALETTE.dark : COLOR_PALETTE.light;
+}
 
 // 모달 생성 함수
 function createModal() {
@@ -28,12 +90,15 @@ function createModal() {
     pointer-events: auto;
   `;
 
+  // 색상 팔레트 가져오기
+  const colors = getColors();
+
   // 모달 HTML - 새로운 디자인
   modalInstance.innerHTML = `
-    <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); pointer-events: auto;" id="modal-backdrop"></div>
-    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: #313B43; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1); pointer-events: auto; overflow: hidden;" id="modal-content">
+    <div style="position: fixed; inset: 0; background: ${colors.backdrop}; pointer-events: auto;" id="modal-backdrop"></div>
+    <div style="position: fixed; top: 20px; right: 20px; width: 320px; max-width: 95vw; background: ${colors.modalBg}; border-radius: 16px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.25), 0 0 0 1px ${isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)'}; pointer-events: auto; overflow: hidden;" id="modal-content">
       <!-- 헤더 -->
-      <div style="background: #343A40; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
+      <div style="background: ${colors.headerBg}; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
         <!-- 로고 배너 -->
         <img src="${chrome.runtime.getURL('assets/logo_banner.png')}" alt="Schedule Ninja" style="height: 20px; object-fit: contain;">
         <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50% !important; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
@@ -44,17 +109,17 @@ function createModal() {
       </div>
       
       <!-- 모달 본문 -->
-      <div id="modal-body" style="background: #F8F9FA; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto; scroll-behavior: smooth;">
+      <div id="modal-body" style="background: ${colors.bodyBg}; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto; scroll-behavior: smooth;">
         <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
-          <div style="display: inline-flex; align-items: center; gap: 8px; color: #E83941;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; color: ${colors.accent};">
             <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
-            <span id="loading-text" style="font-size: 12px; font-weight: 500;">Snagging...</span>
+            <span id="loading-text" style="font-size: 12px; font-weight: 500; color: ${colors.text};">Snagging...</span>
           </div>
           <div id="progress-container" style="margin-top: 12px; display: none;">
-            <div style="background: rgba(255,255,255,0.3); border-radius: 8px !important; height: 4px; overflow: hidden;">
-              <div id="progress-bar" style="background: linear-gradient(to right, #E83941, #d32f2f); height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
+            <div style="background: ${colors.progressBg}; border-radius: 8px !important; height: 4px; overflow: hidden;">
+              <div id="progress-bar" style="background: linear-gradient(to right, ${colors.accent}, ${colors.accent}); height: 100%; width: 0%; transition: width 0.3s ease-out;"></div>
             </div>
-            <div id="progress-text" style="font-size: 10px; color: #6b7280; margin-top: 4px; text-align: center;"></div>
+            <div id="progress-text" style="font-size: 10px; color: ${colors.textMuted}; margin-top: 4px; text-align: center;"></div>
           </div>
         </div>
         <div id="timekeeper-result-content" style="display: none;">
@@ -178,30 +243,33 @@ function displayResult(data) {
   // 결과 표시 - 여러 이벤트를 각각 표시
   resultContent.style.display = 'block';
   
+  // 색상 팔레트 가져오기
+  const colors = getColors();
+  
   let eventsHtml = '';
   eventsArray.forEach((eventData, index) => {
     // 구분선 추가 (첫 번째 카드가 아닐 때만)
-    const divider = index > 0 ? `<div style="height: 1px; background: #E0E0E0; margin: 0;"></div>` : '';
+    const divider = index > 0 ? `<div style="height: 1px; background: ${colors.dividerColor}; margin: 0;"></div>` : '';
 
     eventsHtml += `
       ${divider}
-      <div class="event-card" data-event-index="${index}" style="position: relative; background: #F6F6F6; border-radius: 0; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="event-card" data-event-index="${index}" style="position: relative; background: ${colors.cardBg}; border-radius: 0; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
         <!-- 기본 상태: 전체 영역 클릭 가능한 카드 -->
         <div id="tk-compact-card-${index}" style="display: flex; align-items: center; justify-content: space-between; background: transparent; border-radius: 0; box-shadow: none; padding: 16px; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: none; margin: 0; position: relative; z-index: 1;">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow: hidden;">
             <!-- 제목 -->
             <div style="display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden;">
-              <svg width="18" height="18" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
+              <svg width="18" height="18" fill="${colors.iconFill}" viewBox="0 0 24 24" style="flex-shrink: 0;">
                 <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 4H7v5h5v-5z"/>
               </svg>
-              <span style="font-weight: 600; font-size: 14px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">${eventData.summary || '제목 없음'}</span>
+              <span style="font-weight: 600; font-size: 14px; color: ${colors.text}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">${eventData.summary || '제목 없음'}</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden;">
               <div style="display: flex; align-items: flex-start; gap: 6px; min-width: 0; overflow: hidden;">
-                <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+                <svg width="14" height="14" fill="${colors.iconFill}" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
                   <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/>
                 </svg>
-                <div style="font-size: 12px; color: #303030; flex: 1; min-width: 0; line-height: 1.4;">
+                <div style="font-size: 12px; color: ${colors.text}; flex: 1; min-width: 0; line-height: 1.4;">
                   ${(() => {
                     const hasTime = eventData.start?.dateTime || eventData.end?.dateTime;
                     const startStr = eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || '';
@@ -232,17 +300,17 @@ function displayResult(data) {
               </div>
               ${eventData.location ? `
                 <div style="display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden;">
-                  <svg width="14" height="14" fill="#303030" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                  <svg width="14" height="14" fill="${colors.iconFill}" viewBox="0 0 24 24" style="flex-shrink: 0;">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
-                  <span style="font-size: 12px; color: #303030; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">
+                  <span style="font-size: 12px; color: ${colors.text}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">
                     ${eventData.location}
                   </span>
                 </div>
               ` : ''}
             </div>
           </div>
-          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50% !important; background: #313B43; color: white; border: none; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(49, 59, 67, 0.2); flex-shrink: 0;">
+          <button id="tk-add-btn-${index}" style="margin-left: 10px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50% !important; background: ${colors.buttonBg}; color: white; border: none; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(49, 59, 67, 0.2); flex-shrink: 0;">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -491,40 +559,43 @@ async function showDropdownForm(originData, eventIndex) {
   const settings = await chrome.storage.sync.get(['settings']);
   const showSourceInfo = settings.settings?.showSourceInfo;
   
+  // 색상 팔레트 가져오기
+  const colors = getColors();
+  
   dropdown.innerHTML = `
     <!-- 수정 폼 -->
-    <form id="editForm" style="background: white; padding: 16px; border-radius: 12px !important; border: none; text-align: left; margin: 0; box-shadow: 0 -4px 12px rgba(0,0,0,0.08);">
+    <form id="editForm" style="background: ${colors.formBg}; padding: 16px; border-radius: 12px !important; border: none; text-align: left; margin: 0; box-shadow: 0 -4px 12px rgba(0,0,0,0.08);">
         <div style="margin-bottom: 8px;">
-          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">
             TITLE
           </label>
-          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="제목을 입력하세요" />
+          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="제목을 입력하세요" />
         </div>
         <div style="margin-bottom: 8px;">
-          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">
             START
           </label>
-          <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" />
+          <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box; color-scheme: ${isDarkMode ? 'dark' : 'light'};" />
         </div>
         <div style="margin-bottom: 8px;">
-          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">
             END
           </label>
-          <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" />
+          <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box; color-scheme: ${isDarkMode ? 'dark' : 'light'};" />
         </div>
         <div style="margin-bottom: 8px;">
-          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">
             PLACE
           </label>
-          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="장소를 입력하세요" />
+          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="장소를 입력하세요" />
         </div>
         <div style="margin-bottom: 12px;">
-            <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: #303030; margin-bottom: 4px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">
             DESCRIPTION
           </label>
-          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: #F6F6F6; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
+          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; outline: none; transition: all 0.15s; resize: none; text-align: left !important; direction: ltr; box-sizing: border-box;" placeholder="설명을 입력하세요">${originData.description || ''}</textarea>
         </div>
-      <button id="tk-dropdown-save" type="button" style="width: 100%; background: #313B43; color: white; border: none; border-radius: 6px !important; padding: 8px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1); box-shadow: 0 4px 12px rgba(49, 59, 67, 0.3); height: auto;">
+      <button id="tk-dropdown-save" type="button" style="width: 100%; background: ${colors.buttonBg}; color: white; border: none; border-radius: 6px !important; padding: 8px; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; transform: scale(1); box-shadow: 0 4px 12px rgba(49, 59, 67, 0.3); height: auto;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -1417,6 +1488,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (bookingDetector) {
       bookingDetector.setEnabled(request.enabled);
     }
+  } else if (request.action === 'updateDarkMode') {
+    // 다크 모드 설정 변경 처리
+    isDarkMode = request.enabled;
+    // 모달이 열려있으면 재생성
+    if (modalInstance && modalInstance.style.display !== 'none') {
+      const currentData = lastParsedData;
+      // closeModal()의 비동기 처리를 고려하여 300ms 후에 새 모달 생성
+      closeModal();
+      setTimeout(() => {
+        if (currentData) {
+          openModal();
+          displayResult(currentData);
+          // 닫기 이벤트 다시 설정
+          const closeBtn = modalInstance.querySelector('#modal-close');
+          const backdrop = modalInstance.querySelector('#modal-backdrop');
+          if (closeBtn) closeBtn.addEventListener('click', () => closeModal());
+          if (backdrop) backdrop.addEventListener('click', () => closeModal());
+        }
+      }, 350); // closeModal의 300ms + 여유시간 50ms
+    }
   } else if (request.action === 'updateProgress') {
     // 진행률 업데이트 처리
     updateProgress(request.progress, request.stage);
@@ -1484,4 +1575,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     displayResult(testData);
   }
+});
+
+// 다크 모드 설정 로드
+chrome.storage.sync.get(['settings'], (result) => {
+  const settings = result.settings || {};
+  isDarkMode = settings.darkMode || false;
 });

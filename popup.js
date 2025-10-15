@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const sourceLabel = document.getElementById('sourceLabel');
   const autoDetectToggle = document.getElementById('autoDetectToggle');
   const autoDetectLabel = document.getElementById('autoDetectLabel');
-  const darkModeToggle = document.getElementById('darkModeToggle');
-  const darkModeLabel = document.getElementById('darkModeLabel');
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
   
   // 셀렉트 박스들
   const languageSelect = document.getElementById('languageSelect');
@@ -77,8 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (autoDetectToggle && autoDetectLabel) {
       updateToggleUI(autoDetectToggle, autoDetectLabel, autoDetectToggle.classList.contains('active'));
     }
-    if (darkModeToggle && darkModeLabel) {
-      updateToggleUI(darkModeToggle, darkModeLabel, darkModeToggle.classList.contains('active'));
+    if (themeToggle && themeLabel) {
+      updateToggleUI(themeToggle, themeLabel, themeToggle.classList.contains('active'));
     }
   }
 
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 설정 토글들
     if (sourceToggle) sourceToggle.addEventListener('click', toggleSourceInfo);
     if (autoDetectToggle) autoDetectToggle.addEventListener('click', toggleAutoDetect);
-    if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
+    if (themeToggle) themeToggle.addEventListener('click', toggleDarkMode);
     
     // 셀렉트 박스들
     if (languageSelect) languageSelect.addEventListener('change', updateLanguage);
@@ -149,7 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // 다크 모드 설정
       const darkMode = settings.darkMode || false;
-      updateToggleUI(darkModeToggle, darkModeLabel, darkMode);
+      updateToggleUI(themeToggle, themeLabel, darkMode);
+      applyDarkMode(darkMode);
       
       // 언어 설정
       if (languageSelect) {
@@ -224,10 +225,32 @@ document.addEventListener('DOMContentLoaded', function() {
       settings.darkMode = newValue;
       chrome.storage.sync.set({ settings: settings });
       
-      updateToggleUI(darkModeToggle, darkModeLabel, newValue);
+      updateToggleUI(themeToggle, themeLabel, newValue);
+      applyDarkMode(newValue);
+      
+      // 모든 탭에 다크 모드 설정 변경 알림
+      chrome.tabs.query({}, function(tabs) {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { 
+            action: 'updateDarkMode', 
+            enabled: newValue 
+          }).catch(() => {
+            // 에러 무시 (content script가 없는 탭)
+          });
+        });
+      });
+      
       const messageId = newValue ? 'notifyDarkModeEnabled' : 'notifyDarkModeDisabled';
       showNotification(getMessage(messageId), 'success');
     });
+  }
+  
+  function applyDarkMode(enabled) {
+    if (enabled) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
   }
   
   function updateLanguage() {
