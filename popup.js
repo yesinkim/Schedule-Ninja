@@ -148,14 +148,28 @@ document.addEventListener('DOMContentLoaded', function() {
       updateToggleUI(themeToggle, themeLabel, darkMode);
       applyDarkMode(darkMode);
       
-      // 언어 설정
+      // 언어 설정 - 브라우저 언어 자동 감지
       if (languageSelect) {
-        languageSelect.value = settings.language || 'ko';
+        const defaultLanguage = settings.language || detectDefaultLanguage();
+        languageSelect.value = defaultLanguage;
+        
+        // 저장된 설정이 없는 경우 브라우저 언어로 초기화
+        if (!settings.language) {
+          settings.language = defaultLanguage;
+          chrome.storage.sync.set({ settings: settings });
+        }
       }
       
-      // 시간대 설정
+      // 시간대 설정 - 브라우저 시간대 자동 감지
       if (timezoneSelect) {
-        timezoneSelect.value = settings.timezone || 'Asia/Seoul';
+        const defaultTimezone = settings.timezone || detectDefaultTimezone();
+        timezoneSelect.value = defaultTimezone;
+        
+        // 저장된 설정이 없는 경우 브라우저 시간대로 초기화
+        if (!settings.timezone) {
+          settings.timezone = defaultTimezone;
+          chrome.storage.sync.set({ settings: settings });
+        }
       }
     });
   }
@@ -342,6 +356,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     return 'en';
+  }
+
+  function detectDefaultTimezone() {
+    try {
+      // 브라우저의 시간대 정보 가져오기
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      
+      // 지원되는 시간대 매핑
+      const timezoneMap = {
+        // 아시아
+        'Asia/Seoul': 'Asia/Seoul',
+        'Asia/Tokyo': 'Asia/Tokyo',
+        'Asia/Shanghai': 'Asia/Shanghai',
+        'Asia/Singapore': 'Asia/Singapore',
+        'Asia/Kolkata': 'Asia/Kolkata',
+        'Australia/Sydney': 'Australia/Sydney',
+        // 유럽
+        'Europe/London': 'Europe/London',
+        'Europe/Paris': 'Europe/Paris',
+        'Europe/Moscow': 'Europe/Moscow',
+        // 아메리카
+        'America/New_York': 'America/New_York',
+        'America/Los_Angeles': 'America/Los_Angeles',
+        'America/Toronto': 'America/Toronto',
+        'America/Sao_Paulo': 'America/Sao_Paulo'
+      };
+      
+      // 매핑된 시간대가 있으면 사용, 없으면 기본값
+      return timezoneMap[timezone] || 'Asia/Seoul';
+    } catch (error) {
+      console.warn('시간대 감지 실패:', error);
+      return 'Asia/Seoul'; // 기본값
+    }
   }
 
   function getMessage(key, substitutions) {
