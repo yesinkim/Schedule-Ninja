@@ -179,33 +179,6 @@
       margin-top: 6px;
     }
 
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(76, 175, 80, 0.18);
-      color: #f5fdf5;
-      padding: 5px 12px;
-      border-radius: 16px;
-      font-size: 11px;
-      font-weight: 600;
-      align-self: flex-start;
-      margin-top: 10px;
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #aff1af;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.1); }
-      100% { opacity: 1; transform: scale(1); }
-    }
 
     .content-area {
       flex: 1;
@@ -400,23 +373,6 @@
       box-shadow: 0 0 0 3px rgba(232, 57, 65, 0.1);
     }
     
-    .disconnect-btn {
-      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-      border: none;
-      border-radius: 10px;
-      padding: 5px 12px;
-      color: white;
-      font-weight: 500;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 3px 12px rgba(255, 107, 107, 0.25);
-    }
-    
-    .disconnect-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.35);
-    }
 
     .guide-section {
       padding: 16px;
@@ -526,10 +482,6 @@
               </div>
             </div>
             <div class="subtitle" data-i18n="popupSubtitle"></div>
-            <div class="status-badge">
-              <span class="status-dot"></span>
-              <span data-i18n="statusDisconnected"></span>
-            </div>
           </div>
         </div>
 
@@ -563,10 +515,6 @@
               </div>
             </div>
             <div class="subtitle" data-i18n="settingsSubtitle"></div>
-            <div class="status-badge">
-              <span class="status-dot"></span>
-              <span data-i18n="statusConnected"></span>
-            </div>
           </div>
         </div>
 
@@ -650,16 +598,6 @@
                 </div>
               </div>
 
-              <!-- 연결 해제 -->
-              <div class="setting-item">
-                <div class="setting-info">
-                  <div class="setting-label" data-i18n="settingDisconnectLabel"></div>
-                  <div class="setting-description" data-i18n="settingDisconnectDescription"></div>
-                </div>
-                <button id="disconnectBtn" class="disconnect-btn">
-                  <span data-i18n="disconnectButtonText"></span>
-                </button>
-              </div>
             </div>
 
             <!-- 사용법 안내 -->

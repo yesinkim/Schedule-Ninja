@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const languageSelect = document.getElementById('languageSelect');
   const timezoneSelect = document.getElementById('timezoneSelect');
   
-  // 연결 해제 버튼
-  const disconnectBtn = document.getElementById('disconnectBtn');
   
   // 초기화
   init();
@@ -108,8 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (languageSelect) languageSelect.addEventListener('change', updateLanguage);
     if (timezoneSelect) timezoneSelect.addEventListener('change', updateTimezone);
     
-    // 연결 해제 버튼
-    if (disconnectBtn) disconnectBtn.addEventListener('click', disconnectGoogle);
   }
   
   function showLoginSection() {
@@ -123,24 +119,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function checkLoginStatus() {
-    // 먼저 로그아웃 상태 확인
-    chrome.storage.local.get(['userLoggedOut'], function(result) {
-      if (result.userLoggedOut) {
-        // 사용자가 명시적으로 로그아웃한 경우
+    // Google Calendar 연결 상태 확인
+    chrome.identity.getAuthToken({ interactive: false }, function(token) {
+      if (token) {
+        // 로그인된 상태
+        showSettingsSection();
+      } else {
+        // 로그인되지 않은 상태
         showLoginSection();
-        return;
       }
-      
-      // Google Calendar 연결 상태 확인
-      chrome.identity.getAuthToken({ interactive: false }, function(token) {
-        if (token) {
-          // 로그인된 상태
-          showSettingsSection();
-        } else {
-          // 로그인되지 않은 상태
-          showLoginSection();
-        }
-      });
     });
   }
   
@@ -289,33 +276,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  function disconnectGoogle() {
-    if (confirm(getMessage('confirmDisconnect'))) {
-      // 현재 토큰을 먼저 가져온 후 삭제
-      chrome.identity.getAuthToken({ interactive: false }, function(token) {
-        if (token) {
-          // 특정 토큰만 삭제
-          chrome.identity.removeCachedAuthToken({ token: token }, function() {
-            // 로그아웃 상태를 저장소에 저장
-            chrome.storage.local.set({ 'userLoggedOut': true }, function() {
-              showNotification(getMessage('disconnectSuccess'), 'success');
-              setTimeout(() => {
-                showLoginSection();
-              }, 1000);
-            });
-          });
-        } else {
-          // 토큰이 없는 경우에도 로그아웃 상태 저장 후 로그인 섹션으로 이동
-          chrome.storage.local.set({ 'userLoggedOut': true }, function() {
-            showNotification(getMessage('disconnectSuccess'), 'success');
-            setTimeout(() => {
-              showLoginSection();
-            }, 1000);
-          });
-        }
-      });
-    }
-  }
   
   function showNotification(message, type = 'success') {
     // 기존 알림 제거
@@ -327,31 +287,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification is-${type}`;
-    notification.textContent = message;
     
+    // info 타입에 대한 스타일 추가
+    if (type === 'info') {
+      notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 2147483647;
+        background: #3742fa; color: white; padding: 12px 20px; 
+        border-radius: 8px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      `;
+    }
+    
+    notification.textContent = message;
     document.body.appendChild(notification);
     
-    // 3초 후 제거
+    // 5초 후 제거 (info는 더 길게)
     setTimeout(() => {
       if (notification.parentElement) {
         notification.remove();
       }
-    }, 3000);
+    }, type === 'info' ? 5000 : 3000);
   }
   
   // Google 로그인 버튼 클릭 이벤트
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', function() {
+      // 로그인 안내 메시지 표시
+      showNotification('Google 로그인 창이 열립니다. 계정을 선택하고 권한을 승인해주세요.', 'info');
+      
+      // 직접 OAuth2 인증 처리
       chrome.identity.getAuthToken({ interactive: true }, function(token) {
         if (token) {
-          // 로그인 성공 시 로그아웃 상태 초기화
-          chrome.storage.local.remove(['userLoggedOut'], function() {
-            showNotification(getMessage('authSuccess'), 'success');
-            setTimeout(() => {
-              showSettingsSection();
-            }, 1000);
-          });
+          // 로그인 성공
+          showNotification(getMessage('authSuccess'), 'success');
+          setTimeout(() => {
+            showSettingsSection();
+          }, 1000);
         } else {
           showNotification(getMessage('authFailure'), 'danger');
         }
