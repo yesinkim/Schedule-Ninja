@@ -784,7 +784,7 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   // 로그인 상태 확인
   const isLoggedIn = await checkLoginStatus();
   if (!isLoggedIn) {
-    showLoginPromptModal();
+    await showLoginPromptModal();
     return;
   }
   
@@ -1112,7 +1112,7 @@ class BookingPageDetector {
     }
     
     // 로그인 상태 확인 - 로그인되지 않은 경우 자동검출 비활성화
-    const isLoggedIn = await this.checkLoginStatus();
+    const isLoggedIn = await checkLoginStatus();
     if (!isLoggedIn) {
       console.log('로그인되지 않아 자동검출을 비활성화합니다.');
       return;
@@ -1136,20 +1136,6 @@ class BookingPageDetector {
   setEnabled(enabled) {
     this.enabled = enabled;
     console.log('자동 감지 설정 변경:', enabled ? '활성화' : '비활성화');
-  }
-  
-  // 로그인 상태 확인 함수
-  async checkLoginStatus() {
-    try {
-      return new Promise((resolve) => {
-        chrome.runtime.sendMessage({ action: 'checkAuthStatus' }, (response) => {
-          resolve(response?.isLoggedIn || false);
-        });
-      });
-    } catch (error) {
-      console.error('로그인 상태 확인 실패:', error);
-      return false;
-    }
   }
   
   extractBookingInfo() {
@@ -1620,49 +1606,77 @@ async function checkLoginStatus() {
   }
 }
 
+// CSS 스타일시트 주입 함수
+async function injectModalStyles() {
+  // 이미 주입된 스타일이 있는지 확인
+  if (document.getElementById('timekeeper-modal-styles')) {
+    return;
+  }
+
+  try {
+    // CSS 파일을 동적으로 로드
+    const response = await fetch(chrome.runtime.getURL('css/modal.css'));
+    const cssText = await response.text();
+    
+    const style = document.createElement('style');
+    style.id = 'timekeeper-modal-styles';
+    style.textContent = cssText;
+    
+    document.head.appendChild(style);
+  } catch (error) {
+    console.error('Failed to load modal CSS:', error);
+    // 폴백: 기본 스타일 적용
+    const style = document.createElement('style');
+    style.id = 'timekeeper-modal-styles';
+    style.textContent = `
+      #timekeeper-login-modal {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: 2147483647; display: block; pointer-events: auto;
+      }
+      .timekeeper-toast {
+        position: fixed; top: 20px; right: 20px; z-index: 2147483647;
+        color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
 // 로그인 안내 모달 표시 함수
-function showLoginPromptModal() {
+async function showLoginPromptModal() {
   // 기존 모달이 있으면 제거
   if (modalInstance) {
     modalInstance.remove();
     modalInstance = null;
   }
 
+  // CSS 스타일시트 주입 (비동기)
+  await injectModalStyles();
+
   // 로그인 안내 모달 생성
   modalInstance = document.createElement('div');
   modalInstance.id = 'timekeeper-login-modal';
-  modalInstance.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 2147483647;
-    display: block;
-    pointer-events: auto;
-  `;
-
-  const colors = getColors();
+  modalInstance.className = isDarkMode ? 'dark-mode' : 'light-mode';
 
   modalInstance.innerHTML = `
-    <div style="position: fixed; inset: 0; background: ${colors.backdrop}; pointer-events: auto;" id="modal-backdrop"></div>
-    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; max-width: 90vw; background: ${colors.modalBg}; border-radius: 12px !important; box-shadow: 0 20px 40px -8px rgba(0,0,0,0.3), 0 0 0 1px ${isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)'}; pointer-events: auto; overflow: hidden;" id="modal-content">
-      <!-- 간단한 모달 본문 -->
-      <div style="background: ${colors.bodyBg}; padding: 24px; text-align: center;">
-        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E83941, #d32f2f); border-radius: 50% !important; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-content" id="modal-content">
+      <div class="modal-body">
+        <div class="modal-icon">
           <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
           </svg>
         </div>
-        <h3 style="margin: 0 0 8px; color: ${colors.text}; font-size: 16px; font-weight: 600;" data-i18n="loginRequiredTitle">Google 로그인 필요</h3>
-        <p style="margin: 0 0 20px; color: ${colors.textMuted}; font-size: 14px; line-height: 1.4;" data-i18n="loginRequiredMessage">
+        <h3 class="modal-title" data-i18n="loginRequiredTitle">Google 로그인 필요</h3>
+        <p class="modal-message" data-i18n="loginRequiredMessage">
           캘린더에 일정을 추가하려면<br>
           먼저 로그인해주세요.
         </p>
         
-        <div style="display: flex; gap: 8px; justify-content: center;">
-          <button id="login-modal-close" style="flex: 1; background: ${colors.cardBg}; color: ${colors.text}; border: 1px solid ${colors.dividerColor}; border-radius: 8px !important; padding: 10px 16px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;" data-i18n="loginModalCloseButton">나중에</button>
-          <button id="login-modal-open-popup" style="flex: 1; background: linear-gradient(135deg, #E83941, #d32f2f); color: white; border: none; border-radius: 8px !important; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" data-i18n="loginModalLoginButton">로그인</button>
+        <div class="modal-buttons">
+          <button id="login-modal-close" class="modal-button modal-button-close" data-i18n="loginModalCloseButton">나중에</button>
+          <button id="login-modal-open-popup" class="modal-button modal-button-primary" data-i18n="loginModalLoginButton">로그인</button>
         </div>
       </div>
     </div>
@@ -1704,28 +1718,7 @@ function showLoginPromptModal() {
   // 토스트 메시지 표시 함수
   function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    
-    let backgroundColor;
-    switch (type) {
-      case 'success':
-        backgroundColor = 'linear-gradient(135deg, #E83941, #d32f2f)';
-        break;
-      case 'error':
-        backgroundColor = '#ff4757';
-        break;
-      case 'info':
-        backgroundColor = '#3742fa';
-        break;
-      default:
-        backgroundColor = 'linear-gradient(135deg, #E83941, #d32f2f)';
-    }
-    
-    toast.style.cssText = `
-      position: fixed; top: 20px; right: 20px; z-index: 2147483647;
-      background: ${backgroundColor}; 
-      color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px;
-    `;
+    toast.className = `timekeeper-toast toast-${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
     
@@ -1733,7 +1726,7 @@ function showLoginPromptModal() {
       if (toast.parentElement) {
         toast.remove();
       }
-    }, 4000); // info 메시지는 조금 더 길게 표시
+    }, type === 'info' ? 4000 : 3000); // info 메시지는 조금 더 길게 표시
   }
 
   // Escape 키로 닫기
