@@ -123,15 +123,24 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function checkLoginStatus() {
-    // Google Calendar 연결 상태 확인
-    chrome.identity.getAuthToken({ interactive: false }, function(token) {
-      if (token) {
-        // 로그인된 상태
-        showSettingsSection();
-      } else {
-        // 로그인되지 않은 상태
+    // 먼저 로그아웃 상태 확인
+    chrome.storage.local.get(['userLoggedOut'], function(result) {
+      if (result.userLoggedOut) {
+        // 사용자가 명시적으로 로그아웃한 경우
         showLoginSection();
+        return;
       }
+      
+      // Google Calendar 연결 상태 확인
+      chrome.identity.getAuthToken({ interactive: false }, function(token) {
+        if (token) {
+          // 로그인된 상태
+          showSettingsSection();
+        } else {
+          // 로그인되지 않은 상태
+          showLoginSection();
+        }
+      });
     });
   }
   
@@ -282,11 +291,28 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function disconnectGoogle() {
     if (confirm(getMessage('confirmDisconnect'))) {
-      chrome.identity.clearAllCachedAuthTokens(function() {
-        showNotification(getMessage('disconnectSuccess'), 'success');
-        setTimeout(() => {
-          showLoginSection();
-        }, 1000);
+      // 현재 토큰을 먼저 가져온 후 삭제
+      chrome.identity.getAuthToken({ interactive: false }, function(token) {
+        if (token) {
+          // 특정 토큰만 삭제
+          chrome.identity.removeCachedAuthToken({ token: token }, function() {
+            // 로그아웃 상태를 저장소에 저장
+            chrome.storage.local.set({ 'userLoggedOut': true }, function() {
+              showNotification(getMessage('disconnectSuccess'), 'success');
+              setTimeout(() => {
+                showLoginSection();
+              }, 1000);
+            });
+          });
+        } else {
+          // 토큰이 없는 경우에도 로그아웃 상태 저장 후 로그인 섹션으로 이동
+          chrome.storage.local.set({ 'userLoggedOut': true }, function() {
+            showNotification(getMessage('disconnectSuccess'), 'success');
+            setTimeout(() => {
+              showLoginSection();
+            }, 1000);
+          });
+        }
       });
     }
   }
@@ -319,10 +345,13 @@ document.addEventListener('DOMContentLoaded', function() {
     googleLoginBtn.addEventListener('click', function() {
       chrome.identity.getAuthToken({ interactive: true }, function(token) {
         if (token) {
-          showNotification(getMessage('authSuccess'), 'success');
-          setTimeout(() => {
-            showSettingsSection();
-          }, 1000);
+          // 로그인 성공 시 로그아웃 상태 초기화
+          chrome.storage.local.remove(['userLoggedOut'], function() {
+            showNotification(getMessage('authSuccess'), 'success');
+            setTimeout(() => {
+              showSettingsSection();
+            }, 1000);
+          });
         } else {
           showNotification(getMessage('authFailure'), 'danger');
         }

@@ -1020,6 +1020,35 @@ class MessageHandler {
         sendResponse({ success: true });
         break;
         
+      case 'checkAuthStatus':
+        try {
+          // Google 인증 상태 확인
+          const token = await chrome.identity.getAuthToken({ interactive: false });
+          sendResponse({
+            success: true,
+            isLoggedIn: !!token
+          });
+        } catch (error) {
+          sendResponse({
+            success: true,
+            isLoggedIn: false
+          });
+        }
+        break;
+        
+      case 'openPopup':
+        try {
+          // 확장 프로그램 팝업 열기
+          chrome.action.openPopup();
+          sendResponse({ success: true });
+        } catch (error) {
+          sendResponse({
+            success: false,
+            error: error.message
+          });
+        }
+        break;
+        
       default:
         sendResponse({
           success: false,
@@ -1050,11 +1079,18 @@ chrome.runtime.onInstalled.addListener(() => {
 
 //오른쪽 클릭시
 chrome.contextMenus.onClicked.addListener((info, tab) => {
+  console.log('🖱️ Context menu clicked:', info.menuItemId, 'on tab:', tab.id);
+  
   if (info.menuItemId === "createEvent") {
+    console.log('📝 Create Event selected, sending message to content script');
     // 선택된 텍스트를 content script로 전송
     chrome.tabs.sendMessage(tab.id, {
       action: 'showModal',
       selectedText: info.selectionText
+    }).then(() => {
+      console.log('✅ Message sent successfully');
+    }).catch((error) => {
+      console.error('❌ Failed to send message:', error);
     });
   } else if (info.menuItemId === "testModal") {
     // 테스트용 모달 열기
