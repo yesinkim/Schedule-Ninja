@@ -780,6 +780,14 @@ function updateSaveButtonState(saveBtn, state) {
 // 일정 추가 처리 함수
 async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   if (isCreatingEvent) return;
+  
+  // 로그인 상태 확인
+  const isLoggedIn = await checkLoginStatus();
+  if (!isLoggedIn) {
+    await showLoginPromptModal();
+    return;
+  }
+  
   isCreatingEvent = true;
   creatingEventIndex = eventIndex;
   
@@ -1097,9 +1105,16 @@ class BookingPageDetector {
     });
   }
   
-  checkForBookingPage() {
+  async checkForBookingPage() {
     // 자동 감지가 비활성화된 경우 실행하지 않음
     if (!this.enabled) {
+      return;
+    }
+    
+    // 로그인 상태 확인 - 로그인되지 않은 경우 자동검출 비활성화
+    const isLoggedIn = await checkLoginStatus();
+    if (!isLoggedIn) {
+      console.log('로그인되지 않아 자동검출을 비활성화합니다.');
       return;
     }
     
@@ -1576,6 +1591,174 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     displayResult(testData);
   }
 });
+
+// 로그인 상태 확인 함수
+async function checkLoginStatus() {
+  try {
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: 'checkAuthStatus' }, (response) => {
+        resolve(response?.isLoggedIn || false);
+      });
+    });
+  } catch (error) {
+    console.error('로그인 상태 확인 실패:', error);
+    return false;
+  }
+}
+
+// CSS 스타일시트 주입 함수
+async function injectModalStyles() {
+  // 이미 주입된 스타일이 있는지 확인
+  if (document.getElementById('timekeeper-modal-styles')) {
+    return;
+  }
+
+  try {
+    // CSS 파일을 동적으로 로드
+    const response = await fetch(chrome.runtime.getURL('css/modal.css'));
+    const cssText = await response.text();
+    
+    const style = document.createElement('style');
+    style.id = 'timekeeper-modal-styles';
+    style.textContent = cssText;
+    
+    document.head.appendChild(style);
+  } catch (error) {
+    console.error('Failed to load modal CSS:', error);
+    // 폴백: 기본 스타일 적용
+    const style = document.createElement('style');
+    style.id = 'timekeeper-modal-styles';
+    style.textContent = `
+      #timekeeper-login-modal {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: 2147483647; display: block; pointer-events: auto;
+      }
+      .timekeeper-toast {
+        position: fixed; top: 20px; right: 20px; z-index: 2147483647;
+        color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// 로그인 안내 모달 표시 함수
+async function showLoginPromptModal() {
+  // 기존 모달이 있으면 제거
+  if (modalInstance) {
+    modalInstance.remove();
+    modalInstance = null;
+  }
+
+  // CSS 스타일시트 주입 (비동기)
+  await injectModalStyles();
+
+  // 로그인 안내 모달 생성
+  modalInstance = document.createElement('div');
+  modalInstance.id = 'timekeeper-login-modal';
+  modalInstance.className = isDarkMode ? 'dark-mode' : 'light-mode';
+
+  modalInstance.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-content" id="modal-content">
+      <div class="modal-body">
+        <div class="modal-icon">
+          <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h3 class="modal-title" data-i18n="loginRequiredTitle">Google 로그인 필요</h3>
+        <p class="modal-message" data-i18n="loginRequiredMessage">
+          캘린더에 일정을 추가하려면<br>
+          먼저 로그인해주세요.
+        </p>
+        
+        <div class="modal-buttons">
+          <button id="login-modal-close" class="modal-button modal-button-close" data-i18n="loginModalCloseButton">나중에</button>
+          <button id="login-modal-open-popup" class="modal-button modal-button-primary" data-i18n="loginModalLoginButton">로그인</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modalInstance);
+
+  // 다국어 메시지 적용
+  applyI18nToLoginModal(modalInstance);
+
+  // 이벤트 리스너 설정
+  const closeBtn = modalInstance.querySelector('#login-modal-close');
+  const openPopupBtn = modalInstance.querySelector('#login-modal-open-popup');
+  const backdrop = modalInstance.querySelector('#modal-backdrop');
+
+  function closeHandler() {
+    modalInstance.style.opacity = '0';
+    setTimeout(() => {
+      if (modalInstance && modalInstance.parentElement) {
+        modalInstance.remove();
+        modalInstance = null;
+      }
+    }, 200);
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeHandler);
+  if (backdrop) backdrop.addEventListener('click', closeHandler);
+
+  if (openPopupBtn) {
+    openPopupBtn.addEventListener('click', () => {
+      // 모달 닫기
+      closeHandler();
+      
+      // 사용자에게 확장 프로그램 아이콘 클릭 안내
+      showToast('확장 프로그램 아이콘을 클릭하여 로그인해주세요.', 'info');
+    });
+  }
+
+  // 토스트 메시지 표시 함수
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `timekeeper-toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.remove();
+      }
+    }, type === 'info' ? 4000 : 3000); // info 메시지는 조금 더 길게 표시
+  }
+
+  // Escape 키로 닫기
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeHandler();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+
+  // 애니메이션
+  modalInstance.style.opacity = '0';
+  setTimeout(() => {
+    modalInstance.style.transition = 'opacity 0.2s ease-out';
+    modalInstance.style.opacity = '1';
+  }, 10);
+}
+
+// 로그인 모달에 다국어 메시지 적용
+function applyI18nToLoginModal(modal) {
+  const elements = modal.querySelectorAll('[data-i18n]');
+  elements.forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) {
+      const message = chrome.i18n.getMessage(key);
+      if (message) {
+        el.textContent = message;
+      }
+    }
+  });
+}
 
 // 다크 모드 설정 로드
 chrome.storage.sync.get(['settings'], (result) => {

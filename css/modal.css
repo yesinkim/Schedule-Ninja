@@ -1,0 +1,177 @@
+/* TimeKeeper Modal Styles */
+
+/* Login Modal */
+#timekeeper-login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2147483647;
+  display: block;
+  pointer-events: auto;
+}
+
+#timekeeper-login-modal .modal-backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: auto;
+}
+
+#timekeeper-login-modal .modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  max-width: 90vw;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px -8px rgba(0,0,0,0.3);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+#timekeeper-login-modal .modal-body {
+  padding: 24px;
+  text-align: center;
+}
+
+#timekeeper-login-modal .modal-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #E83941, #d32f2f);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+#timekeeper-login-modal .modal-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: white;
+}
+
+#timekeeper-login-modal .modal-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#timekeeper-login-modal .modal-message {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#timekeeper-login-modal .modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+#timekeeper-login-modal .modal-button {
+  flex: 1;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+#timekeeper-login-modal .modal-button-close {
+  border: 1px solid;
+}
+
+#timekeeper-login-modal .modal-button-primary {
+  background: linear-gradient(135deg, #E83941, #d32f2f);
+  color: white;
+  font-weight: 600;
+}
+
+/* Toast Messages */
+.timekeeper-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2147483647;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-width: 300px;
+}
+
+.timekeeper-toast.toast-success {
+  background: linear-gradient(135deg, #E83941, #d32f2f);
+}
+
+.timekeeper-toast.toast-error {
+  background: #ff4757;
+}
+
+.timekeeper-toast.toast-info {
+  background: #3742fa;
+}
+
+/* Dark Mode Support */
+#timekeeper-login-modal.dark-mode .modal-content {
+  box-shadow: 0 20px 40px -8px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+#timekeeper-login-modal.light-mode .modal-content {
+  box-shadow: 0 20px 40px -8px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+/* Color Variables for Dynamic Theming */
+#timekeeper-login-modal {
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+  --modal-bg: #ffffff;
+  --modal-body-bg: #ffffff;
+  --modal-text: #2c3e50;
+  --modal-text-muted: #61707c;
+  --modal-card-bg: #f8f9fa;
+  --modal-divider: #e1e5e9;
+}
+
+#timekeeper-login-modal.dark-mode {
+  --modal-backdrop: rgba(0, 0, 0, 0.8);
+  --modal-bg: #2d333b;
+  --modal-body-bg: #2d333b;
+  --modal-text: #e6edf3;
+  --modal-text-muted: #8b949e;
+  --modal-card-bg: #22272e;
+  --modal-divider: rgba(255, 255, 255, 0.1);
+}
+
+/* Apply color variables */
+#timekeeper-login-modal .modal-backdrop {
+  background: var(--modal-backdrop);
+}
+
+#timekeeper-login-modal .modal-content {
+  background: var(--modal-bg);
+}
+
+#timekeeper-login-modal .modal-body {
+  background: var(--modal-body-bg);
+}
+
+#timekeeper-login-modal .modal-title {
+  color: var(--modal-text);
+}
+
+#timekeeper-login-modal .modal-message {
+  color: var(--modal-text-muted);
+}
+
+#timekeeper-login-modal .modal-button-close {
+  background: var(--modal-card-bg);
+  color: var(--modal-text);
+  border-color: var(--modal-divider);
+}

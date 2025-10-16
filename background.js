@@ -426,9 +426,14 @@ class ApiService {
       const cachedResponse = responseCache.get(eventData.selectedText);
       if (cachedResponse) {
         console.log('🚀 캐시에서 즉시 반환');
+        // 캐시된 데이터도 검증 (캐시 표시)
+        const validatedCachedResponse = Array.isArray(cachedResponse) 
+          ? cachedResponse.map(event => this.validateEventDataInCreateEvent(event, true))
+          : [this.validateEventDataInCreateEvent(cachedResponse, true)];
+        
         ProgressUpdater.updateProgress(100, 'complete');
         const performanceResult = PerformanceMonitor.endMeasurement(measurement);
-        return cachedResponse;
+        return validatedCachedResponse;
       }
       
       // 2. Chrome의 내장 LanguageModel API 사용
@@ -568,16 +573,16 @@ class ApiService {
         // 배열 형태인지 확인하고 검증
         if (Array.isArray(eventInfo)) {
           console.log('\n4. 배열 형태의 이벤트들:', eventInfo.length, '개');
-          // 각 이벤트를 개별적으로 검증
+          // 각 이벤트를 개별적으로 검증 (새 처리)
           const validatedEvents = eventInfo.map((event, index) => {
             console.log(`\n이벤트 ${index + 1} 검증 중:`, event);
-            return ApiService.validateEventDataInCreateEvent(event);
+            return ApiService.validateEventDataInCreateEvent(event, false);
           });
           return validatedEvents;
         } else {
-          // 단일 이벤트인 경우 배열로 감싸서 반환
+          // 단일 이벤트인 경우 배열로 감싸서 반환 (새 처리)
           console.log('\n4. 단일 이벤트를 배열로 변환');
-          const validatedEvent = ApiService.validateEventDataInCreateEvent(eventInfo);
+          const validatedEvent = ApiService.validateEventDataInCreateEvent(eventInfo, false);
           return [validatedEvent];
         }
 
@@ -587,8 +592,9 @@ class ApiService {
     }
   }
 
-  static validateEventDataInCreateEvent(eventInfo) {
-    console.log('\n=== 이벤트 데이터 검증 시작 ===');
+  static validateEventDataInCreateEvent(eventInfo, isFromCache = false) {
+    const logPrefix = isFromCache ? '[캐시]' : '[새처리]';
+    console.log(`\n=== ${logPrefix} 이벤트 데이터 검증 시작 ===`);
     try {
         // 1. 제목 검증
         console.log('1. 제목 검증:', eventInfo.summary);
@@ -787,7 +793,7 @@ class ApiService {
             }
         }
 
-        console.log('\n✅ 최종 검증 완료된 이벤트:', JSON.stringify(eventInfo, null, 2));
+        console.log(`\n✅ ${logPrefix} 최종 검증 완료된 이벤트:`, JSON.stringify(eventInfo, null, 2));
         return eventInfo;
 
     } catch (error) {
@@ -1020,6 +1026,37 @@ class MessageHandler {
         sendResponse({ success: true });
         break;
         
+      case 'checkAuthStatus':
+        try {
+          // Google 인증 상태 확인
+          const token = await chrome.identity.getAuthToken({ interactive: false });
+          sendResponse({
+            success: true,
+            isLoggedIn: !!token
+          });
+        } catch (error) {
+          sendResponse({
+            success: true,
+            isLoggedIn: false
+          });
+        }
+        break;
+        
+      case 'openPopup':
+        try {
+          // 확장 프로그램 팝업 열기
+          chrome.action.openPopup();
+          sendResponse({ success: true });
+        } catch (error) {
+          // openPopup이 실패하면 사용자에게 수동으로 클릭하라고 안내
+          console.log('팝업 열기 실패, 사용자가 수동으로 확장 프로그램 아이콘을 클릭해야 합니다.');
+          sendResponse({
+            success: false,
+            error: '팝업을 열 수 없습니다. 확장 프로그램 아이콘을 직접 클릭해주세요.'
+          });
+        }
+        break;
+        
       default:
         sendResponse({
           success: false,
@@ -1050,11 +1087,18 @@ chrome.runtime.onInstalled.addListener(() => {
 
 //오른쪽 클릭시
 chrome.contextMenus.onClicked.addListener((info, tab) => {
+  console.log('🖱️ Context menu clicked:', info.menuItemId, 'on tab:', tab.id);
+  
   if (info.menuItemId === "createEvent") {
+    console.log('📝 Create Event selected, sending message to content script');
     // 선택된 텍스트를 content script로 전송
     chrome.tabs.sendMessage(tab.id, {
       action: 'showModal',
       selectedText: info.selectionText
+    }).then(() => {
+      console.log('✅ Message sent successfully');
+    }).catch((error) => {
+      console.error('❌ Failed to send message:', error);
     });
   } else if (info.menuItemId === "testModal") {
     // 테스트용 모달 열기

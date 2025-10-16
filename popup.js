@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const languageSelect = document.getElementById('languageSelect');
   const timezoneSelect = document.getElementById('timezoneSelect');
   
-  // 연결 해제 버튼
-  const disconnectBtn = document.getElementById('disconnectBtn');
   
   // 초기화
   init();
@@ -108,8 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (languageSelect) languageSelect.addEventListener('change', updateLanguage);
     if (timezoneSelect) timezoneSelect.addEventListener('change', updateTimezone);
     
-    // 연결 해제 버튼
-    if (disconnectBtn) disconnectBtn.addEventListener('click', disconnectGoogle);
   }
   
   function showLoginSection() {
@@ -152,14 +148,28 @@ document.addEventListener('DOMContentLoaded', function() {
       updateToggleUI(themeToggle, themeLabel, darkMode);
       applyDarkMode(darkMode);
       
-      // 언어 설정
+      // 언어 설정 - 브라우저 언어 자동 감지
       if (languageSelect) {
-        languageSelect.value = settings.language || 'ko';
+        const defaultLanguage = settings.language || detectDefaultLanguage();
+        languageSelect.value = defaultLanguage;
+        
+        // 저장된 설정이 없는 경우 브라우저 언어로 초기화
+        if (!settings.language) {
+          settings.language = defaultLanguage;
+          chrome.storage.sync.set({ settings: settings });
+        }
       }
       
-      // 시간대 설정
+      // 시간대 설정 - 브라우저 시간대 자동 감지
       if (timezoneSelect) {
-        timezoneSelect.value = settings.timezone || 'Asia/Seoul';
+        const defaultTimezone = settings.timezone || detectDefaultTimezone();
+        timezoneSelect.value = defaultTimezone;
+        
+        // 저장된 설정이 없는 경우 브라우저 시간대로 초기화
+        if (!settings.timezone) {
+          settings.timezone = defaultTimezone;
+          chrome.storage.sync.set({ settings: settings });
+        }
       }
     });
   }
@@ -280,16 +290,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  function disconnectGoogle() {
-    if (confirm(getMessage('confirmDisconnect'))) {
-      chrome.identity.clearAllCachedAuthTokens(function() {
-        showNotification(getMessage('disconnectSuccess'), 'success');
-        setTimeout(() => {
-          showLoginSection();
-        }, 1000);
-      });
-    }
-  }
   
   function showNotification(message, type = 'success') {
     // 기존 알림 제거
@@ -301,24 +301,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification is-${type}`;
-    notification.textContent = message;
     
+    // info 타입에 대한 스타일 추가
+    if (type === 'info') {
+      notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 2147483647;
+        background: #3742fa; color: white; padding: 12px 20px; 
+        border-radius: 8px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      `;
+    }
+    
+    notification.textContent = message;
     document.body.appendChild(notification);
     
-    // 3초 후 제거
+    // 5초 후 제거 (info는 더 길게)
     setTimeout(() => {
       if (notification.parentElement) {
         notification.remove();
       }
-    }, 3000);
+    }, type === 'info' ? 5000 : 3000);
   }
   
   // Google 로그인 버튼 클릭 이벤트
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', function() {
+      // 로그인 안내 메시지 표시
+      showNotification('Google 로그인 창이 열립니다. 계정을 선택하고 권한을 승인해주세요.', 'info');
+      
+      // 직접 OAuth2 인증 처리
       chrome.identity.getAuthToken({ interactive: true }, function(token) {
         if (token) {
+          // 로그인 성공
           showNotification(getMessage('authSuccess'), 'success');
           setTimeout(() => {
             showSettingsSection();
@@ -341,6 +356,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     return 'en';
+  }
+
+  function detectDefaultTimezone() {
+    try {
+      // 브라우저의 시간대 정보 가져오기
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      
+      // 지원되는 시간대 매핑
+      const timezoneMap = {
+        // 아시아
+        'Asia/Seoul': 'Asia/Seoul',
+        'Asia/Tokyo': 'Asia/Tokyo',
+        'Asia/Shanghai': 'Asia/Shanghai',
+        'Asia/Singapore': 'Asia/Singapore',
+        'Asia/Kolkata': 'Asia/Kolkata',
+        'Australia/Sydney': 'Australia/Sydney',
+        // 유럽
+        'Europe/London': 'Europe/London',
+        'Europe/Paris': 'Europe/Paris',
+        'Europe/Moscow': 'Europe/Moscow',
+        // 아메리카
+        'America/New_York': 'America/New_York',
+        'America/Los_Angeles': 'America/Los_Angeles',
+        'America/Toronto': 'America/Toronto',
+        'America/Sao_Paulo': 'America/Sao_Paulo'
+      };
+      
+      // 매핑된 시간대가 있으면 사용, 없으면 기본값
+      return timezoneMap[timezone] || 'Asia/Seoul';
+    } catch (error) {
+      console.warn('시간대 감지 실패:', error);
+      return 'Asia/Seoul'; // 기본값
+    }
   }
 
   function getMessage(key, substitutions) {
