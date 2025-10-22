@@ -12,12 +12,10 @@ For a single event:
   {
     "summary": "Event title",
     "start": {
-      "date": "YYYY-MM-DD",  // Use date format when time is not specified
-      "timeZone": "Asia/Seoul"
+      "date": "YYYY-MM-DD"  // Use date format when time is not specified
     },
     "end": {
-      "date": "YYYY-MM-DD",  // Use date format when time is not specified
-      "timeZone": "Asia/Seoul"
+      "date": "YYYY-MM-DD"  // Use date format when time is not specified
     },
     "location": "Location (optional)",
     "description": "Description (optional)"
@@ -29,12 +27,10 @@ When time is specified:
   {
     "summary": "Event title",
     "start": {
-      "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
-      "timeZone": "Asia/Seoul"
+      "dateTime": "YYYY-MM-DDTHH:mm:ss"
     },
     "end": {
-      "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00",
-      "timeZone": "Asia/Seoul"
+      "dateTime": "YYYY-MM-DDTHH:mm:ss"
     },
     "location": "Location (optional)",
     "description": "Description (optional)"
@@ -45,15 +41,15 @@ For multiple events:
 [
   {
     "summary": "First event title",
-    "start": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
-    "end": { "date": "YYYY-MM-DD", "timeZone": "Asia/Seoul" },
+    "start": { "date": "YYYY-MM-DD" },
+    "end": { "date": "YYYY-MM-DD" },
     "location": "Location 1",
     "description": "Description 1"
   },
   {
     "summary": "Second event title",
-    "start": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
-    "end": { "dateTime": "YYYY-MM-DDTHH:mm:ss+09:00", "timeZone": "Asia/Seoul" },
+    "start": { "dateTime": "YYYY-MM-DDTHH:mm:ss" },
+    "end": { "dateTime": "YYYY-MM-DDTHH:mm:ss" },
     "location": "Location 2",
     "description": "Description 2"
   }
@@ -77,13 +73,208 @@ let state = {
   processingStage: 'idle' // idle, downloading, parsing, processing, complete
 }
 
+// 사용자 시간대 캐시 및 유틸
+let cachedTimezone = null;
+
+function initTimezoneCache() {
+  try {
+    chrome.storage.sync.get(['settings'], (res) => {
+      const tz = (res && res.settings && res.settings.timezone) || (Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) || 'Asia/Seoul';
+      cachedTimezone = tz;
+      console.log('🕐 시간대 캐시 초기화:', { settings: res.settings, detectedTimezone: tz });
+    });
+  } catch (e) {
+    // 실패 시 기본값 유지
+    if (!cachedTimezone) cachedTimezone = 'Asia/Seoul';
+    console.log('🕐 시간대 캐시 초기화 실패:', e);
+  }
+}
+
+function getUserTimezone() {
+  // 캐시가 있으면 우선 사용, 없으면 브라우저/기본값 폴백
+  try {
+    const result = cachedTimezone || (Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) || 'Asia/Seoul';
+    console.log('🕐 getUserTimezone() 호출:', { cachedTimezone, result });
+    return result;
+  } catch (e) {
+    console.log('🕐 getUserTimezone() 에러, 기본값 반환:', e);
+    return 'Asia/Seoul';
+  }
+}
+
+// 주어진 시간대의 오프셋(±HH:MM)을 계산
+function getOffsetForTimezone(dateTime, timeZone) {
+  try {
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+
+    const parts = dtf.formatToParts(dateTime);
+    const partMap = {};
+
+    for (const part of parts) {
+      if (part.type !== 'literal') {
+        partMap[part.type] = part.value;
+      }
+    }
+
+    if (!partMap.year) {
+      return '+00:00';
+    }
+
+    const asUTC = Date.UTC(
+      Number(partMap.year),
+      Number(partMap.month) - 1,
+      Number(partMap.day),
+      Number(partMap.hour),
+      Number(partMap.minute),
+      Number(partMap.second)
+    );
+
+    const offsetMs = asUTC - dateTime.getTime();
+    const offsetMinutes = Math.round(offsetMs / 60000);
+
+    if (!Number.isFinite(offsetMinutes)) {
+      return '+00:00';
+    }
+
+    const sign = offsetMinutes >= 0 ? '+' : '-';
+    const totalMinutes = Math.abs(offsetMinutes);
+    const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+    const minutes = String(totalMinutes % 60).padStart(2, '0');
+
+    return `${sign}${hours}:${minutes}`;
+  } catch (error) {
+    console.log('🕐 시간대 오프셋 계산 중 오류, 기본값 사용:', { timeZone, error });
+    return '+00:00';
+  }
+}
+
+// dateTime 문자열 끝에 오프셋이 없으면 사용자 시간대에 맞는 오프셋을 추가
+function ensureDateTimeHasOffset(dateTimeStr, timeZone, parsedParts = null) {
+  if (!dateTimeStr) return dateTimeStr;
+
+  // 이미 오프셋(±HH:MM) 또는 Z가 포함된 경우 그대로 사용
+  if (/([+-]\d{2}:\d{2}|Z)$/i.test(dateTimeStr)) {
+    return dateTimeStr;
+  }
+
+  let components = parsedParts;
+
+  if (!components) {
+    const match = dateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (!match) {
+      return dateTimeStr; // 예상치 못한 형식은 변경하지 않음
+    }
+
+    components = {
+      year: match[1],
+      month: match[2],
+      day: match[3],
+      hour: match[4],
+      minute: match[5],
+      second: match[6] || '00'
+    };
+  }
+
+  const normalized = {
+    year: String(components.year).padStart(4, '0'),
+    month: String(components.month).padStart(2, '0'),
+    day: String(components.day).padStart(2, '0'),
+    hour: String(components.hour).padStart(2, '0'),
+    minute: String(components.minute).padStart(2, '0'),
+    second: String(components.second ?? '00').padStart(2, '0'),
+  };
+
+  const normalizedDateTime = `${normalized.year}-${normalized.month}-${normalized.day}T${normalized.hour}:${normalized.minute}:${normalized.second}`;
+
+  // 우선 현재 추정 오프셋으로 UTC 타임스탬프를 만든 뒤 실제 오프셋이 수렴할 때까지 조정
+  let probe = new Date(Date.UTC(
+    Number(normalized.year),
+    Number(normalized.month) - 1,
+    Number(normalized.day),
+    Number(normalized.hour),
+    Number(normalized.minute),
+    Number(normalized.second)
+  ));
+  let offset = getOffsetForTimezone(probe, timeZone);
+
+  for (let i = 0; i < 3; i++) {
+    const offsetMatch = offset.match(/^([+-])(\d{2}):(\d{2})$/);
+    if (!offsetMatch) {
+      offset = '+00:00';
+      break;
+    }
+
+    const [, offsetSign, offsetHour, offsetMinute] = offsetMatch;
+    const offsetMinutes = Number(offsetHour) * 60 + Number(offsetMinute);
+    const signedMinutes = offsetSign === '-' ? -offsetMinutes : offsetMinutes;
+    const adjustedTime = probe.getTime() - signedMinutes * 60000;
+    const adjustedDate = new Date(adjustedTime);
+    const nextOffset = getOffsetForTimezone(adjustedDate, timeZone);
+
+    if (nextOffset === offset) {
+      break;
+    }
+
+    offset = nextOffset;
+    probe = adjustedDate;
+  }
+
+  return `${normalizedDateTime}${offset}`;
+}
+
+// 이벤트 start/end에 사용자 시간대 정보를 일관되게 적용
+function normalizeEventDateTimes(eventInfo) {
+  if (!eventInfo) return;
+
+  const userTimezone = getUserTimezone();
+  const applyTimezone = (target) => {
+    if (!target) return;
+
+    if (target.dateTime) {
+      target.dateTime = ensureDateTimeHasOffset(target.dateTime, userTimezone);
+      target.timeZone = userTimezone;
+    } else if (target.date) {
+      target.timeZone = userTimezone;
+    }
+  };
+
+  applyTimezone(eventInfo.start);
+  applyTimezone(eventInfo.end);
+}
+
+// 스토리지 변경 시 캐시 갱신
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes && changes.settings) {
+      const next = changes.settings.newValue || {};
+      cachedTimezone = next.timezone || cachedTimezone || 'Asia/Seoul';
+      console.log('🕐 시간대 설정 변경 감지:', { oldTimezone: cachedTimezone, newTimezone: next.timezone });
+      // 시간대 변경 시 캐시는 유지 (마지막에 시간대 덮어쓰기로 처리)
+    }
+  });
+} catch (e) {
+  // 확장 환경 외 실행 대비
+}
+
+// 초기 캐시 로드
+initTimezoneCache();
+
 // 응답 캐싱 시스템
 class ResponseCache {
   constructor() {
     this.cache = new Map();
   }
   
-  // 캐시 키 생성 (텍스트 해시)
+  // 캐시 키 생성 (텍스트 해시만 - 시간대는 마지막에 덮어쓰기)
   generateKey(text) {
     // 간단한 해시 함수
     let hash = 0;
@@ -426,10 +617,16 @@ class ApiService {
       const cachedResponse = responseCache.get(eventData.selectedText);
       if (cachedResponse) {
         console.log('🚀 캐시에서 즉시 반환');
-        // 캐시된 데이터도 검증 (캐시 표시)
-        const validatedCachedResponse = Array.isArray(cachedResponse) 
-          ? cachedResponse.map(event => this.validateEventDataInCreateEvent(event, true))
-          : [this.validateEventDataInCreateEvent(cachedResponse, true)];
+        
+        // 캐시된 데이터에 현재 시간대 적용
+        const timezoneUpdatedResponse = Array.isArray(cachedResponse) 
+          ? cachedResponse.map(event => this.applyCurrentTimezone(event))
+          : [this.applyCurrentTimezone(cachedResponse)];
+        
+        // 시간대가 적용된 데이터 검증
+        const validatedCachedResponse = timezoneUpdatedResponse.map(event => 
+          this.validateEventDataInCreateEvent(event, true)
+        );
         
         ProgressUpdater.updateProgress(100, 'complete');
         const performanceResult = PerformanceMonitor.endMeasurement(measurement);
@@ -592,6 +789,34 @@ class ApiService {
     }
   }
 
+  // 캐시에서 가져온 데이터에 현재 시간대 적용
+  static applyCurrentTimezone(eventData) {
+    const currentTimezone = getUserTimezone();
+    console.log('🕐 캐시 데이터에 현재 시간대 적용:', { currentTimezone, originalTimezone: eventData.start?.timeZone });
+    
+    // 깊은 복사로 원본 데이터 보호
+    const updatedEvent = JSON.parse(JSON.stringify(eventData));
+    
+    // 시작 시간에 현재 시간대 적용
+    if (updatedEvent.start && updatedEvent.start.timeZone) {
+      updatedEvent.start.timeZone = currentTimezone;
+    }
+    
+    // 종료 시간에 현재 시간대 적용
+    if (updatedEvent.end && updatedEvent.end.timeZone) {
+      updatedEvent.end.timeZone = currentTimezone;
+    }
+    
+    normalizeEventDateTimes(updatedEvent);
+
+    console.log('🕐 시간대 적용 완료:', { 
+      startTimezone: updatedEvent.start?.timeZone, 
+      endTimezone: updatedEvent.end?.timeZone 
+    });
+    
+    return updatedEvent;
+  }
+
   static validateEventDataInCreateEvent(eventInfo, isFromCache = false) {
     const logPrefix = isFromCache ? '[캐시]' : '[새처리]';
     console.log(`\n=== ${logPrefix} 이벤트 데이터 검증 시작 ===`);
@@ -624,13 +849,26 @@ class ApiService {
             console.log('3. 시작 시간만 있는 경우 - 1시간짜리 이벤트로 자동 설정');
             const startDateTimeStr = eventInfo.start.dateTime;
 
-            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ
-            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/);
+            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ 또는 YYYY-MM-DDTHH:mm:ss
+            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)?$/);
             if (!match) {
                 throw new Error('유효하지 않은 시작 시간 형식입니다.');
             }
 
-            const [, year, month, day, hours, minutes, seconds, timezone] = match;
+            const [, year, month, day, hours, minutes, seconds, existingOffset] = match;
+            const userTz = getUserTimezone();
+            const secondValue = seconds || '00';
+
+            if (!existingOffset) {
+                eventInfo.start.dateTime = ensureDateTimeHasOffset(startDateTimeStr, userTz, {
+                    year,
+                    month,
+                    day,
+                    hour: hours,
+                    minute: minutes,
+                    second: secondValue
+                });
+            }
 
             // 시간을 1시간 증가 (자리올림 처리)
             let endHours = parseInt(hours);
@@ -640,21 +878,28 @@ class ApiService {
             if (endHours >= 24) {
                 endHours = 0;
                 endDay += 1;
-                // 간단한 구현: 월말 처리는 Date 객체에 맡김
             }
 
-            // 종료 시간 문자열 생성
-            const endDateTimeStr = `${year}-${month}-${String(endDay).padStart(2, '0')}T${String(endHours).padStart(2, '0')}:${minutes}:${seconds}${timezone}`;
+            const paddedEndDay = String(endDay).padStart(2, '0');
+            const paddedEndHour = String(endHours).padStart(2, '0');
+            const naiveEndDateTimeStr = `${year}-${month}-${paddedEndDay}T${paddedEndHour}:${minutes}:${secondValue}`;
+            const normalizedEnd = ensureDateTimeHasOffset(naiveEndDateTimeStr, userTz, {
+                year,
+                month,
+                day: paddedEndDay,
+                hour: paddedEndHour,
+                minute: minutes,
+                second: secondValue
+            });
 
             eventInfo.end = {
-                dateTime: endDateTimeStr,
-                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
+                dateTime: normalizedEnd,
+                timeZone: userTz
             };
 
-            console.log('   시작 시간:', startDateTimeStr);
-            console.log('   자동 설정된 종료 시간:', endDateTimeStr);
+            console.log('   시작 시간:', eventInfo.start.dateTime);
+            console.log('   자동 설정된 종료 시간:', normalizedEnd);
 
-            // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
             isTimeSpecificEvent = true;
             isAllDayEvent = false;
         }
@@ -664,13 +909,26 @@ class ApiService {
             console.log('3. 시작 시간은 있지만 종료는 날짜만 있는 경우 - 시작 시간에 맞춰 1시간짜리 이벤트로 설정');
             const startDateTimeStr = eventInfo.start.dateTime;
 
-            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ
-            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)$/);
+            // ISO 8601 형식 파싱: YYYY-MM-DDTHH:mm:ss+TZ 또는 YYYY-MM-DDTHH:mm:ss
+            const match = startDateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2}|Z)?$/);
             if (!match) {
                 throw new Error('유효하지 않은 시작 시간 형식입니다.');
             }
 
-            const [, year, month, day, hours, minutes, seconds, timezone] = match;
+            const [, year, month, day, hours, minutes, seconds, existingOffset] = match;
+            const userTz = getUserTimezone();
+            const secondValue = seconds || '00';
+
+            if (!existingOffset) {
+                eventInfo.start.dateTime = ensureDateTimeHasOffset(startDateTimeStr, userTz, {
+                    year,
+                    month,
+                    day,
+                    hour: hours,
+                    minute: minutes,
+                    second: secondValue
+                });
+            }
 
             // 시간을 1시간 증가 (자리올림 처리)
             let endHours = parseInt(hours);
@@ -680,22 +938,28 @@ class ApiService {
             if (endHours >= 24) {
                 endHours = 0;
                 endDay += 1;
-                // 간단한 구현: 월말 처리는 Date 객체에 맡김
             }
 
-            // 종료 시간 문자열 생성
-            const endDateTimeStr = `${year}-${month}-${String(endDay).padStart(2, '0')}T${String(endHours).padStart(2, '0')}:${minutes}:${seconds}${timezone}`;
+            const paddedEndDay = String(endDay).padStart(2, '0');
+            const paddedEndHour = String(endHours).padStart(2, '0');
+            const naiveEndDateTimeStr = `${year}-${month}-${paddedEndDay}T${paddedEndHour}:${minutes}:${secondValue}`;
+            const normalizedEnd = ensureDateTimeHasOffset(naiveEndDateTimeStr, userTz, {
+                year,
+                month,
+                day: paddedEndDay,
+                hour: paddedEndHour,
+                minute: minutes,
+                second: secondValue
+            });
 
-            // end 객체를 dateTime 형식으로 업데이트
             eventInfo.end = {
-                dateTime: endDateTimeStr,
-                timeZone: eventInfo.start.timeZone || 'Asia/Seoul'
+                dateTime: normalizedEnd,
+                timeZone: userTz
             };
 
-            console.log('   시작 시간:', startDateTimeStr);
-            console.log('   자동 설정된 종료 시간:', endDateTimeStr);
+            console.log('   시작 시간:', eventInfo.start.dateTime);
+            console.log('   자동 설정된 종료 시간:', normalizedEnd);
 
-            // 이제 시간 특정 이벤트가 됨 - 플래그 업데이트
             isTimeSpecificEvent = true;
             isAllDayEvent = false;
         }
@@ -793,6 +1057,8 @@ class ApiService {
             }
         }
 
+        normalizeEventDateTimes(eventInfo);
+
         console.log(`\n✅ ${logPrefix} 최종 검증 완료된 이벤트:`, JSON.stringify(eventInfo, null, 2));
         return eventInfo;
 
@@ -808,6 +1074,9 @@ class ApiService {
 class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
+      // 마지막에 시간대를 사용자 설정값으로 강제 적용
+      normalizeEventDateTimes(eventData);
+      
       // Google Calendar API 호출
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
