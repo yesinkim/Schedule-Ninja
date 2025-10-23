@@ -61,16 +61,16 @@ jobs:
       - name: Strip console.log statements
         run: |
           python - <<'PY'
-import pathlib
-import re
-
-pattern = re.compile(r"^\s*console\.log\(.*?\);\s*\n?", re.MULTILINE | re.DOTALL)
-
-for path in pathlib.Path('dist').rglob('*.js'):
-    text = path.read_text()
-    new_text = pattern.sub('', text)
-    path.write_text(new_text)
-PY
+          import pathlib
+          import re
+          
+          pattern = re.compile(r"^\s*console\.log\(.*?\);\s*\n?", re.MULTILINE | re.DOTALL)
+          
+          for path in pathlib.Path('dist').rglob('*.js'):
+              text = path.read_text()
+              new_text = pattern.sub('', text)
+              path.write_text(new_text)
+          PY
 
       - name: Ensure console.log statements removed
         run: |
