@@ -54,8 +54,7 @@ jobs:
             css/ \
             icons/ \
             assets/ \
-            _locales/ \
-            secrets.js > filelist.txt
+            _locales/ > filelist.txt
           rsync -av --files-from=filelist.txt ./ dist/
 
       - name: Strip console.log statements
