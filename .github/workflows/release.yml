@@ -1,0 +1,118 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq ripgrep
+
+      - name: Ensure tag commit is on main
+        run: |
+          if ! git branch --contains "$GITHUB_SHA" | grep -E '^\s*main$'; then
+            echo "Tag commit is not on main.\nOnly tags pointing to main can trigger a release." >&2
+            exit 1
+          fi
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          VERSION="${TAG_NAME#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify manifest version matches tag
+        run: |
+          MANIFEST_VERSION=$(jq -r '.version' manifest.json)
+          if [ "${MANIFEST_VERSION}" != "${{ steps.version.outputs.version }}" ]; then
+            echo "Manifest version ${MANIFEST_VERSION} does not match tag version ${{ steps.version.outputs.version }}" >&2
+            exit 1
+          fi
+
+      - name: Prepare dist directory
+        run: |
+          mkdir dist
+          cat <<'EOF' > filelist.txt
+manifest.json
+background.js
+content.js
+popup.js
+popup.html
+css/
+icons/
+assets/
+_locales/
+EOF
+          rsync -av --files-from=filelist.txt ./ dist/
+
+      - name: Strip console.log statements
+        run: |
+          python - <<'PY'
+import pathlib
+import re
+
+pattern = re.compile(r"^\s*console\.log\(.*?\);\s*\n?", re.MULTILINE | re.DOTALL)
+
+for path in pathlib.Path('dist').rglob('*.js'):
+    text = path.read_text()
+    new_text = pattern.sub('', text)
+    path.write_text(new_text)
+PY
+
+      - name: Ensure console.log statements removed
+        run: |
+          if rg --glob '*.js' 'console\.log' dist; then
+            echo 'console.log statements remain in dist bundle' >&2
+            exit 1
+          fi
+
+      - name: Create distributable archive
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          (cd dist && zip -r "../schedule-ninja-${VERSION}.zip" .)
+
+      - name: Extract release notes section
+        run: |
+          VERSION_TAG="v${{ steps.version.outputs.version }}"
+          awk -v ver="$VERSION_TAG" '
+            $0 ~ /^## / && found { exit }
+            $0 ~ "^## " ver { found=1 }
+            found { print }
+          ' docs/release-notes.md > release-notes-excerpt.md
+          if [ ! -s release-notes-excerpt.md ]; then
+            echo "Release notes section for $VERSION_TAG not found" >&2
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body_path: release-notes-excerpt.md
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: schedule-ninja-${{ steps.version.outputs.version }}.zip
+          asset_name: schedule-ninja-${{ steps.version.outputs.version }}.zip
+          asset_content_type: application/zip

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "Schedule Ninja",
-  "version": "1.1",
+  "version": "0.0.1",
   "description": "Don't miss a beat. We got your back.",
   "permissions": [
     "activeTab",
@@ -12,11 +12,10 @@
     "identity"
   ],
   "host_permissions": [
-    "https://api.groq.com/*",
     "https://www.googleapis.com/*"
   ],
   "oauth2": {
-    "client_id": "###Input your client_id###",
+    "client_id": "245895678957-gardu1jqvk1fk1nresegnvarkitnp100.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/calendar.events"
     ]
