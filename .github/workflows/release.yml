@@ -45,17 +45,17 @@ jobs:
       - name: Prepare dist directory
         run: |
           mkdir dist
-          cat <<'EOF' > filelist.txt
-manifest.json
-background.js
-content.js
-popup.js
-popup.html
-css/
-icons/
-assets/
-_locales/
-EOF
+          printf '%s\n' \
+            manifest.json \
+            background.js \
+            content.js \
+            popup.js \
+            popup.html \
+            css/ \
+            icons/ \
+            assets/ \
+            _locales/ \
+            secrets.js > filelist.txt
           rsync -av --files-from=filelist.txt ./ dist/
 
       - name: Strip console.log statements
