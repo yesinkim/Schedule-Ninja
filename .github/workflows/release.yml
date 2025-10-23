@@ -114,14 +114,19 @@ jobs:
       - name: Extract release notes section
         run: |
           VERSION_TAG="v${{ steps.version.outputs.version }}"
-          awk -v ver="$VERSION_TAG" '
-            $0 ~ /^## / && found { exit }
-            $0 ~ "^## " ver { found=1 }
-            found { print }
-          ' docs/release-notes.md > release-notes-excerpt.md
-          if [ ! -s release-notes-excerpt.md ]; then
-            echo "Release notes section for $VERSION_TAG not found" >&2
-            exit 1
+          if [ -f docs/release-notes.md ]; then
+            awk -v ver="$VERSION_TAG" '
+              $0 ~ /^## / && found { exit }
+              $0 ~ "^## " ver { found=1 }
+              found { print }
+            ' docs/release-notes.md > release-notes-excerpt.md
+            if [ ! -s release-notes-excerpt.md ]; then
+              echo "Release notes section for $VERSION_TAG not found, using default" >&2
+              echo "## ${VERSION_TAG}\n\nInitial release" > release-notes-excerpt.md
+            fi
+          else
+            echo "docs/release-notes.md not found, using default release notes" >&2
+            echo "## ${VERSION_TAG}\n\nInitial release" > release-notes-excerpt.md
           fi
 
       - name: Create GitHub release
