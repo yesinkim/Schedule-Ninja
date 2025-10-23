@@ -22,7 +22,7 @@ jobs:
 
       - name: Ensure tag commit is on main
         run: |
-          if ! git branch --contains "$GITHUB_SHA" | grep -E '^\s*main$'; then
+          if ! git branch -a --contains "$GITHUB_SHA" | grep -E '(^\s*\*/main$|remotes/origin/main$)'; then
             echo "Tag commit is not on main.\nOnly tags pointing to main can trigger a release." >&2
             exit 1
           fi
