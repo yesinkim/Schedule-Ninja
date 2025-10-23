@@ -1,4 +1,4 @@
-// 단순화된 TimeKeeper 모달 코드
+// 단순화된 Schedule Ninja 모달 코드
 
 // 전역 변수
 let modalInstance = null;
@@ -78,7 +78,7 @@ function createModal() {
 
   // 모달 컨테이너 생성
   modalInstance = document.createElement('div');
-  modalInstance.id = 'timekeeper-modal';
+  modalInstance.id = 'schedule-ninja-modal';
   modalInstance.style.cssText = `
     position: fixed;
     top: 0;
@@ -110,7 +110,7 @@ function createModal() {
       
       <!-- 모달 본문 -->
       <div id="modal-body" style="background: ${colors.bodyBg}; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto; scroll-behavior: smooth;">
-        <div id="timekeeper-loading" style="text-align: center; padding: 16px;">
+        <div id="schedule-ninja-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: ${colors.accent};">
             <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
             <span id="loading-text" style="font-size: 12px; font-weight: 500; color: ${colors.text};">Snagging...</span>
@@ -122,7 +122,7 @@ function createModal() {
             <div id="progress-text" style="font-size: 10px; color: ${colors.textMuted}; margin-top: 4px; text-align: center;"></div>
           </div>
         </div>
-        <div id="timekeeper-result-content" style="display: none;">
+        <div id="schedule-ninja-result-content" style="display: none;">
           <!-- 결과가 여기에 표시됩니다 -->
         </div>
       </div>
@@ -200,8 +200,8 @@ function displayResult(data) {
     return;
   }
   
-  const resultContent = modalInstance.querySelector('#timekeeper-result-content');
-  const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
+  const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
+  const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
   
   if (!resultContent) {
     console.error('❌ resultContent 요소를 찾을 수 없습니다');
@@ -966,8 +966,8 @@ function showModal(selectedText, isAutoDetected = false) {
   openModal();
   
   // 로딩 표시
-  const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
-  const resultContent = modalInstance.querySelector('#timekeeper-result-content');
+  const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
+  const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
   
   if (loadingIndicator) {
     loadingIndicator.style.display = 'block';
@@ -1383,8 +1383,8 @@ class BookingPageDetector {
     openModal();
     
     // 로딩 표시
-    const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
-    const resultContent = modalInstance.querySelector('#timekeeper-result-content');
+    const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
+    const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
     
     if (loadingIndicator) {
       loadingIndicator.style.display = 'none'; // 로딩 숨기기
@@ -1529,8 +1529,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === 'testModal') {
     // 테스트용 모달 - 더미 데이터로 바로 표시
     openModal();
-    const loadingIndicator = modalInstance.querySelector('#timekeeper-loading');
-    const resultContent = modalInstance.querySelector('#timekeeper-result-content');
+    const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
+    const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
 
     if (loadingIndicator) loadingIndicator.style.display = 'none';
     if (resultContent) resultContent.style.display = 'block';
@@ -1609,7 +1609,7 @@ async function checkLoginStatus() {
 // CSS 스타일시트 주입 함수
 async function injectModalStyles() {
   // 이미 주입된 스타일이 있는지 확인
-  if (document.getElementById('timekeeper-modal-styles')) {
+  if (document.getElementById('schedule-ninja-modal-styles')) {
     return;
   }
 
@@ -1619,7 +1619,7 @@ async function injectModalStyles() {
     const cssText = await response.text();
     
     const style = document.createElement('style');
-    style.id = 'timekeeper-modal-styles';
+    style.id = 'schedule-ninja-modal-styles';
     style.textContent = cssText;
     
     document.head.appendChild(style);
@@ -1627,13 +1627,13 @@ async function injectModalStyles() {
     console.error('Failed to load modal CSS:', error);
     // 폴백: 기본 스타일 적용
     const style = document.createElement('style');
-    style.id = 'timekeeper-modal-styles';
+    style.id = 'schedule-ninja-modal-styles';
     style.textContent = `
-      #timekeeper-login-modal {
+      #schedule-ninja-login-modal {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         z-index: 2147483647; display: block; pointer-events: auto;
       }
-      .timekeeper-toast {
+      .schedule-ninja-toast {
         position: fixed; top: 20px; right: 20px; z-index: 2147483647;
         color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px;
@@ -1656,7 +1656,7 @@ async function showLoginPromptModal() {
 
   // 로그인 안내 모달 생성
   modalInstance = document.createElement('div');
-  modalInstance.id = 'timekeeper-login-modal';
+  modalInstance.id = 'schedule-ninja-login-modal';
   modalInstance.className = isDarkMode ? 'dark-mode' : 'light-mode';
 
   modalInstance.innerHTML = `
@@ -1718,7 +1718,7 @@ async function showLoginPromptModal() {
   // 토스트 메시지 표시 함수
   function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = `timekeeper-toast toast-${type}`;
+    toast.className = `schedule-ninja-toast toast-${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
     

@@ -796,17 +796,7 @@ class ApiService {
     
     // 깊은 복사로 원본 데이터 보호
     const updatedEvent = JSON.parse(JSON.stringify(eventData));
-    
-    // 시작 시간에 현재 시간대 적용
-    if (updatedEvent.start && updatedEvent.start.timeZone) {
-      updatedEvent.start.timeZone = currentTimezone;
-    }
-    
-    // 종료 시간에 현재 시간대 적용
-    if (updatedEvent.end && updatedEvent.end.timeZone) {
-      updatedEvent.end.timeZone = currentTimezone;
-    }
-    
+
     normalizeEventDateTimes(updatedEvent);
 
     console.log('🕐 시간대 적용 완료:', { 
@@ -1074,9 +1064,6 @@ class ApiService {
 class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
-      // 마지막에 시간대를 사용자 설정값으로 강제 적용
-      normalizeEventDateTimes(eventData);
-      
       // Google Calendar API 호출
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
@@ -1105,7 +1092,7 @@ class CalendarService {
   static async getAccessToken() {
     try {
       const auth = await chrome.identity.getAuthToken({ interactive: true });
-      return auth.token;
+      return typeof auth === 'string' ? auth : auth?.token;
     } catch (error) {
       throw error;
     }
