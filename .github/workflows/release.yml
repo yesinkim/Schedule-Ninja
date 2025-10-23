@@ -47,17 +47,33 @@ jobs:
       - name: Prepare dist directory
         run: |
           mkdir dist
-          printf '%s\n' \
-            manifest.json \
-            background.js \
-            content.js \
-            popup.js \
-            popup.html \
-            css/ \
-            icons/ \
-            assets/ \
-            _locales/ > filelist.txt
-          rsync -av --files-from=filelist.txt ./ dist/
+          python - <<'PY'
+          import shutil
+          import os
+          
+          files_to_copy = [
+              'manifest.json',
+              'background.js',
+              'content.js',
+              'popup.js',
+              'popup.html',
+          ]
+          
+          dirs_to_copy = [
+              'css',
+              'icons',
+              'assets',
+              '_locales',
+          ]
+          
+          for file in files_to_copy:
+              if os.path.exists(file):
+                  shutil.copy2(file, 'dist/')
+          
+          for dir_path in dirs_to_copy:
+              if os.path.exists(dir_path):
+                  shutil.copytree(dir_path, f'dist/{dir_path}', dirs_exist_ok=True)
+          PY
 
       - name: Strip console.log statements
         run: |
