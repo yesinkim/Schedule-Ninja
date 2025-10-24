@@ -678,7 +678,11 @@ function updateSaveButtonState(saveBtn, state) {
     case 'loading':
       saveBtn.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;"></div>
+          <img
+            src="${chrome.runtime.getURL('assets/shuriken.png')}"
+            alt="loading"
+            style="width: 14.4px; height: 14.4px; flex-shrink: 0; transform-origin: center; animation: spin 0.7s linear infinite;"
+          >
           <span style="flex-shrink: 0;">저장 중...</span>
         </div>
       `;
@@ -792,7 +796,11 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   creatingEventIndex = eventIndex;
   
   addBtn.innerHTML = `
-    <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;"></div>
+    <img
+      src="${chrome.runtime.getURL('assets/shuriken.png')}"
+      alt="loading"
+      style="width: 16.2px; height: 16.2px; display: block; transform-origin: center; animation: spin 0.7s linear infinite;"
+    >
   `;
   
   addBtn.disabled = true;
