@@ -1,5 +1,11 @@
 // 단순화된 Schedule Ninja 모달 코드
 
+// Resource URLs
+const LOGO_BANNER_URL = chrome.runtime.getURL('assets/logo_banner.png');
+const RUNNING_NINJA_URL = chrome.runtime.getURL('assets/running-ninja.gif');
+const SHURIKEN_URL = chrome.runtime.getURL('assets/shuriken.png');
+const MODAL_CSS_URL = chrome.runtime.getURL('css/modal.css');
+
 // 전역 변수
 let modalInstance = null;
 let lastParsedData = null; // 이제 배열 형태로 저장
@@ -100,7 +106,7 @@ function createModal() {
       <!-- 헤더 -->
       <div style="background: ${colors.headerBg}; padding: 8px 12px; border-radius: 16px 16px 0 0 !important; display: flex; justify-content: space-between; align-items: center; position: relative;">
         <!-- 로고 배너 -->
-        <img src="${chrome.runtime.getURL('assets/logo_banner.png')}" alt="Schedule Ninja" style="height: 20px; object-fit: contain;">
+        <img src="${LOGO_BANNER_URL}" alt="Schedule Ninja" style="height: 20px; object-fit: contain;">
         <button id="modal-close" style="width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 50% !important; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -112,7 +118,7 @@ function createModal() {
       <div id="modal-body" style="background: ${colors.bodyBg}; padding: 10px; border-radius: 0 0 16px 16px !important; max-height: 320px; overflow-y: auto; scroll-behavior: smooth;">
         <div id="schedule-ninja-loading" style="text-align: center; padding: 16px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; color: ${colors.accent};">
-            <img src="${chrome.runtime.getURL('assets/running-ninja.gif')}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain;">
+            <img src="${RUNNING_NINJA_URL}" alt="running-ninja" style="width: 24px; height: 24px; object-fit: contain; ${isDarkMode ? 'filter: invert(1);' : ''}">
             <span id="loading-text" style="font-size: 12px; font-weight: 500; color: ${colors.text};">Snagging...</span>
           </div>
           <div id="progress-container" style="margin-top: 12px; display: none;">
@@ -678,7 +684,11 @@ function updateSaveButtonState(saveBtn, state) {
     case 'loading':
       saveBtn.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;"></div>
+          <img
+            src="${SHURIKEN_URL}"
+            alt="loading"
+            style="width: 14.4px; height: 14.4px; flex-shrink: 0; transform-origin: center; animation: spin 0.7s linear infinite;"
+          >
           <span style="flex-shrink: 0;">저장 중...</span>
         </div>
       `;
@@ -792,7 +802,11 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   creatingEventIndex = eventIndex;
   
   addBtn.innerHTML = `
-    <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: white; border-right-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;"></div>
+    <img
+      src="${SHURIKEN_URL}"
+      alt="loading"
+      style="width: 16.2px; height: 16.2px; display: block; transform-origin: center; animation: spin 0.7s linear infinite;"
+    >
   `;
   
   addBtn.disabled = true;
@@ -1166,8 +1180,8 @@ class BookingPageDetector {
     let maxScore = 0;
     
     // 각 셀렉터로 검색
-    selectors.forEach(selector => {
-      const elements = document.querySelectorAll(selector);
+    selectors.forEach(element => {
+      const elements = document.querySelectorAll(element);
       elements.forEach(element => {
         const text = element.innerText?.trim();
         if (text && text.length > 10) { // 충분한 길이의 텍스트만
@@ -1615,7 +1629,7 @@ async function injectModalStyles() {
 
   try {
     // CSS 파일을 동적으로 로드
-    const response = await fetch(chrome.runtime.getURL('css/modal.css'));
+    const response = await fetch(MODAL_CSS_URL);
     const cssText = await response.text();
     
     const style = document.createElement('style');
