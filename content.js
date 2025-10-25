@@ -712,12 +712,16 @@ class BookingPageDetector {
     this.enabled = true;
     this.parsedData = null;
 
+    // More flexible and specific confirmation patterns
     this.confirmationPatterns = [
-      /예매\s*완료|예약\s*완료|결제\s*완료|티켓\s*발권|예매\s*성공|예약\s*성공/i,
-      /(book(ing)?|reservation)\s+(complete|completion|confirmed|confirmation)/i,
-      /payment\s+(successful|complete)/i,
-      /ticket(s)?\s+(issued|confirmed)/i,
-      /order\s+(complete|confirmation)/i
+      // Korean patterns
+      /예매\s?완료/, /예약\s?완료/, /결제\s?완료/, /티켓\s?발권/,
+      /예매\s?성공/, /예약\s?성공/,
+      // English patterns
+      /booking\s?complete/, /reservation\s?complete/, /payment\s?complete/,
+      /booking\s?confirmation/, /reservation\s?confirmation/,
+      /ticket(s)?\s?(issued|confirmed)/,
+      /order\s?(complete|confirmation)/
     ];
 
     this.detailPatterns = [
@@ -772,42 +776,40 @@ class BookingPageDetector {
   
   async checkForBookingPage() {
     if (!this.enabled) return;
-    
+
     const isLoggedIn = await checkLoginStatus();
     if (!isLoggedIn) {
       console.log('Not logged in, skipping auto-detection.');
       return;
     }
 
-    // 1. Build a targeted search string from important elements
+    // 1. Prioritize search in key elements like title, h1, h2
     let importantText = document.title;
-    const headers = document.querySelectorAll('h1, h2, [class*="title"], [id*="title"]');
+    const headers = document.querySelectorAll('h1, h2');
     headers.forEach(h => {
-        importantText += '\n' + h.innerText;
+      importantText += '\n' + h.innerText;
     });
 
-    // 2. Check for mandatory confirmation keywords in the important text first
-    let hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(importantText));
-
-    // 3. If not found, fall back to searching the entire body
-    if (!hasConfirmationKeyword) {
-        const pageContent = document.body.innerText || '';
-        hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(pageContent));
-    }
+    // 2. Check for mandatory confirmation keywords in the prioritized text
+    const hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(importantText));
 
     if (!hasConfirmationKeyword) {
-      return; // Exit if no confirmation keyword is found anywhere
+      // Fallback to search the entire body if no keyword is found in headers
+      const bodyText = document.body.innerText || '';
+      if (!this.confirmationPatterns.some(pattern => pattern.test(bodyText))) {
+        return; // Exit if no confirmation keyword is found anywhere
+      }
     }
 
-    // 4. If confirmation found, check for event details in the whole body
-    const pageContent = document.body.innerText || '';
-    const hasEventDetails = this.detailPatterns.some(pattern => pattern.test(pageContent));
+    // 3. If confirmation is found, check for event details in the main content area
+    const mainContent = document.querySelector('main')?.innerText || document.body.innerText;
+    const hasEventDetails = this.detailPatterns.some(pattern => pattern.test(mainContent));
 
     if (hasEventDetails) {
       console.log('Confirmation and event details found. Triggering auto-detection.');
       this.extractBookingInfo();
     } else {
-      console.log('Confirmation keyword found, but no event details. Skipping.');
+      console.log('Confirmation keyword found, but no event details in main content. Skipping.');
     }
   }
   
