@@ -1300,6 +1300,15 @@ class MessageHandler {
         }
         break;
 
+      case 'performLogin':
+        try {
+          const token = await CalendarService.getAccessToken();
+          sendResponse({ success: !!token });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
+        break;
+
       case 'getLocaleMessages':
         (async () => {
           try {

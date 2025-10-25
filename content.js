@@ -521,6 +521,66 @@ function updateSaveButtonState(saveBtn, state) {
   }
 }
 
+
+function showLoginPromptModal() {
+  return new Promise(resolve => {
+    // We want a fresh modal for the login prompt to avoid state issues.
+    if (modalInstance) {
+      modalInstance.remove();
+      modalInstance = null;
+    }
+    createModal();
+    openModal();
+
+    const modalBody = modalInstance.querySelector('#modal-body');
+    const colors = getColors();
+    const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
+    const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
+
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    if (resultContent) {
+      resultContent.style.display = 'block';
+      resultContent.innerHTML = `
+        <div style="padding: 16px; text-align: center;">
+          <h3 style="color: ${colors.text}; font-size: 16px; font-weight: 600; margin: 0 0 8px;">${t('loginPromptTitle')}</h3>
+          <p style="color: ${colors.textMuted}; font-size: 13px; margin: 0 0 16px; line-height: 1.5;">${t('loginPromptBody')}</p>
+          <button id="login-prompt-btn" style="width: 100%; background: ${colors.accent}; color: white; border: none; border-radius: 6px !important; padding: 10px; font-weight: 600; font-size: 14px; cursor: pointer;">
+            ${t('loginButtonText')}
+          </button>
+        </div>
+      `;
+    }
+
+    const loginButton = modalInstance.querySelector('#login-prompt-btn');
+    const loginHandler = async () => {
+      loginButton.disabled = true;
+      loginButton.innerHTML = `<span>${t('loggingInButtonText')}</span>`;
+      const response = await chrome.runtime.sendMessage({ action: 'performLogin' });
+      if (response.success) {
+        closeModal();
+        resolve();
+      } else {
+        const p = resultContent.querySelector('p');
+        if (p) {
+          p.style.color = colors.accent;
+          p.textContent = t('loginFailedText');
+        }
+        loginButton.disabled = false;
+        loginButton.innerHTML = `<span>${t('retryLabel')}</span>`;
+      }
+    };
+    loginButton.addEventListener('click', loginHandler);
+
+    const closeAndResolve = () => {
+      closeModal();
+      resolve();
+    };
+
+    modalInstance.querySelector('#modal-close').addEventListener('click', closeAndResolve);
+    modalInstance.querySelector('#modal-backdrop').addEventListener('click', closeAndResolve);
+  });
+}
+
 // 일정 추가 처리 함수
 async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   if (isCreatingEvent) return;
