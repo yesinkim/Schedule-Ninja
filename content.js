@@ -712,22 +712,23 @@ class BookingPageDetector {
     this.enabled = true;
     this.parsedData = null;
 
-    // 1. Mandatory confirmation keywords (Korean & English)
     this.confirmationPatterns = [
-      /예매완료|예약완료|결제완료|티켓발권|예매성공|예약성공/i,
-      /booking complete|reservation complete|payment successful|ticket issued|booking confirmation|order complete/i
+      /예매\s*완료|예약\s*완료|결제\s*완료|티켓\s*발권|예매\s*성공|예약\s*성공/i,
+      /(book(ing)?|reservation)\s+(complete|completion|confirmed|confirmation)/i,
+      /payment\s+(successful|complete)/i,
+      /ticket(s)?\s+(issued|confirmed)/i,
+      /order\s+(complete|confirmation)/i
     ];
 
-    // 2. Secondary detail patterns (event type, date, time)
     this.detailPatterns = [
-      /공연|콘서트|뮤지컬|연극|영화|전시|축제/i, // Event types
+      /공연|콘서트|뮤지컬|연극|영화|전시|축제/i,
       /concert|musical|movie|exhibition|festival|play/i,
-      /\d{4}년\s*\d{1,2}월\s*\d{1,2}일/, // YYYY-MM-DD (Korean)
+      /\d{4}년\s*\d{1,2}월\s*\d{1,2}일/,
       /\d{1,2}월\s*\d{1,2}일/,
-      /\d{1,2}:\d{2}/, // HH:mm
-      /오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/, // AM/PM (Korean)
-      /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}/i, // Month D, YYYY
-      /\d{1,2}:\d{2}\s*(AM|PM)/i // HH:mm AM/PM
+      /\d{1,2}:\d{2}/,
+      /오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/,
+      /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}/i,
+      /\d{1,2}:\d{2}\s*(AM|PM)/i
     ];
     
     this.locationPatterns = [
@@ -770,30 +771,37 @@ class BookingPageDetector {
   }
   
   async checkForBookingPage() {
-    if (!this.enabled) {
-      return;
-    }
+    if (!this.enabled) return;
     
     const isLoggedIn = await checkLoginStatus();
     if (!isLoggedIn) {
       console.log('Not logged in, skipping auto-detection.');
       return;
     }
-    
-    const pageText = document.body.innerText || '';
-    const pageTitle = document.title || '';
-    const contentToSearch = pageTitle + '\n' + pageText;
 
-    // Step 1: Check for mandatory confirmation keywords
-    const hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(contentToSearch));
+    // 1. Build a targeted search string from important elements
+    let importantText = document.title;
+    const headers = document.querySelectorAll('h1, h2, [class*="title"], [id*="title"]');
+    headers.forEach(h => {
+        importantText += '\n' + h.innerText;
+    });
 
+    // 2. Check for mandatory confirmation keywords in the important text first
+    let hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(importantText));
+
+    // 3. If not found, fall back to searching the entire body
     if (!hasConfirmationKeyword) {
-      // console.log('No confirmation keywords found. Skipping auto-detection.');
-      return;
+        const pageContent = document.body.innerText || '';
+        hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(pageContent));
     }
 
-    // Step 2: If confirmation found, check for event details
-    const hasEventDetails = this.detailPatterns.some(pattern => pattern.test(contentToSearch));
+    if (!hasConfirmationKeyword) {
+      return; // Exit if no confirmation keyword is found anywhere
+    }
+
+    // 4. If confirmation found, check for event details in the whole body
+    const pageContent = document.body.innerText || '';
+    const hasEventDetails = this.detailPatterns.some(pattern => pattern.test(pageContent));
 
     if (hasEventDetails) {
       console.log('Confirmation and event details found. Triggering auto-detection.');
@@ -850,11 +858,8 @@ class BookingPageDetector {
   
   calculateRelevanceScore(text) {
     let score = 0;
-    // Confirmation keywords give a high score
     if (this.confirmationPatterns.some(p => p.test(text))) score += 5;
-    // Detail patterns add to the score
     this.detailPatterns.forEach(p => { if(p.test(text)) score += 2; });
-    // Location patterns add a smaller score
     this.locationPatterns.forEach(p => { if(p.test(text)) score += 1; });
     return score;
   }
