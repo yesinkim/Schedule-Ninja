@@ -2,6 +2,8 @@
 console.log('Chrome Build AI initialized');
 
 //Configuration
+const localeCache = {};
+
 const CONFIG = {
   USE_CHROME_AI: true,
   SYSTEM_PROMPT: `You are an assistant that extracts event information from text and converts it to Google Calendar API format.
@@ -1297,6 +1299,73 @@ class MessageHandler {
           });
         }
         break;
+
+      case 'performLogin':
+        try {
+          const token = await CalendarService.getAccessToken();
+          sendResponse({ success: !!token });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
+        break;
+
+      case 'getLocaleMessages':
+        (async () => {
+          try {
+            const lang = request.lang || 'en';
+            if (localeCache[lang]) {
+              console.log(`[i18n] Serving locale '${lang}' from cache.`);
+              sendResponse({ success: true, messages: localeCache[lang] });
+              return;
+            }
+            
+            console.log(`[i18n] Fetching locale '${lang}'...`);
+            const url = chrome.runtime.getURL(`_locales/${lang}/messages.json`);
+            const response = await fetch(url);
+            if (!response.ok) {
+              const baseLang = lang.split('-')[0];
+              if (baseLang !== lang) {
+                console.log(`[i18n] Locale '${lang}' not found, trying base language '${baseLang}'...`);
+                const baseUrl = chrome.runtime.getURL(`_locales/${baseLang}/messages.json`);
+                const baseResponse = await fetch(baseUrl);
+                if (baseResponse.ok) {
+                  const messages = await baseResponse.json();
+                  localeCache[lang] = messages;
+                  localeCache[baseLang] = messages;
+                  sendResponse({ success: true, messages: messages });
+                  return;
+                }
+              }
+              throw new Error(`Failed to fetch locale file for '${lang}': ${response.statusText}`);
+            }
+            const messages = await response.json();
+            localeCache[lang] = messages;
+            sendResponse({ success: true, messages: messages });
+          } catch (error) {
+            console.error(`[i18n] Error fetching locale '${request.lang}':`, error);
+            if (localeCache['en']) {
+              sendResponse({ success: true, messages: localeCache['en'], fallback: true });
+            } else {
+              // Fallback to fetching 'en' directly if not in cache
+              try {
+                console.log(`[i18n] Fallback: Fetching 'en' locale directly...`);
+                const enUrl = chrome.runtime.getURL('_locales/en/messages.json');
+                const enResponse = await fetch(enUrl);
+                if (enResponse.ok) {
+                  const enMessages = await enResponse.json();
+                  localeCache['en'] = enMessages;
+                  sendResponse({ success: true, messages: enMessages, fallback: true });
+                } else {
+                  throw new Error(`Failed to fetch 'en' locale: ${enResponse.statusText}`);
+                }
+              } catch (fallbackError) {
+                console.error(`[i18n] Critical: Could not load fallback 'en' locale.`, fallbackError);
+                sendResponse({ success: false, error: fallbackError.message });
+              }
+            }
+          }
+        })();
+        return true; // Indicate async response
         
       case 'openPopup':
         try {
