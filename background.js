@@ -1346,7 +1346,22 @@ class MessageHandler {
             if (localeCache['en']) {
               sendResponse({ success: true, messages: localeCache['en'], fallback: true });
             } else {
-              sendResponse({ success: false, error: error.message });
+              // Fallback to fetching 'en' directly if not in cache
+              try {
+                console.log(`[i18n] Fallback: Fetching 'en' locale directly...`);
+                const enUrl = chrome.runtime.getURL('_locales/en/messages.json');
+                const enResponse = await fetch(enUrl);
+                if (enResponse.ok) {
+                  const enMessages = await enResponse.json();
+                  localeCache['en'] = enMessages;
+                  sendResponse({ success: true, messages: enMessages, fallback: true });
+                } else {
+                  throw new Error(`Failed to fetch 'en' locale: ${enResponse.statusText}`);
+                }
+              } catch (fallbackError) {
+                console.error(`[i18n] Critical: Could not load fallback 'en' locale.`, fallbackError);
+                sendResponse({ success: false, error: fallbackError.message });
+              }
             }
           }
         })();
