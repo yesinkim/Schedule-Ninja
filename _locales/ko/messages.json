@@ -84,5 +84,7 @@
   "loginRequiredTitle": { "message": "Google 로그인 필요" },
   "loginRequiredMessage": { "message": "캘린더에 일정을 추가하려면\n먼저 로그인해주세요." },
   "loginModalCloseButton": { "message": "나중에" },
-  "loginModalLoginButton": { "message": "로그인" }
+  "loginModalLoginButton": { "message": "로그인" },
+  "snaggingLabel": { "message": "가져오는 중..." },
+  "loginActionPrompt": { "message": "확장 프로그램 아이콘을 클릭하여 로그인해주세요." }
 }

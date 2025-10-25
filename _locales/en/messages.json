@@ -84,5 +84,7 @@
   "loginRequiredTitle": { "message": "Google Sign-in Required" },
   "loginRequiredMessage": { "message": "To add events to calendar,\nplease sign in first." },
   "loginModalCloseButton": { "message": "Later" },
-  "loginModalLoginButton": { "message": "Sign In" }
+  "loginModalLoginButton": { "message": "Sign In" },
+  "snaggingLabel": { "message": "Snagging..." },
+  "loginActionPrompt": { "message": "Please click the extension icon to sign in." }
 }
