@@ -658,8 +658,8 @@ async function showModal(selectedText, isAutoDetected = false) {
   if (resultContent) resultContent.style.display = 'none';
 
   const closeHandler = () => closeModal();
-  modalInstance.querySelector('#modal-close').addEventListener('click', closeHandler);
-  modalInstance.querySelector('#modal-backdrop').addEventListener('click', closeHandler);
+  modalInstance.querySelector('#modal-close')?.addEventListener('click', closeHandler);
+  modalInstance.querySelector('#modal-backdrop')?.addEventListener('click', closeHandler);
   
   const escapeHandler = (e) => {
     if (e.key === 'Escape') {
@@ -715,24 +715,36 @@ class BookingPageDetector {
     // More flexible and specific confirmation patterns
     this.confirmationPatterns = [
       // Korean patterns
-      /예매\s?완료/, /예약\s?완료/, /결제\s?완료/, /티켓\s?발권/,
-      /예매\s?성공/, /예약\s?성공/,
+      /예매\s?완료/i, /예약\s?완료/i, /결제\s?완료/i, /티켓\s?발권/i,
+      /예매\s?성공/i, /예약\s?성공/i,
       // English patterns
-      /booking\s?complete/, /reservation\s?complete/, /payment\s?complete/,
-      /booking\s?confirmation/, /reservation\s?confirmation/,
-      /ticket(s)?\s?(issued|confirmed)/,
-      /order\s?(complete|confirmation)/
+      /booking\s?complete/i, /reservation\s?complete/i, /payment\s?complete/i,
+      /booking\s?confirmation/i, /reservation\s?confirmation/i,
+      /ticket(s)?\s?(issued|confirmed)/i,
+      /order\s?(complete|confirmation)/i
+    ];
+
+    this.eventDetailPatterns = [
+      /공연|콘서트|뮤지컬|연극|영화|전시|축제|쇼/i,
+      /concert|musical|movie|show|exhibition|festival|play/i
+    ];
+
+    this.dateDetailPatterns = [
+      /\d{4}년\s*\d{1,2}월\s*\d{1,2}일/,
+      /\d{1,2}월\s*\d{1,2}일/,
+      /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}/i
+    ];
+
+    this.timeDetailPatterns = [
+      /\d{1,2}:\d{2}/,
+      /오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/,
+      /\d{1,2}:\d{2}\s*(AM|PM)/i
     ];
 
     this.detailPatterns = [
-      /공연|콘서트|뮤지컬|연극|영화|전시|축제|쇼/i,
-      /concert|musical|movie|show|exhibition|festival|play/i,
-      /\d{4}년\s*\d{1,2}월\s*\d{1,2}일/,
-      /\d{1,2}월\s*\d{1,2}일/,
-      /\d{1,2}:\d{2}/,
-      /오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/,
-      /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}/i,
-      /\d{1,2}:\d{2}\s*(AM|PM)/i
+      ...this.eventDetailPatterns,
+      ...this.dateDetailPatterns,
+      ...this.timeDetailPatterns
     ];
     
     this.locationPatterns = [
@@ -789,15 +801,18 @@ class BookingPageDetector {
     }
 
     // 1. Prioritize search in key elements like title, h1, h2
-    let importantText = document.title;
     const headers = document.querySelectorAll('h1, h2');
+    const importantTexts = [];
+    if (document.title) importantTexts.push(document.title);
     headers.forEach(h => {
-      importantText += '\n' + h.innerText;
+      const text = h.innerText?.trim();
+      if (text) importantTexts.push(text);
     });
 
     // 2. Look for confirmation or booking-related keywords in the prioritized text
-    let hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(importantText));
-    let hasBookingHint = this.bookingHintPatterns.some(pattern => pattern.test(importantText));
+    const checkPatterns = (texts, patterns) => texts.some(text => patterns.some(pattern => pattern.test(text)));
+    let hasConfirmationKeyword = checkPatterns(importantTexts, this.confirmationPatterns);
+    let hasBookingHint = checkPatterns(importantTexts, this.bookingHintPatterns);
 
     if (!hasConfirmationKeyword && !hasBookingHint) {
       // Fallback to search the entire body if no keyword is found in headers
@@ -870,7 +885,9 @@ class BookingPageDetector {
   calculateRelevanceScore(text) {
     let score = 0;
     if (this.confirmationPatterns.some(p => p.test(text))) score += 5;
-    this.detailPatterns.forEach(p => { if (p.test(text)) score += 2; });
+    if (this.eventDetailPatterns.some(p => p.test(text))) score += 2;
+    if (this.dateDetailPatterns.some(p => p.test(text))) score += 2;
+    if (this.timeDetailPatterns.some(p => p.test(text))) score += 2;
     this.locationPatterns.forEach(p => { if (p.test(text)) score += 1; });
     this.bookingHintPatterns.forEach(p => { if (p.test(text)) score += 1; });
     return score;
