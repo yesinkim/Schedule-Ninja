@@ -345,6 +345,7 @@ class ResponseCache {
 
 // 전역 캐시 인스턴스
 const responseCache = new ResponseCache();
+const activeParsers = new Map();
 
 
 // LanguageModel 세션 관리
@@ -612,111 +613,80 @@ class ProgressUpdater {
 class ApiService {
   static async parseTextWithLLM(eventData) {
     const measurement = PerformanceMonitor.startMeasurement('AI Text Parsing');
-    
+    const parserId = eventData.parserId;
+
+    // 1. 캐시 확인
+    ProgressUpdater.updateProgress(10, 'cache_check');
+    const cachedResponse = responseCache.get(eventData.selectedText);
+    if (cachedResponse) {
+      console.log('🚀 캐시에서 즉시 반환');
+      const timezoneUpdatedResponse = Array.isArray(cachedResponse)
+        ? cachedResponse.map(event => this.applyCurrentTimezone(event))
+        : [this.applyCurrentTimezone(cachedResponse)];
+      const validatedCachedResponse = timezoneUpdatedResponse.map(event =>
+        this.validateEventDataInCreateEvent(event, true)
+      );
+      ProgressUpdater.updateProgress(100, 'complete');
+      PerformanceMonitor.endMeasurement(measurement);
+      return validatedCachedResponse;
+    }
+
+    // 2. Chrome의 내장 LanguageModel API 사용
+    if (typeof LanguageModel === 'undefined') {
+      throw new Error('Chrome 내장 LanguageModel API를 사용할 수 없습니다. Chrome 138+ 버전이 필요합니다.');
+    }
+
+    console.log('Chrome 내장 LanguageModel API 사용');
+    ProgressUpdater.updateProgress(20, 'downloading');
+    console.log('🔄 LanguageModel 세션 가져오기 시작');
+
+    let session;
     try {
-      // 1. 캐시 확인
-      ProgressUpdater.updateProgress(10, 'cache_check');
-      const cachedResponse = responseCache.get(eventData.selectedText);
-      if (cachedResponse) {
-        console.log('🚀 캐시에서 즉시 반환');
-        
-        // 캐시된 데이터에 현재 시간대 적용
-        const timezoneUpdatedResponse = Array.isArray(cachedResponse) 
-          ? cachedResponse.map(event => this.applyCurrentTimezone(event))
-          : [this.applyCurrentTimezone(cachedResponse)];
-        
-        // 시간대가 적용된 데이터 검증
-        const validatedCachedResponse = timezoneUpdatedResponse.map(event => 
-          this.validateEventDataInCreateEvent(event, true)
-        );
-        
-        ProgressUpdater.updateProgress(100, 'complete');
-        const performanceResult = PerformanceMonitor.endMeasurement(measurement);
-        return validatedCachedResponse;
+      await LanguageModelManager.getSession();
+      session = await LanguageModelManager.createClonedSession();
+      console.log('✅ 세션 클론 생성 완료:', session);
+      if (parserId) {
+        activeParsers.set(parserId, session);
+        console.log(`맵에 파서 추가: ${parserId}`, activeParsers);
       }
-      
-      // 2. Chrome의 내장 LanguageModel API 사용
-      if (typeof LanguageModel !== 'undefined') {
-        console.log('Chrome 내장 LanguageModel API 사용');
-        
-        // 세션 가져오기 (클론 사용으로 새로운 대화 컨텍스트)
-        ProgressUpdater.updateProgress(20, 'downloading');
-        console.log('🔄 LanguageModel 세션 가져오기 시작');
-        
-        let session;
-        try {
-          console.log('⏳ 세션 생성 대기 중...');
-          // 기본 세션을 먼저 확보
-          await LanguageModelManager.getSession();
-          // 새로운 대화를 위한 클론 세션 생성
-          session = await LanguageModelManager.createClonedSession();
-          console.log('✅ 세션 클론 생성 완료:', session);
-          ProgressUpdater.updateProgress(40, 'parsing');
-        } catch (error) {
-          console.error('❌ 모델 로딩 실패 - 상세 에러:', error);
-          console.error('❌ 에러 타입:', error.constructor.name);
-          console.error('❌ 에러 메시지:', error.message);
-          console.error('❌ 에러 스택:', error.stack);
-          
-          throw new Error(`Chrome AI 모델 로딩에 실패했습니다: ${error.message}`);
-        }
-        
-        // 프롬프트 실행
-        ProgressUpdater.updateProgress(60, 'processing');
-        console.log('🤖 AI 프롬프트 실행 시작:', eventData.selectedText);
-        
-        let result;
-        try {
-          console.log('⏳ AI 응답 대기 중...');
-          const startTime = Date.now();
-          result = await session.prompt(eventData.selectedText);
-          const endTime = Date.now();
-          console.log(`✅ AI 응답 받음 (${endTime - startTime}ms):`, result);
-          ProgressUpdater.updateProgress(80, 'processing');
-        } catch (error) {
-          console.error('❌ 프롬프트 실행 실패 - 상세 에러:', error);
-          console.error('❌ 에러 타입:', error.constructor.name);
-          console.error('❌ 에러 메시지:', error.message);
-          console.error('❌ 에러 스택:', error.stack);
-          
-          throw new Error(`AI 모델 응답 생성에 실패했습니다: ${error.message}`);
-        }
-        
-        console.log('📄 LanguageModel 원본 결과:', result);
-        console.log('📄 결과 타입:', typeof result);
-        console.log('📄 결과 길이:', result ? result.length : 0);
-        
-        // 응답 처리
-        ProgressUpdater.updateProgress(90, 'processing');
-        console.log('🔄 응답 처리 시작...');
-        
-        try {
-          const processedResponse = this.processApiResponse({ choices: [{ message: { content: result } }] });
-          console.log('✅ 응답 처리 완료:', processedResponse);
-          
-          // 캐시에 저장
-          responseCache.set(eventData.selectedText, processedResponse);
-          console.log('💾 캐시에 저장 완료');
-          
-          // 성능 측정 완료
-          ProgressUpdater.updateProgress(100, 'complete');
-          const performanceResult = PerformanceMonitor.endMeasurement(measurement);
-          
-          return processedResponse;
-        } catch (processError) {
-          console.error('❌ 응답 처리 실패 - 상세 에러:', processError);
-          console.error('❌ 에러 타입:', processError.constructor.name);
-          console.error('❌ 에러 메시지:', processError.message);
-          console.error('❌ 에러 스택:', processError.stack);
-          throw new Error(`응답 처리에 실패했습니다: ${processError.message}`);
-        }
-      } else {
-        console.log('Chrome 내장 LanguageModel을 사용할 수 없습니다.');
-        throw new Error('Chrome 내장 LanguageModel API를 사용할 수 없습니다. Chrome 138+ 버전이 필요합니다.');
-      }
+      ProgressUpdater.updateProgress(40, 'parsing');
     } catch (error) {
-      console.error('Chrome AI API 에러:', error);
-      throw error;
+      console.error('❌ 모델 로딩 실패 - 상세 에러:', error);
+      throw new Error(`Chrome AI 모델 로딩에 실패했습니다: ${error.message}`);
+    }
+
+    try {
+      // 프롬프트 실행
+      ProgressUpdater.updateProgress(60, 'processing');
+      console.log('🤖 AI 프롬프트 실행 시작:', eventData.selectedText);
+
+      const result = await session.prompt(eventData.selectedText);
+      console.log('📄 LanguageModel 원본 결과:', result);
+
+      // 응답 처리
+      ProgressUpdater.updateProgress(90, 'processing');
+      const processedResponse = this.processApiResponse({ choices: [{ message: { content: result } }] });
+
+      // 캐시에 저장
+      responseCache.set(eventData.selectedText, processedResponse);
+
+      ProgressUpdater.updateProgress(100, 'complete');
+      PerformanceMonitor.endMeasurement(measurement);
+      return processedResponse;
+
+    } catch (error) {
+      if (session.destroyed) {
+        console.log(`🚫 파서 ${parserId}가 취소되어 작업을 중단합니다.`);
+        throw new Error('사용자에 의해 작업이 취소되었습니다.');
+      }
+      console.error('❌ 프롬프트 실행 또는 처리 실패:', error);
+      throw new Error(`AI 모델 응답 생성 또는 처리에 실패했습니다: ${error.message}`);
+    } finally {
+      if (parserId) {
+        activeParsers.delete(parserId);
+        console.log(`맵에서 파서 제거: ${parserId}`, activeParsers);
+      }
+      // Do not destroy the session here, just remove it from the active map
     }
   }
   
@@ -1217,6 +1187,26 @@ class MessageHandler {
             success: false,
             error: error.message
           });
+        }
+        break;
+
+      case 'cancelParsing':
+        try {
+          const parserId = request.parserId;
+          console.log(`🔄 cancelParsing 요청 받음: ${parserId}`);
+          const sessionToCancel = activeParsers.get(parserId);
+          if (sessionToCancel) {
+            console.log(`🔪 파서 세션 취소 중: ${parserId}`);
+            sessionToCancel.destroy();
+            activeParsers.delete(parserId);
+            sendResponse({ success: true, message: `파서 ${parserId}가 취소되었습니다.` });
+          } else {
+            console.log(`🤷‍♂️ 취소할 파서 세션을 찾을 수 없음: ${parserId}`);
+            sendResponse({ success: false, error: '취소할 파서를 찾을 수 없습니다.' });
+          }
+        } catch (error) {
+          console.error('❌ cancelParsing 에러:', error);
+          sendResponse({ success: false, error: error.message });
         }
         break;
         
