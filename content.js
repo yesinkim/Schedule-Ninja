@@ -969,10 +969,6 @@ class BookingPageDetector {
         this.showParsedModal();
       }
     });
-    
-    setTimeout(() => {
-      this.hideSoftNotification();
-    }, 15000);
   }
   
   
