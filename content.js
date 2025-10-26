@@ -718,8 +718,8 @@ async function showModal(selectedText, isAutoDetected = false) {
   if (resultContent) resultContent.style.display = 'none';
 
   const closeHandler = () => closeModal();
-  modalInstance.querySelector('#modal-close').addEventListener('click', closeHandler);
-  modalInstance.querySelector('#modal-backdrop').addEventListener('click', closeHandler);
+  modalInstance.querySelector('#modal-close')?.addEventListener('click', closeHandler);
+  modalInstance.querySelector('#modal-backdrop')?.addEventListener('click', closeHandler);
   
   const escapeHandler = (e) => {
     if (e.key === 'Escape') {
@@ -769,38 +769,65 @@ async function checkLoginStatus() {
 // 예매완료 페이지 감지 및 자동 추천 기능
 class BookingPageDetector {
   constructor() {
-    this.enabled = true; // 기본값: 활성화
-    this.parsedData = null; // 파싱된 데이터 저장
-    this.bookingPatterns = [
-      // 예매완료 관련 키워드들
-      /예매완료|예약완료|결제완료|티켓발권|예매성공|예약성공/i,
-      // 공연/영화 관련 키워드들
-      /공연|콘서트|뮤지컬|연극|영화|전시|축제/i,
-      // 날짜/시간 관련 패턴들
+    this.enabled = true;
+    this.parsedData = null;
+
+    // More flexible and specific confirmation patterns
+    this.confirmationPatterns = [
+      // Korean patterns
+      /예매\s?완료/i, /예약\s?완료/i, /결제\s?완료/i, /티켓\s?발권/i,
+      /예매\s?성공/i, /예약\s?성공/i,
+      // English patterns
+      /booking\s?complete/i, /reservation\s?complete/i, /payment\s?complete/i,
+      /booking\s?confirmation/i, /reservation\s?confirmation/i,
+      /ticket(s)?\s?(issued|confirmed)/i,
+      /order\s?(complete|confirmation)/i
+    ];
+
+    this.eventDetailPatterns = [
+      /공연|콘서트|뮤지컬|연극|영화|전시|축제|쇼/i,
+      /concert|musical|movie|show|exhibition|festival|play/i
+    ];
+
+    this.dateDetailPatterns = [
       /\d{4}년\s*\d{1,2}월\s*\d{1,2}일/,
       /\d{1,2}월\s*\d{1,2}일/,
+      /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}/i
+    ];
+
+    this.timeDetailPatterns = [
       /\d{1,2}:\d{2}/,
-      /오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/
+      /오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/,
+      /\d{1,2}:\d{2}\s*(AM|PM)/i
+    ];
+
+    this.detailPatterns = [
+      ...this.eventDetailPatterns,
+      ...this.dateDetailPatterns,
+      ...this.timeDetailPatterns
     ];
     
     this.locationPatterns = [
       /장소|공연장|극장|영화관|홀|아트홀|문화센터/i,
+      /venue|location|place|theater|hall|stadium|cinema/i,
       /서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주/i
+    ];
+
+    this.bookingHintPatterns = [
+      /예매|예약|예약번호|예약정보|티켓|좌석|등급|발권/i,
+      /booking|reservation|ticket|seat|grade|reference|confirmation\s?(number|code)?/i
     ];
     
     this.init();
   }
   
   async init() {
-    // 설정 로드
     await this.loadSettings();
     
-    // 페이지 로드 후 잠시 대기하여 동적 콘텐츠 로딩 완료 대기
     setTimeout(() => {
       this.checkForBookingPage();
     }, 2000);
     
-    // URL 변경 감지 (SPA 페이지들 대응)
     let lastUrl = location.href;
     new MutationObserver(() => {
       const url = location.href;
@@ -817,7 +844,7 @@ class BookingPageDetector {
     return new Promise(resolve => {
       chrome.storage.sync.get(['settings'], (result) => {
         const settings = result.settings || {};
-        this.enabled = settings.autoDetectEnabled !== false; // 기본값: true
+        this.enabled = settings.autoDetectEnabled !== false;
         isDarkMode = settings.darkMode || false;
         resolve();
       });
@@ -825,71 +852,84 @@ class BookingPageDetector {
   }
   
   async checkForBookingPage() {
-    // 자동 감지가 비활성화된 경우 실행하지 않음
-    if (!this.enabled) {
-      return;
-    }
-    
-    // 로그인 상태 확인 - 로그인되지 않은 경우 자동검출 비활성화
+    if (!this.enabled) return;
+
     const isLoggedIn = await checkLoginStatus();
     if (!isLoggedIn) {
-      console.log('로그인되지 않아 자동검출을 비활성화합니다.');
+      console.log('Not logged in, skipping auto-detection.');
       return;
     }
-    
-    const pageText = document.body.innerText || '';
-    const pageTitle = document.title || '';
-    const url = window.location.href;
-    
-    // 예매완료 페이지인지 확인
-    const isBookingPage = this.bookingPatterns.some(pattern => 
-      pattern.test(pageText) || pattern.test(pageTitle) || pattern.test(url)
-    );
-    
-    if (isBookingPage) {
-      console.log('예매완료 페이지 감지됨:', url);
+
+    // 1. Prioritize search in key elements like title, h1, h2
+    const headers = document.querySelectorAll('h1, h2');
+    const importantTexts = [];
+    if (document.title) importantTexts.push(document.title);
+    headers.forEach(h => {
+      const text = h.innerText?.trim();
+      if (text) importantTexts.push(text);
+    });
+
+    // 2. Look for confirmation or booking-related keywords in the prioritized text
+    const checkPatterns = (texts, patterns) => texts.some(text => patterns.some(pattern => pattern.test(text)));
+    let hasConfirmationKeyword = checkPatterns(importantTexts, this.confirmationPatterns);
+    let hasBookingHint = checkPatterns(importantTexts, this.bookingHintPatterns);
+
+    if (!hasConfirmationKeyword && !hasBookingHint) {
+      // Fallback to search the entire body if no keyword is found in headers
+      const bodyText = document.body.innerText || '';
+      hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(bodyText));
+      hasBookingHint = this.bookingHintPatterns.some(pattern => pattern.test(bodyText));
+
+      if (!hasConfirmationKeyword && !hasBookingHint) {
+        return; // Exit if no confirmation or booking hint keyword is found anywhere
+      }
+    }
+
+    // 3. If confirmation is found, check for event details in the main content area
+    const mainContent = document.querySelector('main')?.innerText || document.body.innerText;
+    const hasEventDetails = this.detailPatterns.some(pattern => pattern.test(mainContent));
+
+    if (hasEventDetails) {
+      console.log('Confirmation and event details found. Triggering auto-detection.');
       this.extractBookingInfo();
+    } else {
+      console.log('Confirmation keyword found, but no event details in main content. Skipping.');
     }
   }
   
   setEnabled(enabled) {
     this.enabled = enabled;
-    console.log('자동 감지 설정 변경:', enabled ? '활성화' : '비활성화');
+    console.log('Auto-detect setting changed:', enabled ? 'On' : 'Off');
   }
   
   extractBookingInfo() {
-    // 페이지에서 일정 관련 정보 추출
     const extractedText = this.findBookingInfo();
     
     if (extractedText) {
-      console.log('추출된 예매 정보:', extractedText);
-      // 소프트한 알림 표시와 동시에 뒤에서 파싱 시작
+      console.log('Extracted booking info:', extractedText);
       setTimeout(() => {
         this.showSoftNotificationWithParsing(extractedText);
-      }, 1500); // 사용자가 페이지를 충분히 확인할 시간 제공
+      }, 1500);
     }
   }
   
   findBookingInfo() {
     const selectors = [
-      // 일반적인 예매 정보가 표시되는 영역들
       '.booking-info, .reservation-info, .ticket-info',
       '.event-detail, .show-detail, .movie-detail',
       '.date-time, .schedule, .time-info',
       '.venue, .location, .place',
-      // 텍스트 기반 검색
       'div, p, span, td, li'
     ];
     
     let bestMatch = '';
     let maxScore = 0;
     
-    // 각 셀렉터로 검색
     selectors.forEach(selector => {
       const elements = document.querySelectorAll(selector);
       elements.forEach(element => {
         const text = element.innerText?.trim();
-        if (text && text.length > 10) { // 충분한 길이의 텍스트만
+        if (text && text.length > 10) {
           const score = this.calculateRelevanceScore(text);
           if (score > maxScore) {
             maxScore = score;
@@ -899,47 +939,30 @@ class BookingPageDetector {
       });
     });
     
-    // 점수가 충분히 높은 경우에만 반환
     return maxScore > 3 ? bestMatch : null;
   }
   
   calculateRelevanceScore(text) {
     let score = 0;
-    
-    // 날짜 패턴 점수
-    if (/\d{4}년\s*\d{1,2}월\s*\d{1,2}일/.test(text)) score += 3;
-    if (/\d{1,2}월\s*\d{1,2}일/.test(text)) score += 2;
-    if (/\d{1,2}:\d{2}/.test(text)) score += 2;
-    
-    // 시간 표현 점수
-    if (/오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}|(am|pm)/i.test(text)) score += 2;
-    
-    // 공연/영화 관련 키워드 점수
-    if (/공연|콘서트|뮤지컬|연극|영화|전시|축제|concert|musical|movie|show|exhibition|festival/i.test(text)) score += 2;
-    
-    // 장소 관련 키워드 점수
-    if (/장소|공연장|극장|영화관|홀|아트홀|문화센터|venue|theater|hall|cinema/i.test(text)) score += 1;
-    if (/서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주/i.test(text)) score += 1;
-    
-    // 예매 관련 키워드 점수
-    if (/예매|예약|티켓|좌석|등급|booking|reservation|ticket|seat|grade|confirmed/i.test(text)) score += 1;
-    
+    if (this.confirmationPatterns.some(p => p.test(text))) score += 5;
+    if (this.eventDetailPatterns.some(p => p.test(text))) score += 2;
+    if (this.dateDetailPatterns.some(p => p.test(text))) score += 2;
+    if (this.timeDetailPatterns.some(p => p.test(text))) score += 2;
+    this.locationPatterns.forEach(p => { if (p.test(text)) score += 1; });
+    this.bookingHintPatterns.forEach(p => { if (p.test(text)) score += 1; });
     return score;
   }
   
   showSoftNotificationWithParsing(extractedText) {
-    // 소프트한 알림 표시와 동시에 뒤에서 파싱 시작
     this.createSoftNotificationWithParsing(extractedText);
   }
   
   createSoftNotificationWithParsing(extractedText) {
-    // 기존 알림이 있으면 제거
     const existingNotification = document.getElementById('booking-detection-notification');
     if (existingNotification) {
       existingNotification.remove();
     }
     
-    // 소프트한 알림 생성 (파싱 버전)
     const notification = document.createElement('div');
     notification.id = 'booking-detection-notification';
     notification.style.cssText = `
@@ -987,23 +1010,19 @@ class BookingPageDetector {
     
     document.body.appendChild(notification);
     
-    // 애니메이션으로 나타나기
     setTimeout(() => {
       notification.style.transform = 'translateX(0)';
       notification.style.opacity = '1';
     }, 10);
     
-    // 뒤에서 파싱 시작
     this.startBackgroundParsing(extractedText, notification);
     
-    // 닫기 버튼 이벤트
     const closeBtn = notification.querySelector('#close-soft-notification');
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.hideSoftNotification();
     });
     
-    // 알림 클릭 시 모달 표시 (파싱 완료된 경우)
     notification.addEventListener('click', () => {
       if (this.parsedData) {
         this.hideSoftNotification();
@@ -1011,7 +1030,6 @@ class BookingPageDetector {
       }
     });
     
-    // 15초 후 자동으로 숨기기 (파싱 시간 고려)
     setTimeout(() => {
       this.hideSoftNotification();
     }, 15000);
@@ -1019,7 +1037,6 @@ class BookingPageDetector {
   
   
   startBackgroundParsing(extractedText, notification) {
-    // 페이지 정보 수집
     const pageInfo = {
       title: document.title,
       url: window.location.href,
@@ -1027,12 +1044,8 @@ class BookingPageDetector {
       isAutoDetected: true
     };
 
-    // 뒤에서 파싱 시작
     chrome.runtime.sendMessage(
-      {
-        action: 'parseText',
-        eventData: { selectedText: extractedText, pageInfo },
-      },
+      { action: 'parseText', eventData: { selectedText: extractedText, pageInfo } },
       (response) => {
         if (response?.success) {
           this.parsedData = response.eventData;
@@ -1049,20 +1062,8 @@ class BookingPageDetector {
     const message = notification.querySelector('#notification-message');
     
     if (icon && message) {
-      // 아이콘을 체크마크로 변경
-      icon.innerHTML = `
-        <svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-      `;
-      
-      // 메시지 업데이트
-      message.innerHTML = `
-        ${t('autoDetectCompleteTitle')}<br>
-        <span style="color: #10b981; font-weight: 500;">${t('autoDetectCompleteHint')}</span>
-      `;
-      
-      // 배경색을 성공 색상으로 변경
+      icon.innerHTML = `<svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+      message.innerHTML = `${t('autoDetectCompleteTitle')}<br><span style="color: #10b981; font-weight: 500;">${t('autoDetectCompleteHint')}</span>`;
       icon.style.background = 'linear-gradient(135deg, #10b981, #059669)';
     }
   }
@@ -1072,58 +1073,29 @@ class BookingPageDetector {
     const message = notification.querySelector('#notification-message');
     
     if (icon && message) {
-      // 아이콘을 경고 아이콘으로 변경
-      icon.innerHTML = `
-        <svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      `;
-      
-      // 메시지 업데이트
-      message.innerHTML = `
-        ${t('autoDetectFailTitle')}<br>
-        <span style="color: #E83941; font-weight: 500;">${t('autoDetectFailHint')}</span>
-      `;
-      
-      // 배경색을 경고 색상으로 변경
+      icon.innerHTML = `<svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+      message.innerHTML = `${t('autoDetectFailTitle')}<br><span style="color: #E83941; font-weight: 500;">${t('autoDetectFailHint')}</span>`;
       icon.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
     }
   }
 
   showParsedModal() {
     if (this.parsedData) {
-      // 파싱된 데이터로 모달 표시 (LLM 호출 없이)
       this.showModalWithPreParsedData();
     }
   }
   
   showModalWithPreParsedData() {
-    // 모달 열기
     openModal();
-    
-    // 로딩 표시
     const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
     const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
-    
-    if (loadingIndicator) {
-      loadingIndicator.style.display = 'none'; // 로딩 숨기기
-    }
-    if (resultContent) {
-      resultContent.style.display = 'block'; // 결과 영역 표시
-    }
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    if (resultContent) resultContent.style.display = 'block';
 
-    // 닫기 이벤트 설정
-    const closeBtn = modalInstance.querySelector('#modal-close');
-    const backdrop = modalInstance.querySelector('#modal-backdrop');
+    const closeHandler = () => closeModal();
+    modalInstance.querySelector('#modal-close').addEventListener('click', closeHandler);
+    modalInstance.querySelector('#modal-backdrop').addEventListener('click', closeHandler);
     
-    function closeHandler() {
-      closeModal();
-    }
-    
-    if (closeBtn) closeBtn.addEventListener('click', closeHandler);
-    if (backdrop) backdrop.addEventListener('click', closeHandler);
-    
-    // Escape 키로 닫기
     const escapeHandler = (e) => {
       if (e.key === 'Escape') {
         closeHandler();
@@ -1132,15 +1104,7 @@ class BookingPageDetector {
     };
     document.addEventListener('keydown', escapeHandler);
 
-    // 페이지 정보 설정
-    pageInfo = {
-      title: document.title,
-      url: window.location.href,
-      domain: window.location.hostname,
-      isAutoDetected: true
-    };
-
-    // 이미 파싱된 데이터를 바로 표시
+    pageInfo = { title: document.title, url: window.location.href, domain: window.location.hostname, isAutoDetected: true };
     displayResult(this.parsedData);
   }
 
@@ -1158,15 +1122,8 @@ class BookingPageDetector {
   }
   
   showAutoRecommendation(extractedText) {
-    // 이미 모달이 열려있으면 중복 실행 방지
-    if (modalInstance && modalInstance.style.display !== 'none') {
-      return;
-    }
-    
-    // 자동 추천 모달 표시 (isAutoDetected = true)
+    if (modalInstance && modalInstance.style.display !== 'none') return;
     showModal(extractedText, true);
-    
-    // 자동 추천임을 알리는 토스트 메시지
     setTimeout(() => {
       if (modalInstance) {
         showToastMessage(t('autoDetectToastShort'), "success");
