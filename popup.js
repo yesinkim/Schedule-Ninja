@@ -269,6 +269,18 @@ document.addEventListener('DOMContentLoaded', function() {
       const settings = result.settings || {};
       settings.language = language;
       chrome.storage.sync.set({ settings: settings }, () => {
+        // 모든 탭에 언어 설정 변경 알림
+        chrome.tabs.query({}, function(tabs) {
+          tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, { 
+              action: 'updateLanguage', 
+              language: language 
+            }).catch(() => {
+              // 에러 무시 (content script가 없는 탭)
+            });
+          });
+        });
+
         applyI18n()
           .then(() => {
             showNotification(getMessage('notifyLanguageUpdated'), 'success');
