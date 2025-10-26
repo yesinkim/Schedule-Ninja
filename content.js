@@ -725,8 +725,8 @@ class BookingPageDetector {
     ];
 
     this.detailPatterns = [
-      /공연|콘서트|뮤지컬|연극|영화|전시|축제/i,
-      /concert|musical|movie|exhibition|festival|play/i,
+      /공연|콘서트|뮤지컬|연극|영화|전시|축제|쇼/i,
+      /concert|musical|movie|show|exhibition|festival|play/i,
       /\d{4}년\s*\d{1,2}월\s*\d{1,2}일/,
       /\d{1,2}월\s*\d{1,2}일/,
       /\d{1,2}:\d{2}/,
@@ -737,8 +737,13 @@ class BookingPageDetector {
     
     this.locationPatterns = [
       /장소|공연장|극장|영화관|홀|아트홀|문화센터/i,
-      /venue|location|place|theater|hall|stadium/i,
+      /venue|location|place|theater|hall|stadium|cinema/i,
       /서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주/i
+    ];
+
+    this.bookingHintPatterns = [
+      /예매|예약|예약번호|예약정보|티켓|좌석|등급|발권/i,
+      /booking|reservation|ticket|seat|grade|reference|confirmation\s?(number|code)?/i
     ];
     
     this.init();
@@ -790,14 +795,18 @@ class BookingPageDetector {
       importantText += '\n' + h.innerText;
     });
 
-    // 2. Check for mandatory confirmation keywords in the prioritized text
-    const hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(importantText));
+    // 2. Look for confirmation or booking-related keywords in the prioritized text
+    let hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(importantText));
+    let hasBookingHint = this.bookingHintPatterns.some(pattern => pattern.test(importantText));
 
-    if (!hasConfirmationKeyword) {
+    if (!hasConfirmationKeyword && !hasBookingHint) {
       // Fallback to search the entire body if no keyword is found in headers
       const bodyText = document.body.innerText || '';
-      if (!this.confirmationPatterns.some(pattern => pattern.test(bodyText))) {
-        return; // Exit if no confirmation keyword is found anywhere
+      hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(bodyText));
+      hasBookingHint = this.bookingHintPatterns.some(pattern => pattern.test(bodyText));
+
+      if (!hasConfirmationKeyword && !hasBookingHint) {
+        return; // Exit if no confirmation or booking hint keyword is found anywhere
       }
     }
 
@@ -861,8 +870,9 @@ class BookingPageDetector {
   calculateRelevanceScore(text) {
     let score = 0;
     if (this.confirmationPatterns.some(p => p.test(text))) score += 5;
-    this.detailPatterns.forEach(p => { if(p.test(text)) score += 2; });
-    this.locationPatterns.forEach(p => { if(p.test(text)) score += 1; });
+    this.detailPatterns.forEach(p => { if (p.test(text)) score += 2; });
+    this.locationPatterns.forEach(p => { if (p.test(text)) score += 1; });
+    this.bookingHintPatterns.forEach(p => { if (p.test(text)) score += 1; });
     return score;
   }
   
