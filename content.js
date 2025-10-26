@@ -229,7 +229,7 @@ function displayResult(data) {
   
   if (!resultContent) return;
 
-  const eventsArray = Array.isArray(data) ? data : [data];
+  const eventsArray = data ? (Array.isArray(data) ? data : [data]) : [];
   lastParsedData = eventsArray;
   
   if (eventsArray.length === 0) {
