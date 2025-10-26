@@ -912,17 +912,17 @@ class BookingPageDetector {
     if (/\d{1,2}:\d{2}/.test(text)) score += 2;
     
     // 시간 표현 점수
-    if (/오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}/.test(text)) score += 2;
+    if (/오후\s*\d{1,2}:\d{2}|오전\s*\d{1,2}:\d{2}|(am|pm)/i.test(text)) score += 2;
     
     // 공연/영화 관련 키워드 점수
-    if (/공연|콘서트|뮤지컬|연극|영화|전시|축제/.test(text)) score += 2;
+    if (/공연|콘서트|뮤지컬|연극|영화|전시|축제|concert|musical|movie|show|exhibition|festival/i.test(text)) score += 2;
     
     // 장소 관련 키워드 점수
-    if (/장소|공연장|극장|영화관|홀|아트홀/.test(text)) score += 1;
-    if (/서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주/.test(text)) score += 1;
+    if (/장소|공연장|극장|영화관|홀|아트홀|문화센터|venue|theater|hall|cinema/i.test(text)) score += 1;
+    if (/서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주/i.test(text)) score += 1;
     
     // 예매 관련 키워드 점수
-    if (/예매|예약|티켓|좌석|등급/.test(text)) score += 1;
+    if (/예매|예약|티켓|좌석|등급|booking|reservation|ticket|seat|grade|confirmed/i.test(text)) score += 1;
     
     return score;
   }
