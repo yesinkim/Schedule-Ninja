@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Schedule Ninja - An AI-powered Chrome extension that automatically converts text on webpages into Google Calendar events.">
+    <title>Privacy Policy - Schedule Ninja</title>
+    <link rel="icon" type="image/png" href="../icons/icon48.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #313B43;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent: #E83941;
+            --accent-hover: #c72e35;
+            --border: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background-color: rgba(30, 41, 59, 0.8);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover img {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .cta-button {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(232, 57, 65, 0.4);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        /* Privacy Policy Section */
+        .privacy-policy {
+            padding: 4rem 0;
+        }
+
+        .privacy-content {
+            background-color: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            max-width: 900px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        .privacy-content:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .privacy-content h3 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .privacy-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .privacy-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .privacy-content a {
+            color: var(--accent);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+
+        .privacy-content a:hover {
+            color: var(--accent-hover);
+            border-bottom-color: var(--accent-hover);
+        }
+
+        .privacy-content ul {
+            color: var(--text-secondary);
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-content li {
+            margin-bottom: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .privacy-content li:hover {
+            color: var(--text-primary);
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <img src="../icons/icon48.png" alt="Schedule Ninja Icon">
+                    <span class="logo-text">Schedule Ninja</span>
+                </a>
+                <a href="index.html" class="cta-button">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Privacy Policy Section -->
+    <section id="privacy" class="privacy-policy">
+        <div class="container">
+            <h2 class="section-title">Privacy Policy</h2>
+            <p class="last-updated">Last Updated: October 26, 2025</p>
+            <div class="privacy-content">
+                <h3>Data Collection and Use</h3>
+                <p>
+                    Schedule Ninja prioritizes your privacy. All AI processing is performed directly on your device using Chrome's on-device AI.
+                </p>
+
+                <h3>Information We Collect</h3>
+                <ul>
+                    <li>Selected webpage text (for the purpose of extracting schedule information)</li>
+                    <li>User settings (language, timezone, theme, etc.)</li>
+                    <li>Extension usage statistics (anonymized data)</li>
+                </ul>
+
+                <h3>Data Security</h3>
+                <p>
+                    All data is stored locally in your browser and is not sent to external servers. AI processing works completely offline using Chrome's built-in AI features.
+                </p>
+
+                <h3>Google Calendar Permissions</h3>
+                <p>
+                    Schedule Ninja requests minimal permissions to add events to your Google Calendar. It only accesses the calendar when you explicitly approve and does not read or modify existing events.
+                </p>
+
+                <h3>Third-Party Sharing</h3>
+                <p>
+                    Schedule Ninja does not share, sell, or rent your data to third parties. All data is kept securely on your device.
+                </p>
+
+                <h3>Compliance with Chrome Web Store Policies</h3>
+                <p>
+                    Schedule Ninja's use and transfer of information received from Google APIs to any other app will adhere to the Google API Services User Data Policy, including the Limited Use requirements.
+                </p>
+
+                <h3>Contact Us</h3>
+                <p>
+                    If you have any questions or concerns about this Privacy Policy, please contact us at <a href="mailto:support@scheduleninja.com">support@scheduleninja.com</a>.
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
