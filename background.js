@@ -650,12 +650,7 @@ class ApiService {
         console.log(`맵에 파서 추가: ${parserId}`, activeParsers);
       }
       ProgressUpdater.updateProgress(40, 'parsing');
-    } catch (error) {
-      console.error('❌ 모델 로딩 실패 - 상세 에러:', error);
-      throw new Error(`Chrome AI 모델 로딩에 실패했습니다: ${error.message}`);
-    }
 
-    try {
       // 프롬프트 실행
       ProgressUpdater.updateProgress(60, 'processing');
       console.log('🤖 AI 프롬프트 실행 시작:', eventData.selectedText);
@@ -675,10 +670,22 @@ class ApiService {
       return processedResponse;
 
     } catch (error) {
+      if (!session) {
+        // 세션 생성 실패
+        console.error('❌ 모델 로딩 실패 - 상세 에러:', error);
+        throw new Error(`Chrome AI 모델 로딩에 실패했습니다: ${error.message}`);
+      }
+      
       if (session.destroyed) {
-        console.log(`🚫 파서 ${parserId}가 취소되어 작업을 중단합니다.`);
+        // 작업 취소
+        const message = parserId
+          ? `🚫 파서 ${parserId}가 취소되어 작업을 중단합니다.`
+          : '🚫 파서 작업이 취소되어 작업을 중단합니다.';
+        console.log(message);
         throw new Error('사용자에 의해 작업이 취소되었습니다.');
       }
+      
+      // 프롬프트 실행 또는 처리 실패
       console.error('❌ 프롬프트 실행 또는 처리 실패:', error);
       throw new Error(`AI 모델 응답 생성 또는 처리에 실패했습니다: ${error.message}`);
     } finally {
@@ -686,7 +693,6 @@ class ApiService {
         activeParsers.delete(parserId);
         console.log(`맵에서 파서 제거: ${parserId}`, activeParsers);
       }
-      // Do not destroy the session here, just remove it from the active map
     }
   }
   
@@ -1194,6 +1200,11 @@ class MessageHandler {
         try {
           const parserId = request.parserId;
           console.log(`🔄 cancelParsing 요청 받음: ${parserId}`);
+          if (!parserId) {
+            console.error('❌ cancelParsing 에러: parserId가 제공되지 않았습니다.');
+            sendResponse({ success: false, error: '취소 요청에 parserId가 필요합니다.' });
+            break;
+          }
           const sessionToCancel = activeParsers.get(parserId);
           if (sessionToCancel) {
             console.log(`🔪 파서 세션 취소 중: ${parserId}`);

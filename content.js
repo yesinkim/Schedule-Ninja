@@ -903,7 +903,7 @@ class BookingPageDetector {
       existingNotification.remove();
     }
 
-    const parserId = `parser_${Date.now()}`;
+    const parserId = crypto.randomUUID();
     
     const notification = document.createElement('div');
     notification.id = 'booking-detection-notification';
