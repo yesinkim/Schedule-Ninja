@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Ninja Booking Complete Demo</title>
+  <style>
+    :root {
+      --bg: #313B43;
+      --header: #343A40;
+      --card: #F8F9FA;
+      --text: #2C3E50;
+      --muted: #6C7A89;
+      --accent: #E83941;
+      --accent-soft: rgba(232, 57, 65, 0.12);
+      --success: #61D095;
+      --radius-lg: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 56px 16px;
+      line-height: 1.5;
+    }
+
+    .canvas {
+      width: min(960px, 100%);
+      display: grid;
+      gap: 24px;
+    }
+
+    .header-card {
+      background: linear-gradient(135deg, var(--header), #262C30);
+      color: white;
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      display: grid;
+      gap: 12px;
+      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    .header-card h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.01em;
+    }
+
+    .header-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.78);
+      max-width: 640px;
+    }
+
+    .confirmation-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2);
+      display: grid;
+      gap: 24px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(97, 208, 149, 0.14);
+      color: var(--success);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 13px;
+    }
+
+    .status-chip span {
+      font-size: 18px;
+    }
+
+    .event-title {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .event-meta {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .meta-card {
+      background: rgba(49, 59, 67, 0.05);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .meta-card span.label {
+      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .meta-card span.value {
+      font-size: 16px;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .detail-card {
+      border: 1px solid rgba(25, 33, 40, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      background: white;
+      display: grid;
+      gap: 6px;
+    }
+
+    .detail-card span.label {
+      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .detail-card span.value {
+      font-size: 15px;
+    }
+
+    .ticket-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .ticket-actions a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .ticket-actions a.primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 12px 28px rgba(232, 57, 65, 0.3);
+    }
+
+    .ticket-actions a.secondary {
+      background: rgba(49, 59, 67, 0.08);
+      color: var(--text);
+    }
+
+    .ticket-actions a:hover {
+      transform: translateY(-2px);
+    }
+
+    .review-note {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      color: rgba(255, 255, 255, 0.84);
+      display: grid;
+      gap: 10px;
+    }
+
+    .review-note strong {
+      font-size: 15px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding-top: 32px;
+      }
+
+      .ticket-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .ticket-actions a {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="canvas">
+    <section class="header-card">
+      <h1>Booking completion mock</h1>
+      <p>Use this page to capture confirmation flows, validate the content script against completed orders, and rehearse the video walkthrough before going live.</p>
+    </section>
+
+    <section class="confirmation-card">
+      <span class="status-chip"><span aria-hidden="true">✔</span>Reservation Confirmed</span>
+      <h2 class="event-title">Taylor Swift Concert · VIP Pass</h2>
+      <p class="event-summary">Your tickets are confirmed! Would you like to add this event to your calendar?</p>
+
+      <div class="event-meta" role="list">
+        <div class="meta-card" role="listitem">
+          <span class="label">Date &amp; Time</span>
+          <span class="value">Friday, November 21, 2025 · 7:00 PM – 10:00 PM</span>
+        </div>
+        <div class="meta-card" role="listitem">
+          <span class="label">Venue</span>
+          <span class="value">Madison Square Garden · New York, NY</span>
+        </div>
+        <div class="meta-card" role="listitem">
+          <span class="label">Order Number</span>
+          <span class="value">TS-2025-1121-NY</span>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-card">
+          <span class="label">Tickets</span>
+          <span class="value">2 × VIP Seats · Section A · Row 12</span>
+        </div>
+        <div class="detail-card">
+          <span class="label">Payment</span>
+          <span class="value">Visa •••• 4532 · Charged $298.00 USD on Nov 15</span>
+        </div>
+      </div>
+
+      <div class="ticket-actions">
+        <a class="primary" href="#">Download QR Ticket</a>
+        <a class="secondary" href="#">Email Confirmation</a>
+        <a class="secondary" href="quick-test.html">Back to Test Page</a>
+      </div>
+    </section>
+
+    <aside class="review-note">
+      <strong>Recording tips</strong>
+      <span>1) Scroll through each section to highlight structured data that the extension should capture. 2) Mention the order number to show end-to-end coverage. 3) Return to the multilingual page to demonstrate flows in different locales.</span>
+    </aside>
+  </main>
+</body>
+</html>
