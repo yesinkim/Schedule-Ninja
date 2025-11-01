@@ -962,6 +962,8 @@ class BookingPageDetector {
     if (existingNotification) {
       existingNotification.remove();
     }
+
+    const parserId = crypto.randomUUID();
     
     const notification = document.createElement('div');
     notification.id = 'booking-detection-notification';
@@ -1015,12 +1017,14 @@ class BookingPageDetector {
       notification.style.opacity = '1';
     }, 10);
     
-    this.startBackgroundParsing(extractedText, notification);
+    this.startBackgroundParsing(extractedText, notification, parserId);
     
     const closeBtn = notification.querySelector('#close-soft-notification');
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.hideSoftNotification();
+      console.log(`[BookingPageDetector] Sending cancel message for ${parserId}`);
+      chrome.runtime.sendMessage({ action: 'cancelParsing', parserId: parserId });
     });
     
     notification.addEventListener('click', () => {
@@ -1029,14 +1033,10 @@ class BookingPageDetector {
         this.showParsedModal();
       }
     });
-    
-    setTimeout(() => {
-      this.hideSoftNotification();
-    }, 15000);
   }
   
   
-  startBackgroundParsing(extractedText, notification) {
+  startBackgroundParsing(extractedText, notification, parserId) {
     const pageInfo = {
       title: document.title,
       url: window.location.href,
@@ -1045,12 +1045,22 @@ class BookingPageDetector {
     };
 
     chrome.runtime.sendMessage(
-      { action: 'parseText', eventData: { selectedText: extractedText, pageInfo } },
+      { 
+        action: 'parseText', 
+        eventData: { selectedText: extractedText, pageInfo, parserId: parserId } 
+      },
       (response) => {
+        if (chrome.runtime.lastError) {
+            // Handle errors from sendMessage itself
+            this.updateNotificationForError(notification, chrome.runtime.lastError.message);
+            return;
+        }
+
         if (response?.success) {
           this.parsedData = response.eventData;
           this.updateNotificationForSuccess(notification);
         } else {
+          // Handle logical errors from the background script (e.g., cancellation)
           this.updateNotificationForError(notification, response?.error);
         }
       }
