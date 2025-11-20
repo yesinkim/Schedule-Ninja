@@ -72,7 +72,7 @@
   "analysisFailedLabel": { "message": "분석 실패" },
   "unknownError": { "message": "알 수 없는 오류" },
   "progressCacheCheck": { "message": "캐시 확인 중..." },
-  "progressDownloading": { "message": "AI 모델 로딩 중..." },
+  "progressDownloading": { "message": "AI 모델 다운로드 중... (네트워크 환경에 따라 시간이 소요될 수 있습니다)" },
   "progressParsing": { "message": "텍스트 분석 중..." },
   "progressProcessing": { "message": "일정 정보 추출 중..." },
   "progressComplete": { "message": "완료!" },

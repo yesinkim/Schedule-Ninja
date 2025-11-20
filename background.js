@@ -365,16 +365,7 @@ class LanguageModelManager {
       console.log('⏳ 모델 다운로드 중... 대기');
       return new Promise((resolve, reject) => {
         const startTime = Date.now();
-        const MAX_WAIT_TIME = 30000; // 30초 최대 대기
-        
         const checkSession = () => {
-          // 타임아웃 체크
-          if (Date.now() - startTime > MAX_WAIT_TIME) {
-            console.error('❌ 모델 다운로드 대기 시간 초과 (30초)');
-            reject(new Error('모델 다운로드 대기 시간이 초과되었습니다.'));
-            return;
-          }
-          
           if (languageModelSession && !languageModelSession.destroyed) {
             resolve(languageModelSession);
           } else if (!isModelDownloading) {
@@ -383,6 +374,7 @@ class LanguageModelManager {
               .then(resolve)
               .catch(reject); // 에러 핸들링 추가
           } else {
+            // 계속 대기 (타임아웃 없음)
             setTimeout(checkSession, 100);
           }
         };
@@ -1407,6 +1399,12 @@ chrome.runtime.onInstalled.addListener(() => {
     id: "testModal",
     title: "🧪 Test Modal (Dev)",
     contexts: ["page"]
+  });
+
+  // 설치 직후 모델 다운로드 시작
+  console.log('🚀 확장 프로그램 설치됨 - 모델 다운로드 시작 시도');
+  LanguageModelManager.createNewSession().catch(err => {
+    console.error('❌ 설치 시 모델 다운로드 실패:', err);
   });
 });
 

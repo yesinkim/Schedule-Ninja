@@ -72,7 +72,7 @@
   "analysisFailedLabel": { "message": "Analysis failed" },
   "unknownError": { "message": "Unknown error" },
   "progressCacheCheck": { "message": "Checking cache..." },
-  "progressDownloading": { "message": "Loading AI model..." },
+  "progressDownloading": { "message": "Downloading AI model (this may take a while)..." },
   "progressParsing": { "message": "Analyzing text..." },
   "progressProcessing": { "message": "Extracting event info..." },
   "progressComplete": { "message": "Done!" },
