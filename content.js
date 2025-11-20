@@ -595,9 +595,19 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   try {
     const eventData = { ...lastParsedData[eventIndex] };
     const settings = await chrome.storage.sync.get(['settings']);
-    if (pageInfo && settings.settings?.showSourceInfo) {
-      const sourceText = `🥷 Schedule Ninja snagged\n🌐 ${pageInfo.url}`;
-      eventData.description = eventData.description ? `${eventData.description}\n\n---\n${sourceText}` : sourceText;
+    
+    // 항상 Schedule Ninja snagged 포함
+    if (pageInfo) {
+      let sourceText = '🥷 Schedule Ninja snagged';
+      
+      // 설정이 켜져 있으면 페이지 URL도 추가
+      if (settings.settings?.showSourceInfo) {
+        sourceText += `\n🌐 ${pageInfo.url}`;
+      }
+      
+      eventData.description = eventData.description 
+        ? `${eventData.description}\n\n---\n${sourceText}` 
+        : sourceText;
     }
     
     const response = await chrome.runtime.sendMessage({ action: 'createCalendarEvent', eventData: eventData });
@@ -1159,7 +1169,7 @@ function updateProgress(progress, stage) {
     };
     
     const message = stageMessages[stage] || t('progressDefault');
-    progressText.textContent = `${progress}% - ${message}`;
+    progressText.textContent = `${Math.round(progress, 2)}% - ${message}`;
     
     // 로딩 텍스트 업데이트
     if (loadingText) {

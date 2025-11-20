@@ -811,6 +811,17 @@ class ApiService {
             throw new Error('이벤트 제목이 탐지되지 않았습니다.');
         }
 
+        // 1.5 날짜 형식 정규화 (YYYY-MM-DDTHH:mm -> YYYY-MM-DD)
+        // AI가 date 필드에 시간까지 포함하는 경우 강제로 날짜만 남김
+        if (eventInfo.start?.date && eventInfo.start.date.includes('T')) {
+            console.log('⚠️ start.date에 시간이 포함되어 있어 수정함:', eventInfo.start.date);
+            eventInfo.start.date = eventInfo.start.date.split('T')[0];
+        }
+        if (eventInfo.end?.date && eventInfo.end.date.includes('T')) {
+            console.log('⚠️ end.date에 시간이 포함되어 있어 수정함:', eventInfo.end.date);
+            eventInfo.end.date = eventInfo.end.date.split('T')[0];
+        }
+
         // 2. 날짜/시간 형식 검증
         let isAllDayEvent = !!(eventInfo.start?.date && eventInfo.end?.date);
         let isTimeSpecificEvent = !!(eventInfo.start?.dateTime && eventInfo.end?.dateTime);
@@ -1058,6 +1069,29 @@ class ApiService {
 class CalendarService {
   static async createCalendarEvent(eventData) {
     try {
+      // 구글 캘린더 API의 exclusive end date 처리 & dateTime 형식 정규화
+      const apiEventData = { ...eventData };
+      
+      // 1. dateTime 형식 정규화 (RFC3339 요구: YYYY-MM-DDTHH:mm:ss+offset)
+      const userTimezone = getUserTimezone();
+      if (apiEventData.start?.dateTime) {
+        apiEventData.start.dateTime = ensureDateTimeHasOffset(apiEventData.start.dateTime, userTimezone);
+        apiEventData.start.timeZone = userTimezone;
+      }
+      if (apiEventData.end?.dateTime) {
+        apiEventData.end.dateTime = ensureDateTimeHasOffset(apiEventData.end.dateTime, userTimezone);
+        apiEventData.end.timeZone = userTimezone;
+      }
+      
+      // 2. 사용자가 "21일부터 23일까지"라고 말하면 23일도 포함해야 하므로
+      // API 전송 직전에 end.date에 +1일을 추가 (구글 API는 end.date를 제외함)
+      if (apiEventData.start?.date && apiEventData.end?.date) {
+        const endDate = new Date(apiEventData.end.date);
+        endDate.setDate(endDate.getDate() + 1);
+        apiEventData.end.date = endDate.toISOString().split('T')[0];
+        console.log('📅 API 전송용 end.date +1일 조정:', eventData.end.date, '->', apiEventData.end.date);
+      }
+      
       // Google Calendar API 호출
       const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
@@ -1065,8 +1099,9 @@ class CalendarService {
           'Authorization': `Bearer ${await this.getAccessToken()}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(eventData)
+        body: JSON.stringify(apiEventData)
       });
+      console.log('Calendar API 호출:', apiEventData);
 
       if (!response.ok) {
         const error = new Error(`Calendar API 에러: ${response.status}`);
@@ -1249,8 +1284,7 @@ class MessageHandler {
         
       case 'createCalendarEvent':
         try {
-          // 단일 이벤트 데이터 검증
-          ApiService.validateEventDataInCreateEvent(request.eventData);
+          // parseText에서 이미 검증 완료되었으므로 바로 API 호출
           const eventCreated = await CalendarService.createCalendarEvent(request.eventData);
           sendResponse({
             success: true,
