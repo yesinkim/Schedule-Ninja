@@ -655,13 +655,19 @@ class ApiService {
         
         // 프롬프트 실행
         ProgressUpdater.updateProgress(60, 'processing');
-        console.log('🤖 AI 프롬프트 실행 시작:', eventData.selectedText);
+        
+        // 현재 날짜 컨텍스트 추가
+        const today = new Date();
+        const dateContext = `Today is ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}.`;
+        const promptWithContext = `${dateContext}\n\n${eventData.selectedText}`;
+        
+        console.log('🤖 AI 프롬프트 실행 시작:', promptWithContext);
         
         let result;
         try {
           console.log('⏳ AI 응답 대기 중...');
           const startTime = Date.now();
-          result = await session.prompt(eventData.selectedText);
+          result = await session.prompt(promptWithContext);
           const endTime = Date.now();
           console.log(`✅ AI 응답 받음 (${endTime - startTime}ms):`, result);
           ProgressUpdater.updateProgress(80, 'processing');
@@ -828,6 +834,7 @@ class ApiService {
         const hasOnlyStartTime = !!(eventInfo.start?.dateTime && !eventInfo.end?.dateTime);
         const hasOnlyStartDate = !!(eventInfo.start?.date && !eventInfo.end);
         const hasStartTimeButEndDate = !!(eventInfo.start?.dateTime && eventInfo.end?.date && !eventInfo.end?.dateTime);
+        const hasStartDateButEndTime = !!(eventInfo.start?.date && !eventInfo.start?.dateTime && eventInfo.end?.dateTime);
         
         console.log('2. 이벤트 타입:', {
             isAllDayEvent,
@@ -835,9 +842,24 @@ class ApiService {
             hasOnlyStartTime,
             hasOnlyStartDate,
             hasStartTimeButEndDate,
+            hasStartDateButEndTime,
             start: eventInfo.start,
             end: eventInfo.end
         });
+
+        // 2.5 혼합된 형식 처리 (start=date, end=dateTime 또는 그 반대)
+        if (hasStartDateButEndTime) {
+            console.log('⚠️ start는 date, end는 dateTime - start를 dateTime으로 변환');
+            // start.date를 00:00:00으로 시작하는 dateTime으로 변환
+            const startDateTime = `${eventInfo.start.date}T00:00:00`;
+            const userTz = getUserTimezone();
+            eventInfo.start = {
+                dateTime: ensureDateTimeHasOffset(startDateTime, userTz),
+                timeZone: userTz
+            };
+            isTimeSpecificEvent = true;
+            isAllDayEvent = false;
+        }
 
         // 시작 시간만 있고 종료 시간이 없는 경우 1시간짜리 이벤트로 설정
         if (hasOnlyStartTime) {
@@ -962,21 +984,12 @@ class ApiService {
         // 시작 날짜만 있고 종료 날짜가 없는 경우 하루종일 이벤트로 자동 설정
         if (hasOnlyStartDate) {
             console.log('3. 시작 날짜만 있는 경우 - 하루종일 이벤트로 자동 설정');
-            const startDate = new Date(eventInfo.start.date);
-
-            if (isNaN(startDate.getTime())) {
-                throw new Error('유효하지 않은 시작 날짜 형식입니다.');
-            }
-
-            // 시작 날짜에서 다음 날을 종료 날짜로 설정
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 1);
-
-            // end 객체 생성
+            // end.date를 start.date와 동일하게 설정
+            // (API 전송 시 +1일 로직이 알아서 처리함)
             eventInfo.end = {
-                date: endDate.toISOString().split('T')[0]
+                date: eventInfo.start.date,
+                timeZone: eventInfo.start.timeZone || getUserTimezone()
             };
-
             console.log('   자동 설정된 종료 날짜:', eventInfo.end.date);
             isAllDayEvent = true;
             isTimeSpecificEvent = false;
@@ -1006,12 +1019,9 @@ class ApiService {
             console.log('   시작일:', startDate);
             console.log('   종료일:', endDate);
 
-            if (startDate >= endDate) {
-                console.log('   종료일 자동 조정');
-                const nextDay = new Date(startDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                eventInfo.end.date = nextDay.toISOString().split('T')[0];
-                console.log('   조정된 종료일:', eventInfo.end.date);
+            // 종료일이 시작일보다 이전이면 에러
+            if (endDate < startDate) {
+                throw new Error('종료일은 시작일보다 이전일 수 없습니다.');
             }
         }
 
@@ -1101,19 +1111,31 @@ class CalendarService {
         },
         body: JSON.stringify(apiEventData)
       });
-      console.log('Calendar API 호출:', apiEventData);
+      console.log('📤 Calendar API 호출 시작:', apiEventData);
 
       if (!response.ok) {
-        const error = new Error(`Calendar API 에러: ${response.status}`);
-        error.data = JSON.stringify(await response.json());
+        const errorData = await response.json();
+        console.error('❌ Calendar API 에러 상세:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData: errorData
+        });
+        const error = new Error(`Calendar API 에러: ${response.status} - ${errorData.error?.message || response.statusText}`);
+        error.data = JSON.stringify(errorData);
         throw error;
       }
 
       const result = await response.json();
+      console.log('✅ Calendar API 성공:', result);
       return result;
 
     } catch (error) {
-      console.error('Calendar API 에러:', error);
+      console.error('❌ Calendar API 전체 에러:', error);
+      console.error('   에러 타입:', error.constructor.name);
+      console.error('   에러 메시지:', error.message);
+      if (error.data) {
+        console.error('   에러 데이터:', error.data);
+      }
       throw error;
     }
   }
