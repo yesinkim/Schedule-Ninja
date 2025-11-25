@@ -172,10 +172,6 @@
             transition: color 0.2s ease;
         }
 
-        .privacy-content li:hover {
-            color: var(--text-primary);
-        }
-
         .hero-buttons {
             display: flex;
             gap: 1rem;
@@ -213,33 +209,50 @@
     <section id="privacy" class="privacy-policy">
         <div class="container">
             <h2 class="section-title">Privacy Policy</h2>
-            <p class="last-updated">Last Updated: October 26, 2025</p>
+            <p class="last-updated">Last Updated: November 25, 2025</p>
             <div class="privacy-content">
                 <h3>Data Collection and Use</h3>
                 <p>
-                    Schedule Ninja prioritizes your privacy. All AI processing is performed directly on your device using Chrome's on-device AI.
+                    Schedule Ninja prioritizes your privacy. All AI processing is performed directly on your device using Chrome's on-device AI capabilities.
                 </p>
 
                 <h3>Information We Collect</h3>
                 <ul>
-                    <li>Selected webpage text (for the purpose of extracting schedule information)</li>
-                    <li>User settings (language, timezone, theme, etc.)</li>
-                    <li>Extension usage statistics (anonymized data)</li>
+                    <li>Selected webpage text (solely for the purpose of extracting schedule information)</li>
+                    <li>User settings (language, timezone, theme preferences)</li>
+                    <li>Extension usage statistics (fully anonymized)</li>
                 </ul>
 
-                <h3>Data Security</h3>
+                <!-- Updated for Google Compliance -->
+                <h3>Data Protection Mechanisms</h3>
                 <p>
-                    All data is stored locally in your browser and is not sent to external servers. AI processing works completely offline using Chrome's built-in AI features.
+                    We prioritize the security of your data and strictly adhere to the following protection mechanisms:
                 </p>
+                <ul>
+                    <li><strong>HTTPS Encryption:</strong> All data communication between the extension and Google APIs (e.g., Google Calendar) is performed directly over secure <strong>HTTPS</strong> protocols.</li>
+                    <li><strong>Client-Side Processing:</strong> Schedule Ninja operates primarily as a client-side application. We do not store your Google account credentials, access tokens, or sensitive personal information on any external or third-party servers.</li>
+                    <li><strong>Secure Storage:</strong> Authentication tokens are stored locally on your device using Chrome's secure storage mechanisms and are used solely to facilitate the features you have requested.</li>
+                </ul>
+
+                <!-- Updated for Google Compliance -->
+                <h3>Data Retention and Deletion Policy</h3>
+                <p>
+                    We are committed to data minimization and transparency regarding how long we keep your data.
+                </p>
+                <ul>
+                    <li><strong>Retention:</strong> Data fetched from Google APIs is used in real-time to create events and may be temporarily cached in your local browser storage to improve performance. This data is not permanently stored on any external servers.</li>
+                    <li><strong>Deletion via Uninstalling:</strong> You can delete all locally stored data associated with Schedule Ninja by simply uninstalling the extension from Chrome. This immediately removes all local settings and cached data.</li>
+                    <li><strong>Revoking Access:</strong> You can revoke the extension's access to your Google Calendar at any time by visiting your <a href="https://myaccount.google.com/connections" target="_blank">Google Account Third-party connections</a> page. Once revoked, the extension will no longer have access to your data.</li>
+                </ul>
 
                 <h3>Google Calendar Permissions</h3>
                 <p>
-                    Schedule Ninja requests minimal permissions to add events to your Google Calendar. It only accesses the calendar when you explicitly approve and does not read or modify existing events.
+                    Schedule Ninja requests minimal permissions to add events to your Google Calendar. It only accesses the calendar when you explicitly approve an action (e.g., clicking "Add to Calendar") and does not read or modify existing events unless requested.
                 </p>
 
                 <h3>Third-Party Sharing</h3>
                 <p>
-                    Schedule Ninja does not share, sell, or rent your data to third parties. All data is kept securely on your device.
+                    Schedule Ninja does not share, sell, or rent your data to third parties. All data processing occurs locally on your device or directly with Google services.
                 </p>
 
                 <h3>Compliance with Chrome Web Store Policies</h3>
@@ -249,7 +262,7 @@
 
                 <h3>Contact Us</h3>
                 <p>
-                    If you have any questions or concerns about this Privacy Policy, please contact us at <a href="mailto:bailando.ys@gmail.com">bailando.ys@gmail.com</a>.
+                    If you have any questions or concerns about this Privacy Policy or wish to request data deletion, please contact us at <a href="mailto:bailando.ys@gmail.com">bailando.ys@gmail.com</a>.
                 </p>
                 <div class="hero-buttons" style="margin-top: 2rem;">
                     <a href="index.html" class="cta-button">Back to Home</a>

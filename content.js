@@ -114,14 +114,20 @@ function createModal() {
   modalInstance = document.createElement('div');
   modalInstance.id = 'schedule-ninja-modal';
   modalInstance.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 2147483647;
-    display: none;
-    pointer-events: auto;
+    all: initial !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 2147483647 !important;
+    display: none !important;
+    pointer-events: auto !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    box-sizing: border-box !important;
+    color: initial !important;
   `;
 
   // 색상 팔레트 가져오기
@@ -449,28 +455,28 @@ async function showDropdownForm(originData, eventIndex) {
   const colors = getColors();
   
   dropdown.innerHTML = `
-    <form id="editForm" style="background: ${colors.formBg}; padding: 16px; border-radius: 12px !important; border: none; text-align: left; margin: 0; box-shadow: 0 -4px 12px rgba(0,0,0,0.08);">
-        <div style="margin-bottom: 8px;">
-          <label style="display: block; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">TITLE</label>
-          <input id="editSummary" type="text" value="${originData.summary || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-size: 14px; outline: none;" placeholder="${t('placeholderSummary')}" />
+    <form id="editForm" style="all: initial !important; display: block !important; background: ${colors.formBg} !important; padding: 16px !important; border-radius: 12px !important; border: none !important; text-align: left !important; margin: 0 !important; box-shadow: 0 -4px 12px rgba(0,0,0,0.08) !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; font-size: 14px !important; line-height: 1.5 !important;">
+        <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
+          <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">TITLE</label>
+          <input id="editSummary" type="text" value="${originData.summary || ''}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;" placeholder="${t('placeholderSummary')}" />
         </div>
-        <div style="margin-bottom: 8px;">
-          <label style="display: block; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">START</label>
-          <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-size: 14px; outline: none; color-scheme: ${isDarkMode ? 'dark' : 'light'};" />
+        <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
+          <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">START</label>
+          <input id="editStart" type="datetime-local" value="${originData.start?.dateTime ? originData.start.dateTime.slice(0, 16) : originData.start?.date + 'T00:00' || ''}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; color-scheme: ${isDarkMode ? 'dark' : 'light'} !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; font-style: normal !important; font-variant: normal !important;" />
         </div>
-        <div style="margin-bottom: 8px;">
-          <label style="display: block; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">END</label>
-          <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-size: 14px; outline: none; color-scheme: ${isDarkMode ? 'dark' : 'light'};" />
+        <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
+          <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">END</label>
+          <input id="editEnd" type="datetime-local" value="${originData.end?.dateTime ? originData.end.dateTime.slice(0, 16) : originData.end?.date + 'T00:00' || ''}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; color-scheme: ${isDarkMode ? 'dark' : 'light'} !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; font-style: normal !important; font-variant: normal !important;" />
         </div>
-        <div style="margin-bottom: 8px;">
-          <label style="display: block; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">PLACE</label>
-          <input id="editLocation" type="text" value="${originData.location || ''}" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-size: 14px; outline: none;" placeholder="${t('placeholderLocation')}" />
+        <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
+          <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">PLACE</label>
+          <input id="editLocation" type="text" value="${originData.location || ''}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;" placeholder="${t('placeholderLocation')}" />
         </div>
-        <div style="margin-bottom: 12px;">
-          <label style="display: block; font-size: 10px; font-weight: 600; color: ${colors.labelColor}; margin-bottom: 4px;">DESCRIPTION</label>
-          <textarea id="editDescription" rows="3" style="width: 100%; padding: 8px; background: ${colors.inputBg}; color: ${colors.inputColor}; border: none; border-radius: 6px !important; font-size: 14px; outline: none; resize: none;">${originData.description || ''}</textarea>
+        <div style="all: initial !important; display: block !important; margin-bottom: 12px !important;">
+          <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">DESCRIPTION</label>
+          <textarea id="editDescription" rows="3" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; resize: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;">${originData.description || ''}</textarea>
         </div>
-      <button id="tk-dropdown-save" type="button" style="width: 100%; background: ${colors.buttonBg}; color: white; border: none; border-radius: 6px !important; padding: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <button id="tk-dropdown-save" type="button" style="all: initial !important; display: flex !important; width: 100% !important; background: ${colors.buttonBg} !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 8px !important; font-weight: 600 !important; font-size: 14px !important; cursor: pointer !important; align-items: center !important; justify-content: center !important; gap: 8px !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; line-height: 1.5 !important; text-transform: none !important; letter-spacing: normal !important;">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
         ${t('saveEventButton')}
       </button>
@@ -480,11 +486,22 @@ async function showDropdownForm(originData, eventIndex) {
   dropdown.querySelector('#tk-dropdown-save').addEventListener('click', async () => {
     if (isCreatingEvent && creatingEventIndex === eventIndex) return;
     
+    const startValue = dropdown.querySelector('#editStart').value;
+    const endValue = dropdown.querySelector('#editEnd').value;
+    
+    // 원본이 date 타입이었는지 dateTime 타입이었는지 확인
+    const wasStartDate = originData.start?.date && !originData.start?.dateTime;
+    const wasEndDate = originData.end?.date && !originData.end?.dateTime;
+    
     const updatedEvent = {
       ...originData,
       summary: dropdown.querySelector('#editSummary').value,
-      start: { ...originData.start, [originData.start.dateTime ? 'dateTime' : 'date']: dropdown.querySelector('#editStart').value },
-      end: { ...originData.end, [originData.end.dateTime ? 'dateTime' : 'date']: dropdown.querySelector('#editEnd').value },
+      start: wasStartDate 
+        ? { date: startValue.split('T')[0], timeZone: originData.start.timeZone }  // date만 저장
+        : { dateTime: startValue, timeZone: originData.start.timeZone },          // dateTime 저장
+      end: wasEndDate 
+        ? { date: endValue.split('T')[0], timeZone: originData.end.timeZone }     // date만 저장
+        : { dateTime: endValue, timeZone: originData.end.timeZone },              // dateTime 저장
       location: dropdown.querySelector('#editLocation').value,
       description: dropdown.querySelector('#editDescription').value,
     };
@@ -595,16 +612,31 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   try {
     const eventData = { ...lastParsedData[eventIndex] };
     const settings = await chrome.storage.sync.get(['settings']);
-    if (pageInfo && settings.settings?.showSourceInfo) {
-      const sourceText = `🥷 Schedule Ninja snagged\n🌐 ${pageInfo.url}`;
-      eventData.description = eventData.description ? `${eventData.description}\n\n---\n${sourceText}` : sourceText;
+    
+    // 항상 Schedule Ninja snagged 포함
+    if (pageInfo) {
+      let sourceText = '🥷 Schedule Ninja snagged';
+      
+      // 설정이 켜져 있으면 페이지 URL도 추가
+      if (settings.settings?.showSourceInfo) {
+        sourceText += `\n🌐 ${pageInfo.url}`;
+      }
+      
+      eventData.description = eventData.description 
+        ? `${eventData.description}\n\n---\n${sourceText}` 
+        : sourceText;
     }
     
     const response = await chrome.runtime.sendMessage({ action: 'createCalendarEvent', eventData: eventData });
     
     if (response.success) {
+      console.log('✅ 일정 생성 성공! 링크:', response.event.htmlLink);
       addBtn.innerHTML = `<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
       addBtn.setAttribute('data-added', 'true');
+      
+      // 성공 토스트 메시지에 링크 추가 (선택사항)
+      showToastMessage(`일정이 추가되었습니다. <a href="${response.event.htmlLink}" target="_blank" style="color: white; text-decoration: underline;">확인하기</a>`);
+      
       if (saveBtn) updateSaveButtonState(saveBtn, 'success');
       if (lastParsedData.every((_, i) => modalInstance.querySelector(`#tk-add-btn-${i}`)?.getAttribute('data-added') === 'true')) {
         setTimeout(() => closeModal(), 1500);
@@ -1044,13 +1076,24 @@ class BookingPageDetector {
       isAutoDetected: true
     };
 
+    console.log('🔄 [자동감지] 백그라운드 파싱 시작');
     chrome.runtime.sendMessage(
       { action: 'parseText', eventData: { selectedText: extractedText, pageInfo } },
       (response) => {
+        console.log('📬 [자동감지] 콜백 호출됨!', response);
+        if (chrome.runtime.lastError) {
+          console.error('❌ [자동감지] Chrome runtime 에러:', chrome.runtime.lastError);
+          this.updateNotificationForError(notification, chrome.runtime.lastError.message);
+          return;
+        }
+        
         if (response?.success) {
+          console.log('✅ [자동감지] 파싱 성공, 알림 업데이트 시작');
           this.parsedData = response.eventData;
           this.updateNotificationForSuccess(notification);
+          console.log('✅ [자동감지] 알림 업데이트 완료');
         } else {
+          console.error('❌ [자동감지] 파싱 실패:', response?.error);
           this.updateNotificationForError(notification, response?.error);
         }
       }
@@ -1058,13 +1101,19 @@ class BookingPageDetector {
   }
 
   updateNotificationForSuccess(notification) {
+    console.log('🎉 [자동감지] updateNotificationForSuccess 호출됨', notification);
     const icon = notification.querySelector('#notification-icon');
     const message = notification.querySelector('#notification-message');
+    
+    console.log('🔍 [자동감지] icon:', icon, 'message:', message);
     
     if (icon && message) {
       icon.innerHTML = `<svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
       message.innerHTML = `${t('autoDetectCompleteTitle')}<br><span style="color: #10b981; font-weight: 500;">${t('autoDetectCompleteHint')}</span>`;
       icon.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      console.log('✅ [자동감지] 알림 UI 업데이트 완료');
+    } else {
+      console.error('❌ [자동감지] icon 또는 message 요소를 찾을 수 없음');
     }
   }
 
@@ -1080,8 +1129,11 @@ class BookingPageDetector {
   }
 
   showParsedModal() {
+    console.log('🚀 [자동감지] showParsedModal 호출됨, parsedData:', this.parsedData);
     if (this.parsedData) {
       this.showModalWithPreParsedData();
+    } else {
+      console.error('❌ [자동감지] parsedData가 없어서 모달을 열 수 없음');
     }
   }
   
@@ -1159,11 +1211,13 @@ function updateProgress(progress, stage) {
     };
     
     const message = stageMessages[stage] || t('progressDefault');
-    progressText.textContent = `${progress}% - ${message}`;
+    // 괄호 안의 내용 제거 (간결하게 표시)
+    const shortMessage = message.replace(/\s*\([^)]*\)/g, '').trim();
+    progressText.innerHTML = `${Math.round(progress)}% - ${shortMessage.replace(/\n/g, '<br>')}`;
     
     // 로딩 텍스트 업데이트
     if (loadingText) {
-      loadingText.textContent = message;
+      loadingText.textContent = shortMessage;
     }
   }
 }

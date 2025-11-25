@@ -1,3 +1,4 @@
 # 환경 설정 파일
 secrets.js
 .DS_Store
+*.pem
