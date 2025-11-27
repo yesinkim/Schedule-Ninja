@@ -2,9 +2,9 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "Schedule Ninja",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAikp39CZ5hGlcTIotolGnPp7DfSRps/u3aM24pt1OnlnNpU7oNAmGYkB4MB9TjmS6n49XZPk6ZOH8Dhv9Qd22cWCg6Otw5g+9UScGf1Ktu3Q/nQK1H/tnyLMGUGiBjwrGcDdZp8BO96SKMLiQO7S93gnWDCNIB0cGilKb0sEAXroxs5yc5xwLm4CYSFILRET4oiX+QHAOnQ47UwXZmHlriObrY+o6B5E55Rj8bjUgZ1YMmg7D6VRwfOvmSVCnJPFb3PX1jt9J31BlZxFjMHlM0b0RX9/wGxWXmUZ5DXUxwQ5sYgA3A+rVtR78f6Qckk4cgfLDRr8FPmHL6Q2ERB/CAQIDAQAB",
-  "description": "Don't miss a beat. We got your back.",
+  "description": "AI ninja that creates calendar items with one click. Instantly add and manage schedules directly from any webpage.",
   "permissions": [
     "activeTab",
     "storage",
