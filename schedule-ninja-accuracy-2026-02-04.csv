@@ -1,0 +1,545 @@
+ID,Category,Input,Expected Summary,Parsed Summary,Summary Match,Start Match,End Match,Location Match,All Match,Time (ms),Error
+kr_001,exhibition,"[세미콘 코리아 2026](https://www.coex.co.kr/exhibitions/semicon-korea-2026/?var_page=-1&list_type=CAL&cy=2026&cm=2)
+2026.02.19 ~ 2026.02.21
+전관
+전기/전자/IT","세미콘 코리아 2026","세미콘 코리아 2026",true,true,true,false,false,7793,
+kr_002,exhibition,"[K-일러스트레이션페어 서울 2026](https://www.coex.co.kr/exhibitions/k-illustration-fair-seoul-2026)
+2026.02.07 ~ 2026.02.09
+D홀
+예술/디자인","K-일러스트레이션페어 서울 2026","K-일러스트레이션페어 서울 2026",true,true,true,true,true,4086,
+kr_003,wedding,"[제405회 웨덱스 웨딩박람회](https://www.coex.co.kr/exhibitions/wedex-wedding-fair-405)
+2026.02.01 ~ 2026.02.02
+C홀
+관광/오락","제405회 웨덱스 웨딩박람회","제405회 웨덱스 웨딩박람회",true,true,true,true,true,3882,
+kr_004,blockchain,"KOREA BLOCKCHAIN WEEK 2026
+September 22-28, 2026
+Sponsor: IMPACT
+KBW2026: IMPACT provides unparalleled visibility for brands and organizations.","KOREA BLOCKCHAIN WEEK 2026","KOREA BLOCKCHAIN WEEK 2026",true,true,true,false,false,4371,
+kr_005,meetup,"크립토 현직자 밋업 Vol.1: Bridge the Gap with deBridge
+2026년 2월 6일 (목) 오후 7:00
+서울 강남구 테헤란로 521 파르나스타워
+Hosted by DeBridge Korea","크립토 현직자 밋업 Vol.1","크립토 현직자 밋업 Vol.1: Bridge the Gap with deBridge",true,true,true,true,true,4465,
+kr_006,hackathon,"Cursor Hackathon Seoul
+Feb 15, 2026
+10:00 AM - 10:00 PM
+WeWork Seolleung III
+Hosted by Cursor & GDG Seoul","Cursor Hackathon Seoul","Cursor Hackathon Seoul",true,true,true,true,true,3685,
+kr_007,concert,"[ZEROBASEONE WORLD TOUR [HERE & NOW] ENCORE IN SEOUL]
+장소: KSPO DOME
+기간: 2026.03.13 ~ 2026.03.15
+시간: 금 19:00, 토일 17:00
+관람등급: 7세 이상","ZEROBASEONE WORLD TOUR ENCORE","ZEROBASEONE WORLD TOUR [HERE & NOW] ENCORE IN SEOUL",false,true,true,true,false,4463,
+kr_008,exhibition,"[서울리빙디자인페어](https://www.coex.co.kr/exhibitions/seoul-living-design-fair)
+2026.03.19 ~ 2026.03.23
+A, B, C홀
+예술/디자인","서울리빙디자인페어","서울리빙디자인페어",true,true,true,true,true,3745,
+kr_009,exhibition,"[2026 대한민국 조경*정원 박람회](https://www.coex.co.kr/exhibitions/landscape-garden-expo-2026)
+2026.02.06 ~ 2026.02.08
+Hall D
+건설/건축/인테리어","2026 대한민국 조경*정원 박람회","2026 대한민국 조경*정원 박람회",true,true,true,true,true,3989,
+kr_010,education,"[호주 뉴질랜드 유학박람회](https://www.coex.co.kr/exhibitions/australia-newzealand-edu-fair)
+2026.02.08 ~ 2026.02.08
+컨퍼런스룸(남) 401호
+교육/출판","호주 뉴질랜드 유학박람회","호주 뉴질랜드 유학박람회",true,true,true,true,true,4118,
+kr_011,conference,"[2026 블록체인 컨퍼런스](https://www.coex.co.kr/exhibitions/blockchain-conference-2026)
+2026.02.12 ~ 2026.02.12
+그랜드볼룸
+금융/재테크","2026 블록체인 컨퍼런스","2026 블록체인 컨퍼런스",true,true,true,true,true,3920,
+kr_012,exhibition,"[2026 하우징브랜드페어 / 2026 서울 툴&세이프티쇼]
+2026.02.06 ~ 2026.02.08
+C홀
+건설/건축/인테리어","2026 하우징브랜드페어 / 2026 서울 툴&세이프티쇼","2026 하우징브랜드페어 / 2026 서울 툴&세이프티쇼",true,true,true,true,true,4353,
+kr_013,exhibition,"[제10회 서울 건강산업 박람회 / 제7회 서울 오피스가구 및 오피스페어]
+2026.02.06 ~ 2026.02.08
+Hall B
+의료/건강/스포츠","제10회 서울 건강산업 박람회 / 제7회 서울 오피스가구 및 오피스페어","제10회 서울 건강산업 박람회 / 제7회 서울 오피스가구 및 오피스페어",true,true,true,true,true,4255,
+kr_014,meetup,"Arcium Seoul: Unlocking Encrypted Capital Markets
+Mon, Feb 9, 2026
+15:00 - 18:00
+Hashed Lounge
+Seoul","Arcium Seoul: Unlocking Encrypted Capital Markets","",false,false,false,false,false,5864,응답 처리에 실패했습니다: 이벤트는 하루종일 또는 시간 특정 중 하나여야 합니다.
+kr_015,meetup,"Builders & Creators Meetup in Seoul
+Feb 20, 2026
+7:00 PM - 9:00 PM
+Nonce Community","Builders & Creators Meetup in Seoul","Builders & Creators Meetup in Seoul",true,true,true,true,true,3461,
+kr_016,meetup,"Jito Korea Community Night
+2026/02/18 (Tue)
+18:30 - 21:00
+Casa Corona Seoul","Jito Korea Community Night","Jito Korea Community Night",true,true,true,true,true,3321,
+kr_017,meetup,"Nesa:Seoul
+Feb 13, 2026
+6:00 PM - 9:00 PM
+KB Innovation Hub","Nesa:Seoul","Nesa:Seoul",true,true,true,true,true,3689,
+kr_018,hackathon,"World Build Korea 2026
+Feb 22-23
+Start: 10:00 AM
+End: 6:00 PM (Next day)
+Seoul Startup Hub","World Build Korea 2026","World Build Korea 2026",true,true,true,true,true,3802,
+kr_019,workshop,"Swift Students Cafe (서울 🇰🇷)
+Every Saturday
+Feb 7 - Feb 28, 2026
+2:00 PM - 5:00 PM
+Cafe Onion Anguk","Swift Students Cafe","Swift Students Cafe (서울 🇰🇷)",true,true,false,true,false,4042,
+kr_020,community,"한국 블록체인 밋업 #24
+2026.02.20 (목)
+19:00 ~ 21:30
+마루180 지하 1층","한국 블록체인 밋업 #24","한국 블록체인 밋업 #24",true,true,true,true,true,3829,
+en_001,webinar,"Free AI Workshop: Introduction to Machine Learning
+Date: Wednesday, February 12, 2026
+Time: 2:00 PM - 4:00 PM EST
+Location: Online (Zoom)
+Host: TechEd Academy","Free AI Workshop: Introduction to Machine Learning","Free AI Workshop: Introduction to Machine Learning",true,true,true,true,true,3798,
+en_002,conference,"Tech Summit 2026: Future of AI
+March 15-17, 2026
+9:00 AM - 6:00 PM PST
+Moscone Center, San Francisco, CA
+Tickets from $299","Tech Summit 2026: Future of AI","Tech Summit 2026: Future of AI",true,true,true,true,true,4162,
+en_003,meetup,"Builders & Creators Meetup in Seoul
+Thursday, February 20, 2026 at 7:00 PM KST
+Gangnam Station Exit 10, Ground Floor Coworking Space
+Free admission","Builders & Creators Meetup in Seoul","Builders & Creators Meetup in Seoul",true,true,true,true,true,4987,
+en_004,hackathon,"World Build Korea 2026
+Feb 22-23, 2026
+Saturday 9 AM - Sunday 9 PM
+Seoul Startup Hub, Yeongdeungpo
+48-hour hackathon","World Build Korea 2026","World Build Korea 2026",true,true,true,true,true,3996,
+en_005,networking,"Jito Korea Community Night
+Date: 2026/02/18 (Tue)
+Time: 18:30 - 21:00
+Venue: Itaewon Sports Bar & Grill","Jito Korea Community Night","Jito Korea Community Night",true,true,true,true,true,3883,
+en_006,concert,"Taylor Swift | The Eras Tour 2026
+Sat, Jun 20, 2026 7:00 PM
+SoFi Stadium, Inglewood, CA
+Doors open at 4:30 PM","Taylor Swift | The Eras Tour 2026","Taylor Swift | The Eras Tour 2026",true,true,true,true,true,3236,
+en_007,workshop,"Pottery Workshop for Beginners
+Every Saturday in February
+10:00 AM - 1:00 PM
+Clay Studio NYC, 123 Craft Street, Brooklyn
+$75 per session","Pottery Workshop for Beginners","Pottery Workshop for Beginners",true,false,false,true,false,10567,
+en_008,seminar,"International Conference on Blockchain and Cryptocurrencies (ICBC)
+April 13-14, 2026
+Seoul, Republic of Korea
+Organized by World Academy of Science, Engineering and Technology","International Conference on Blockchain and Cryptocurrencies (ICBC)","International Conference on Blockchain and Cryptocurrencies (ICBC)",true,true,true,true,true,3964,
+en_009,fitness,"Morning Yoga in the Park - Free Class
+Sunday, March 8, 2026
+7:00 AM - 8:00 AM
+Central Park Great Lawn, New York, NY
+Bring your own mat","Morning Yoga in the Park - Free Class","Morning Yoga in the Park - Free Class",true,true,true,true,true,4045,
+en_010,book_club,"Reading Rhythms: Monthly Book Discussion
+First Thursday of every month
+Next session: March 5, 2026, 6:30 PM
+Online via Google Meet","Reading Rhythms: Monthly Book Discussion","Reading Rhythms: Monthly Book Discussion",true,true,true,true,true,3643,
+en_011,startup,"YC Demo Day Watch Party - Korea
+Mar 24, 2026 • 8:00 PM - 11:00 PM KST
+Maru180, Gangnam
+For startup enthusiasts and founders","YC Demo Day Watch Party - Korea","YC Demo Day Watch Party - Korea",true,true,true,true,true,3809,
+en_012,gaming,"Super Smash Bros Ultimate Tournament
+Registration opens: Feb 1, 2026
+Event date: Saturday, February 28, 2026
+Check-in: 11:00 AM | Tournament starts: 12:00 PM
+Gamers Lounge, 456 Arcade Ave, Los Angeles","Super Smash Bros Ultimate Tournament","",false,false,false,false,false,13799,응답 처리에 실패했습니다: 이벤트는 하루종일 또는 시간 특정 중 하나여야 합니다.
+en_013,art,"Van Gogh: The Immersive Experience
+Now through April 30, 2026
+Open daily 10 AM - 9 PM
+Last entry at 7:30 PM
+Pier 36, New York","Van Gogh: The Immersive Experience","Van Gogh: The Immersive Experience",true,false,true,true,false,4257,
+en_014,food,"Wine Tasting Experience: French Bordeaux
+Friday, February 14, 2026
+7:00 PM - 9:30 PM
+Sommelier's Choice Wine Bar
+789 Vine Street, San Francisco
+Ages 21+","Wine Tasting Experience: French Bordeaux","Wine Tasting Experience: French Bordeaux",true,true,true,true,true,4096,
+en_015,charity,"5K Run for Cancer Research
+Sunday, April 5, 2026
+Race starts at 8:00 AM sharp
+Finish by 10:00 AM
+Lincoln Memorial, Washington D.C.
+Registration fee: $35","5K Run for Cancer Research","5K Run for Cancer Research",true,true,true,true,true,4395,
+edge_001,ambiguous_date,"연말 송년회
+12월 28일
+장소: 강남역 근처 식당","연말 송년회","연말 송년회",true,false,false,true,false,2340,
+edge_002,relative_date,"다음 주 금요일 팀 미팅
+오후 3시 ~ 5시
+회의실 A","팀 미팅","다음 주 금요일 팀 미팅",true,false,false,true,false,4438,
+edge_003,no_location,"Project Deadline
+Due: March 31, 2026
+11:59 PM","Project Deadline","Project Deadline",true,true,true,true,true,2929,
+edge_004,korean_time_format,"신년 해돋이
+2026년 1월 1일 새벽 6시 반
+정동진 해변","신년 해돋이","신년 해돋이",true,true,true,true,true,2279,
+edge_005,multi_day_recurring,"요가 클래스 (매주 월/수/금)
+아침 7시 - 8시
+피트니스센터 2층
+3월 한 달간","요가 클래스","요가 클래스",true,false,false,true,false,28615,
+edge_006,24h_format,"야간 천체 관측
+2026.04.15
+22:00 - 02:00 (익일)
+과천 국립과학관","야간 천체 관측","야간 천체 관측",true,true,true,true,true,3771,
+edge_007,mixed_language,"Google I/O Extended Seoul 2026
+일시: May 14-15, 2026
+Time: 10AM - 6PM KST
+장소: Google Campus Seoul","Google I/O Extended Seoul 2026","Google I/O Extended Seoul 2026",true,true,true,true,true,3888,
+edge_008,abbreviation,"SW 개발자 컨퍼런스
+2/20(목) 9a-6p
+COEX 그랜드볼룸","SW 개발자 컨퍼런스","SW 개발자 컨퍼런스",true,true,true,true,true,3705,
+edge_009,no_year,"3/15 토요일 등산 모임
+집합: 북한산 북한산성입구역 1번출구
+오전 9시","등산 모임","등산 모임",true,true,true,true,true,3009,
+edge_010,duration_only,"영화 '듄: 파트 3' 시사회
+2026년 3월 1일 저녁 7시
+메가박스 코엑스 MX관
+러닝타임: 165분","영화 '듄: 파트 3' 시사회","영화 '듄: 파트 3' 시사회",true,true,true,true,true,3275,
+edge_011,flight,"KE123 서울/인천 → 도쿄/나리타
+출발: 2026년 4월 10일 10:30
+도착: 2026년 4월 10일 12:50 (현지시간)
+예약번호: ABC123","KE123 서울/인천 → 도쿄/나리타","KE123 서울/인천 → 도쿄/나리타",true,true,true,false,false,5864,
+edge_012,train,"KTX 123
+서울역 → 부산역
+2026.02.14 (토)
+출발 08:00 / 도착 10:35
+좌석: 5호차 12A","KTX 123 서울역 → 부산역","KTX 123 서울역 → 부산역",true,true,true,true,true,4829,
+edge_013,restaurant,"예약 확인
+레스토랑: 정식당
+날짜: 2026년 2월 14일
+시간: 저녁 7시
+인원: 2명
+예약자: 김OO","정식당 예약","정식당 예약",true,true,true,true,true,4387,
+edge_014,all_day,"회사 창립기념일
+2026년 5월 15일
+전 직원 휴무","회사 창립기념일","회사 창립기념일",true,true,true,true,true,3165,
+edge_015,timezone_explicit,"Global All-Hands Meeting
+February 25, 2026
+9:00 AM PST / 6:00 PM CET / 2:00 AM KST (Feb 26)
+Zoom Webinar","Global All-Hands Meeting","Global All-Hands Meeting",true,true,true,true,true,4389,
+edge_016,minimal_info,"치과 예약 3/20 2pm","치과 예약","치과 예약",true,true,true,true,true,2651,
+edge_017,html_like,"Event Title: Spring Music Festival
+
+Date & Time
+Saturday, April 18, 2026
+2:00 PM - 10:00 PM
+
+Location
+Olympic Park, Seoul
+
+Ticket Info
+General Admission: ₩55,000","Spring Music Festival","Spring Music Festival",true,true,true,true,true,3754,
+edge_018,bullet_list,"• 행사명: 개발자 네트워킹 파티
+• 일시: 2026년 3월 5일 목요일
+• 시간: 19:00 ~ 22:00
+• 장소: 판교 스타트업캠퍼스
+• 참가비: 20,000원","개발자 네트워킹 파티","개발자 네트워킹 파티",true,true,true,true,true,4152,
+edge_019,special_chars,"🎉 생일 파티 🎂
+📅 2026/02/28
+⏰ 18:00~21:00
+📍 홍대 파티룸 ""해피벌스데이""","생일 파티","생일 파티",true,true,true,true,true,3846,
+edge_020,informal,"다음주 수요일쯤 저녁에 밥 한번 먹자
+강남 어디 괜찮은 데로","저녁 식사","밥 먹자",false,true,true,true,false,2973,
+booking_001,flight_domestic,"대한항공 E-Ticket 확인증
+
+[여정 정보]
+탑승객: HONG GILDONG
+항공권 번호: 180-1234567890
+예약번호: 12ABCD
+
+편명: KE1201
+운항사: 대한항공
+출발: 서울/김포 (GMP) 2026년 3월 20일 08:00
+도착: 제주 (CJU) 2026년 3월 20일 09:10
+좌석: 15A
+클래스: 일반석(Y)
+상태: 확약(OK)","KE1201 김포→제주","",false,false,false,false,false,10521,응답 처리에 실패했습니다: 이벤트는 하루종일 또는 시간 특정 중 하나여야 합니다.
+booking_002,flight_international,"e-Ticket Itinerary & Receipt
+
+Passenger Name: PARK CHULSU
+Booking Reference: X7YZ89
+Ticket Number: 988-1234567890
+
+[Flight Details]
+Flight: OZ202
+From: SEOUL/INCHEON (ICN)
+Date: 15APR2026
+Time: 14:40
+
+To: LOS ANGELES (LAX)
+Date: 15APR2026
+Time: 09:50
+
+Class: Economy (Q)
+Status: Confirmed","OZ202 인천→LA","Flight OZ202 from Seoul to Los Angeles",false,true,true,false,false,4427,
+booking_003,ktx,"[승차권]
+이 승차권은 캡쳐화면 등 정당하지 않은 승차권으로 사용할 수 없습니다.
+
+2026년 2월 28일 (토)
+서울 06:00 출발
+부산 08:26 도착
+
+KTX 101열차
+일반실 5호차 12A (순방향)
+
+승객: 어른 1명
+운임: 59,800원
+발권일: 2026.02.04","KTX 101 서울→부산","KTX 승차권",false,true,true,true,false,4493,
+booking_004,srt,"SRT 승차권
+
+2026.03.14(토)
+수서 08:00 출발
+부산 10:28 도착
+SRT 305열차
+
+8호차 5D (일반실)
+
+승차권번호: 82001-0214-101123
+결제금액: 52,600원
+승객연령: 어른","SRT 305 수서→부산","SRT 승차권",false,true,true,true,false,6318,
+booking_005,movie,"CGV 예매완료
+
+[모바일티켓]
+범죄도시 4
+
+2026.02.15(토)
+19:30 ~ 21:45
+CGV 용산아이파크몰 4관(Laser)
+G열 8번, 9번
+
+일반 2명
+예매번호: 0025-0215-1234-567
+입장 가능 시간: 19:20 부터","CGV 범죄도시 4","범죄도시 4",true,true,true,true,true,5394,
+booking_006,movie,"[롯데시네마] 예매완료 안내
+
+예매가 완료되었습니다.
+
+■ 예매정보
+- 영화명 : 미키 17
+- 상영관 : 월드타워(송파) 21관(수퍼플렉스)
+- 일시 : 2026-03-01(일) 14:00 ~ 16:30
+- 인원 : 성인 2명
+- 좌석 : J11, J12
+- 예매번호 : 1234567","롯데시네마 미키 17","미키 17 at Lotte Cinema",false,true,true,true,false,6404,
+booking_007,movie,"[메가박스] 예매 완료 안내
+
+* 영화 : 듄: 파트 3
+* 일시 : 26.03.14(토) 19:00
+* 지점 : 코엑스
+* 상영관 : 돌비 시네마
+* 인원 : 2명
+* 좌석 : L13, L14
+* 예매번호 : 1234-567-890
+
+즐거운 관람 되시기 바랍니다.","메가박스 듄: 파트 3","듄: 파트 3 예매 완료",false,true,true,true,false,4378,
+booking_008,hotel,"예약이 확정되었습니다.
+
+숙소: 시그니엘 서울 (Signiel Seoul)
+주소: 300 Olympic-ro, Songpa-gu, Seoul
+
+체크인: 2026년 4월 10일 (금) 오후 3:00 이후
+체크아웃: 2026년 4월 12일 (일) 오전 11:00 이전
+
+객실 1: 그랜드 디럭스 더블룸
+예약 번호: 1234567890123","시그니엘 서울 숙박","숙소 예약 - 시그니엘 서울",false,true,true,true,false,7794,
+booking_009,performance,"인터파크 모바일티켓
+
+뮤지컬 <오페라의 유령>
+2026.05.23(토) 14:00
+샤롯데씨어터
+
+예매번호 T1234567890
+좌석정보
+1층 B구역 12열 15번
+
+관람등급: 8세 이상 관람가
+러닝타임: 150분(인터미션 20분 포함)","뮤지컬 <오페라의 유령>","뮤지컬 <오페라의 유령>",true,true,true,true,true,6244,
+booking_010,restaurant,"[캐치테이블] 예약 안내
+
+홍길동님, 예약이 확정되었습니다.
+
+매장명 : 스시 코우지
+일시 : 3월 20일 (금) 오후 7:00
+인원 : 2명
+좌석 : 카운터
+
+* 예약금 환불 규정 안내
+방문 2일전 취소: 100% 환불","스시 코우지 예약","스시 코우지 예약",true,true,true,true,true,4481,
+booking_011,bus,"모바일승차권
+
+2026. 2. 20 (금) 14:00 출발
+서울경부 -> 대전복합
+프리미엄 | 회사: 금호고속
+
+11번 좌석
+소요시간: 약 2시간
+
+승차권 QR코드","고속버스 서울경부→대전복합","모바일승차권 서울경부 -> 대전복합",false,true,true,false,false,5147,
+booking_012,hospital,"[세브란스병원] 진료 예약 안내
+홍길동님 예약사항입니다.
+
+- 예약일시: 2026/02/17(화) 14:30
+- 진료과: 소화기내과 (본관 3층)
+- 의료진: 김명의 교수
+
+* 진료 20분 전 원무과 방문 바랍니다.","세브란스병원 소화기내과 진료","진료 예약 - 소화기내과",false,true,true,true,false,5104,
+booking_013,hair,"[네이버 예약] 확정 안내
+
+장소: 준오헤어 강남화이트점
+일정: 2026.02.14(토) 오후 2:00
+시술: [수석] 레이어드펌 + 뿌리볼륨
+디자이너: 차홍 수석디자이너
+
+방문 전 예약 확인 부탁드립니다.","준오헤어 강남화이트점 예약","네이버 예약 준오헤어 강남화이트점 레이어드펌",false,true,true,true,false,5161,
+booking_014,golf,"[골프존카운티] 예약완료 안내
+
+골프장: 골프존카운티 안성H
+일자: 2026-04-12(일)
+코스: 힐/레이크
+시간: 07:12
+내장객: 홍길동 외 3명
+그린피: 240,000원 (인터넷회원가)","골프존카운티 안성H 라운딩","골프존카운티 안성H 힐/레이크 예약",false,true,true,true,false,4396,
+booking_015,rental,"쏘카 차량 예약 내역
+
+차량: 더 뉴 아반떼 CN7
+대여: 2026. 3. 21. (토) 10:00
+반납: 2026. 3. 21. (토) 18:00
+
+대여위치: 강남역 10번출구 인근 쏘카존
+반납위치: 대여위치와 동일
+예약번호: 12345678","쏘카 대여 (더 뉴 아반떼 CN7)","쏘카 차량 예약",false,true,true,true,false,4716,
+global_001,crypto_conference,"[Consensus Hong Kong 2026](https://lu.ma/CHK2026?k=c)
+February 18-20, 2026
+Hong Kong Convention and Exhibition Centre
+257 Events
+659 Subscribers
+Hong Kong","Consensus Hong Kong 2026","Consensus Hong Kong 2026",true,true,true,true,true,3722,
+global_002,hackathon,"[ETHDenver 2026 Official Side Event Calendar](https://lu.ma/ethdenver?k=c)
+149 Events
+2K Subscribers
+Denver, United States
+February 23 - March 2, 2026","ETHDenver 2026","ETHDenver 2026 Official Side Event Calendar",true,true,true,true,true,4469,
+global_003,crypto_conference,"[TOKEN2049 Dubai](https://lu.ma/token2049-dubai?k=c)
+Launching Soon
+Dubai, United Arab Emirates
+(Expected: April 2026)","TOKEN2049 Dubai","TOKEN2049 Dubai",true,true,false,true,false,2487,
+global_004,conference,"KOREA BLOCKCHAIN WEEK 2026
+September 22-28, 2026
+
+KBW2026: IMPACT provides unparalleled visibility for brands and organizations, providing an opportunity to gain attention and interact with our diverse audiences.","KOREA BLOCKCHAIN WEEK 2026","KOREA BLOCKCHAIN WEEK 2026",true,true,true,false,false,4991,
+global_005,developer_event,"try! Swift Tokyo 2026
+March 21-22, 2026
+Bellesalle Shibuya First
+Tokyo, Japan
+https://tryswift.co/events/2026/tokyo/","try! Swift Tokyo 2026","try! Swift Tokyo 2026",true,true,true,true,true,4610,
+global_006,hackathon,"Vibe Coding with Memory Hackathon
+Feb 15-16, 2026
+Google Japan Office, Shibuya Stream
+Tokyo
+Organized by Google Developer Group Tokyo","Vibe Coding with Memory Hackathon","Vibe Coding with Memory Hackathon",true,true,true,true,true,4129,
+global_007,ai_meetup,"Llama Lounge: The AI Startup Series
+San Francisco · Founded April 2023. AI startups are featured on the demo floor, lightning talks, pitches, and networking. Hosted at top bay area organizations. Led by Jeremiah Owyang.
+Next event: Thursday, Feb 27, 2026","Llama Lounge: The AI Startup Series","Llama Lounge: The AI Startup Series",true,true,true,true,true,3886,
+global_008,crypto_meetup,"Midnight Tokyo Meetup, sponsored by Input Output Group
+Wednesday, Feb 12
+19:30 - 22:30
+Roppongi, Tokyo
+Join us for drinks and networking!","Midnight Tokyo Meetup","Midnight Tokyo Meetup, sponsored by Input Output Group",true,true,true,true,true,4114,
+global_009,workshop,"Build with TRAE @ Tokyo // AIネイティブ開発のワークショップ
+2026/02/08 (Sun) 14:00 - 18:00 JST
+Microsoft Japan Co., Ltd.
+Shinagawa Grand Central Tower
+Tokyo","Build with TRAE @ Tokyo // AIネイティブ開発のワークショップ","Build with TRAE @ Tokyo // AIネイティブ開発のワークショップ",true,true,true,false,false,4359,
+global_010,art,"Shibuya AI Film Gallery - DIG SHIBUYA 2026
+Feb 7 - Feb 14, 2026
+Shibuya Parco
+Experience the future of cinema created with AI.","Shibuya AI Film Gallery - DIG SHIBUYA 2026","Shibuya AI Film Gallery - DIG SHIBUYA 2026",true,true,true,true,true,4341,
+global_011,event_list,"Free Online events today
+
+- [Business](https://www.eventbrite.com/d/online/business--events/)
+- [Science & Tech](https://www.eventbrite.com/d/online/science-and-tech--events/)
+
+Search for something you love or check out popular events in your area.
+[Webinar: Introduction to AI] Fri, Feb 13, 2026 2:00 PM EST","Webinar: Introduction to AI","Webinar: Introduction to AI",true,true,true,false,false,3201,
+global_012,crypto_conference,"[Bitcoin 2026](https://lu.ma/bitcoin-2026?k=c)
+Launching Soon
+Las Vegas, United States
+July 2026","Bitcoin 2026","Bitcoin 2026",true,true,false,true,false,2502,
+global_013,developer_event,"[Devcon](https://lu.ma/devcon?k=c)
+Launching Soon
+Mumbai, India
+Nov 10-14, 2026","Devcon","Devcon",true,true,true,true,true,3289,
+global_014,networking,"【第3回】VC×起業家　出逢いが生まれる大交流会 〜VCリバースピッチ開催〜　STEP in Startups
+2026/02/20 (Fri) 18:30 - 21:00
+AWS Loft Tokyo
+Meguro, Tokyo","VC×起業家 出逢いが生まれる大交流会 STEP in Startups","【第3回】VC×起業家 出逢いが生まれる大交流会 〜VCリバースピッチ開催〜 STEP in Startups",false,true,true,true,false,4621,
+global_015,culture,"【茶室で整う、はじめての茶道体験🍵＋ジャーナリング】 Mindful Tea Ceremony Experience 🍵＋Journaling (ENG / JPN)
+2026/02/22 (Sun) 10:00 - 12:00
+Asakusa, Tokyo","Mindful Tea Ceremony Experience + Journaling","",false,false,false,false,false,6830,응답 처리에 실패했습니다: 이벤트는 하루종일 또는 시간 특정 중 하나여야 합니다.
+global_016,gaming,"AI x Games: Revolutionizing Game Development and Game Experience
+Feb 18, 2026
+19:00 - 21:00
+Unity Technologies Japan","AI x Games: Revolutionizing Game Development","AI x Games: Revolutionizing Game Development and Game Experience",true,true,true,true,true,3775,
+global_017,music,"Too Hot to Be Cool: Open Mic Special | Rock for Climate
+Mar 6, 2026
+19:30 - 23:00
+Ruby Room Shibuya
+Tokyo","Too Hot to Be Cool: Open Mic Special","Too Hot to Be Cool: Open Mic Special | Rock for Climate",true,true,true,true,true,3995,
+global_018,crypto_event,"[European Blockchain Convention](https://lu.ma/european-blockchain-convention?k=c)
+Launching Soon
+Barcelona, Spain
+September 2026","European Blockchain Convention","European Blockchain Convention",true,true,false,true,false,2574,
+global_019,startup,"[Subscribe] The AI Collective
+The world’s largest AI community: 150,000+ pioneers.
+Next Meetup: London, March 12, 2026","The AI Collective Meetup","Subscribe - The AI Collective",false,true,true,true,false,2301,
+global_020,community,"[Subscribe] Air Street events
+AI events around the world organized by Air Street Capital.
+State of AI Report Launch Party
+Oct 14, 2026
+London, UK","State of AI Report Launch Party","State of AI Report Launch Party",true,true,true,true,true,2424,
+misc_001,developer_event,"GDG Seoul I/O Extended 2026
+May 14-15, 2026
+Google for Startups Campus Seoul
+10:00 AM - 6:00 PM KST
+Watch Google I/O together with local developers","GDG Seoul I/O Extended 2026","GDG Seoul I/O Extended 2026",true,true,true,true,true,6861,
+misc_002,developer_event,"DevFest Seoul 2026
+November 21, 2026 (Saturday)
+09:30 - 18:00
+NURi Dream Square, Sangam
+#DevFest #GDG","DevFest Seoul 2026","DevFest Seoul 2026",true,true,true,true,true,5146,
+misc_003,seminar,"서울대학교 AI 연구원 세미나
+발표자: Prof. Yoshua Bengio
+제목: The Future of Deep Learning
+일시: 2026년 3월 25일 (수) 오후 4시
+장소: 서울대 302동 105호","서울대 AI 연구원 세미나 - The Future of Deep Learning","서울대학교 AI 연구원 세미나",false,true,true,true,false,4980,
+misc_004,exhibition,"국립중앙박물관 특별전시
+<이집트 보물: 파라오와 미라>
+전시기간: 2026. 4. 1. ~ 8. 31.
+관람시간: 10:00 ~ 18:00 (수, 토 21:00까지)
+장소: 국립중앙박물관 특별전시실","이집트 보물: 파라오와 미라 특별전시","국립중앙박물관 특별전시 <이집트 보물: 파라오와 미라>",false,true,true,true,false,6748,
+misc_005,sports,"2026 Asian Games Nagoya-Aichi
+아시안게임 축구 한국 vs 일본
+2026년 9월 28일 (월) 19:30 KST
+Nagoya Paloma Mizuho Stadium
+준결승전","아시안게임 축구 한국 vs 일본 준결승","2026 Asian Games Nagoya-Aichi",false,true,true,true,false,5739,
+misc_006,workshop,"Figma Korea Workshop
+디자인 시스템 구축하기
+2026년 2월 28일 토요일
+10:00 AM - 5:00 PM
+WeWork 삼성역점 Large Conference Room
+참가비: ₩50,000","Figma Korea Workshop - 디자인 시스템 구축하기","Figma Korea Workshop 디자인 시스템 구축하기",false,true,true,true,false,4441,
+misc_007,networking,"Startup Grind Seoul: Fireside Chat with Sam Altman
+Date: Thursday, April 9, 2026
+Time: 7:00 PM - 9:30 PM
+Venue: D.Camp Front1
+역삼동 강남파이낸스센터 1층","Startup Grind Seoul: Fireside Chat with Sam Altman","Startup Grind Seoul: Fireside Chat with Sam Altman",true,true,true,false,false,4533,
+misc_008,art,"teamLab Borderless Seoul
+예약 확인
+방문일: 2026년 3월 7일 토요일
+입장시간: 14:00 (14:30까지 입장 필요)
+장소: 잠실 롯데월드타워 6층","teamLab Borderless Seoul 방문","teamLab Borderless Seoul",true,true,true,true,true,5524,
+misc_009,webinar,"AWS re:Invent 2026 re:Cap Korea
+온라인 웨비나
+2026년 12월 15일 화요일
+10:00 - 17:00 KST
+Zoom Webinar
+사전등록 필수","AWS re:Invent 2026 re:Cap Korea","AWS re:Invent 2026 re:Cap Korea",true,true,true,true,true,4165,
+misc_010,community,"파이썬 한국 사용자 모임 (PyCon Korea Meetup)
+주제: FastAPI로 AI 서비스 배포하기
+일시: 매월 마지막 목요일 저녁 7시
+다음 모임: 2026년 2월 26일
+장소: 토스 본사 7층 이벤트홀","PyCon Korea Meetup - FastAPI로 AI 서비스 배포하기","파이썬 한국 사용자 모임 (PyCon Korea Meetup)",false,true,true,true,false,5082,

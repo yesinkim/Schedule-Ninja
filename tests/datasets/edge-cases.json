@@ -1,0 +1,246 @@
+{
+    "description": "Edge case test data - unusual formats, ambiguous dates, missing info",
+    "version": "1.0.0",
+    "testCases": [
+        {
+            "id": "edge_001",
+            "category": "ambiguous_date",
+            "description": "날짜만 있고 시간 없음",
+            "input": "연말 송년회\n12월 28일\n장소: 강남역 근처 식당",
+            "expected": {
+                "summary": "연말 송년회",
+                "start": "2026-12-28",
+                "end": "2026-12-28",
+                "location": "강남역 근처 식당"
+            }
+        },
+        {
+            "id": "edge_002",
+            "category": "relative_date",
+            "description": "상대적 날짜 표현",
+            "input": "다음 주 금요일 팀 미팅\n오후 3시 ~ 5시\n회의실 A",
+            "expected": {
+                "summary": "팀 미팅",
+                "start": "2026-02-13T15:00:00",
+                "end": "2026-02-13T17:00:00",
+                "location": "회의실 A"
+            }
+        },
+        {
+            "id": "edge_003",
+            "category": "no_location",
+            "description": "장소 정보 없음",
+            "input": "Project Deadline\nDue: March 31, 2026\n11:59 PM",
+            "expected": {
+                "summary": "Project Deadline",
+                "start": "2026-03-31T23:59:00",
+                "end": "2026-03-31T23:59:00",
+                "location": null
+            }
+        },
+        {
+            "id": "edge_004",
+            "category": "korean_time_format",
+            "description": "한글 시간 표현",
+            "input": "신년 해돋이\n2026년 1월 1일 새벽 6시 반\n정동진 해변",
+            "expected": {
+                "summary": "신년 해돋이",
+                "start": "2026-01-01T06:30:00",
+                "end": "2026-01-01T08:00:00",
+                "location": "정동진 해변"
+            }
+        },
+        {
+            "id": "edge_005",
+            "category": "multi_day_recurring",
+            "description": "매주 반복 이벤트",
+            "input": "요가 클래스 (매주 월/수/금)\n아침 7시 - 8시\n피트니스센터 2층\n3월 한 달간",
+            "expected": {
+                "summary": "요가 클래스",
+                "start": "2026-03-02T07:00:00",
+                "end": "2026-03-30T08:00:00",
+                "location": "피트니스센터 2층"
+            }
+        },
+        {
+            "id": "edge_006",
+            "category": "24h_format",
+            "description": "24시간 형식 시간",
+            "input": "야간 천체 관측\n2026.04.15\n22:00 - 02:00 (익일)\n과천 국립과학관",
+            "expected": {
+                "summary": "야간 천체 관측",
+                "start": "2026-04-15T22:00:00",
+                "end": "2026-04-16T02:00:00",
+                "location": "과천 국립과학관"
+            }
+        },
+        {
+            "id": "edge_007",
+            "category": "mixed_language",
+            "description": "한영 혼용",
+            "input": "Google I/O Extended Seoul 2026\n일시: May 14-15, 2026\nTime: 10AM - 6PM KST\n장소: Google Campus Seoul",
+            "expected": {
+                "summary": "Google I/O Extended Seoul 2026",
+                "start": "2026-05-14T10:00:00+09:00",
+                "end": "2026-05-15T18:00:00+09:00",
+                "location": "Google Campus Seoul"
+            }
+        },
+        {
+            "id": "edge_008",
+            "category": "abbreviation",
+            "description": "약어 사용",
+            "input": "SW 개발자 컨퍼런스\n2/20(목) 9a-6p\nCOEX 그랜드볼룸",
+            "expected": {
+                "summary": "SW 개발자 컨퍼런스",
+                "start": "2026-02-20T09:00:00",
+                "end": "2026-02-20T18:00:00",
+                "location": "COEX 그랜드볼룸"
+            }
+        },
+        {
+            "id": "edge_009",
+            "category": "no_year",
+            "description": "연도 없는 날짜",
+            "input": "3/15 토요일 등산 모임\n집합: 북한산 북한산성입구역 1번출구\n오전 9시",
+            "expected": {
+                "summary": "등산 모임",
+                "start": "2026-03-15T09:00:00",
+                "end": "2026-03-15T15:00:00",
+                "location": "북한산 북한산성입구역 1번출구"
+            }
+        },
+        {
+            "id": "edge_010",
+            "category": "duration_only",
+            "description": "러닝타임만 있음",
+            "input": "영화 '듄: 파트 3' 시사회\n2026년 3월 1일 저녁 7시\n메가박스 코엑스 MX관\n러닝타임: 165분",
+            "expected": {
+                "summary": "영화 '듄: 파트 3' 시사회",
+                "start": "2026-03-01T19:00:00",
+                "end": "2026-03-01T21:45:00",
+                "location": "메가박스 코엑스 MX관"
+            }
+        },
+        {
+            "id": "edge_011",
+            "category": "flight",
+            "description": "항공편 정보",
+            "input": "KE123 서울/인천 → 도쿄/나리타\n출발: 2026년 4월 10일 10:30\n도착: 2026년 4월 10일 12:50 (현지시간)\n예약번호: ABC123",
+            "expected": {
+                "summary": "KE123 서울/인천 → 도쿄/나리타",
+                "start": "2026-04-10T10:30:00+09:00",
+                "end": "2026-04-10T12:50:00+09:00",
+                "location": "인천국제공항"
+            }
+        },
+        {
+            "id": "edge_012",
+            "category": "train",
+            "description": "KTX 예매 정보",
+            "input": "KTX 123\n서울역 → 부산역\n2026.02.14 (토)\n출발 08:00 / 도착 10:35\n좌석: 5호차 12A",
+            "expected": {
+                "summary": "KTX 123 서울역 → 부산역",
+                "start": "2026-02-14T08:00:00",
+                "end": "2026-02-14T10:35:00",
+                "location": "서울역"
+            }
+        },
+        {
+            "id": "edge_013",
+            "category": "restaurant",
+            "description": "식당 예약",
+            "input": "예약 확인\n레스토랑: 정식당\n날짜: 2026년 2월 14일\n시간: 저녁 7시\n인원: 2명\n예약자: 김OO",
+            "expected": {
+                "summary": "정식당 예약",
+                "start": "2026-02-14T19:00:00",
+                "end": "2026-02-14T21:00:00",
+                "location": "정식당"
+            }
+        },
+        {
+            "id": "edge_014",
+            "category": "all_day",
+            "description": "종일 이벤트",
+            "input": "회사 창립기념일\n2026년 5월 15일\n전 직원 휴무",
+            "expected": {
+                "summary": "회사 창립기념일",
+                "start": "2026-05-15",
+                "end": "2026-05-15",
+                "location": null
+            }
+        },
+        {
+            "id": "edge_015",
+            "category": "timezone_explicit",
+            "description": "명시적 시간대",
+            "input": "Global All-Hands Meeting\nFebruary 25, 2026\n9:00 AM PST / 6:00 PM CET / 2:00 AM KST (Feb 26)\nZoom Webinar",
+            "expected": {
+                "summary": "Global All-Hands Meeting",
+                "start": "2026-02-25T09:00:00-08:00",
+                "end": "2026-02-25T10:30:00-08:00",
+                "location": "Zoom Webinar"
+            }
+        },
+        {
+            "id": "edge_016",
+            "category": "minimal_info",
+            "description": "최소한의 정보",
+            "input": "치과 예약 3/20 2pm",
+            "expected": {
+                "summary": "치과 예약",
+                "start": "2026-03-20T14:00:00",
+                "end": "2026-03-20T15:00:00",
+                "location": null
+            }
+        },
+        {
+            "id": "edge_017",
+            "category": "html_like",
+            "description": "HTML에서 추출된 듯한 텍스트",
+            "input": "Event Title: Spring Music Festival\n\nDate & Time\nSaturday, April 18, 2026\n2:00 PM - 10:00 PM\n\nLocation\nOlympic Park, Seoul\n\nTicket Info\nGeneral Admission: ₩55,000",
+            "expected": {
+                "summary": "Spring Music Festival",
+                "start": "2026-04-18T14:00:00",
+                "end": "2026-04-18T22:00:00",
+                "location": "Olympic Park, Seoul"
+            }
+        },
+        {
+            "id": "edge_018",
+            "category": "bullet_list",
+            "description": "불릿 리스트 형태",
+            "input": "• 행사명: 개발자 네트워킹 파티\n• 일시: 2026년 3월 5일 목요일\n• 시간: 19:00 ~ 22:00\n• 장소: 판교 스타트업캠퍼스\n• 참가비: 20,000원",
+            "expected": {
+                "summary": "개발자 네트워킹 파티",
+                "start": "2026-03-05T19:00:00",
+                "end": "2026-03-05T22:00:00",
+                "location": "판교 스타트업캠퍼스"
+            }
+        },
+        {
+            "id": "edge_019",
+            "category": "special_chars",
+            "description": "특수문자 포함",
+            "input": "🎉 생일 파티 🎂\n📅 2026/02/28\n⏰ 18:00~21:00\n📍 홍대 파티룸 \"해피벌스데이\"",
+            "expected": {
+                "summary": "생일 파티",
+                "start": "2026-02-28T18:00:00",
+                "end": "2026-02-28T21:00:00",
+                "location": "홍대 파티룸 \"해피벌스데이\""
+            }
+        },
+        {
+            "id": "edge_020",
+            "category": "informal",
+            "description": "비격식적 표현",
+            "input": "다음주 수요일쯤 저녁에 밥 한번 먹자\n강남 어디 괜찮은 데로",
+            "expected": {
+                "summary": "저녁 식사",
+                "start": "2026-02-11T19:00:00",
+                "end": "2026-02-11T21:00:00",
+                "location": "강남"
+            }
+        }
+    ]
+}

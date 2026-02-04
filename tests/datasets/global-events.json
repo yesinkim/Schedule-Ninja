@@ -1,0 +1,246 @@
+{
+    "description": "Global crypto/tech/AI event test data - Raw text from Lu.ma, KBW, Eventbrite",
+    "version": "1.0.1",
+    "testCases": [
+        {
+            "id": "global_001",
+            "category": "crypto_conference",
+            "source": "Lu.ma Crypto Crawled Text",
+            "input": "[Consensus Hong Kong 2026](https://lu.ma/CHK2026?k=c)\nFebruary 18-20, 2026\nHong Kong Convention and Exhibition Centre\n257 Events\n659 Subscribers\nHong Kong",
+            "expected": {
+                "summary": "Consensus Hong Kong 2026",
+                "start": "2026-02-18",
+                "end": "2026-02-20",
+                "location": "Hong Kong Convention and Exhibition Centre"
+            }
+        },
+        {
+            "id": "global_002",
+            "category": "hackathon",
+            "source": "Lu.ma Crypto Crawled Text",
+            "input": "[ETHDenver 2026 Official Side Event Calendar](https://lu.ma/ethdenver?k=c)\n149 Events\n2K Subscribers\nDenver, United States\nFebruary 23 - March 2, 2026",
+            "expected": {
+                "summary": "ETHDenver 2026",
+                "start": "2026-02-23",
+                "end": "2026-03-02",
+                "location": "Denver, United States"
+            }
+        },
+        {
+            "id": "global_003",
+            "category": "crypto_conference",
+            "source": "Lu.ma Crypto Crawled Text",
+            "input": "[TOKEN2049 Dubai](https://lu.ma/token2049-dubai?k=c)\nLaunching Soon\nDubai, United Arab Emirates\n(Expected: April 2026)",
+            "expected": {
+                "summary": "TOKEN2049 Dubai",
+                "start": "2026-04-01",
+                "end": "2026-04-30",
+                "location": "Dubai, United Arab Emirates"
+            }
+        },
+        {
+            "id": "global_004",
+            "category": "conference",
+            "source": "KBW Crawled Text",
+            "input": "KOREA BLOCKCHAIN WEEK 2026\nSeptember 22-28, 2026\n\nKBW2026: IMPACT provides unparalleled visibility for brands and organizations, providing an opportunity to gain attention and interact with our diverse audiences.",
+            "expected": {
+                "summary": "KOREA BLOCKCHAIN WEEK 2026",
+                "start": "2026-09-22",
+                "end": "2026-09-28",
+                "location": "Seoul, Korea"
+            }
+        },
+        {
+            "id": "global_005",
+            "category": "developer_event",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "try! Swift Tokyo 2026\nMarch 21-22, 2026\nBellesalle Shibuya First\nTokyo, Japan\nhttps://tryswift.co/events/2026/tokyo/",
+            "expected": {
+                "summary": "try! Swift Tokyo 2026",
+                "start": "2026-03-21",
+                "end": "2026-03-22",
+                "location": "Bellesalle Shibuya First, Tokyo, Japan"
+            }
+        },
+        {
+            "id": "global_006",
+            "category": "hackathon",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "Vibe Coding with Memory Hackathon\nFeb 15-16, 2026\nGoogle Japan Office, Shibuya Stream\nTokyo\nOrganized by Google Developer Group Tokyo",
+            "expected": {
+                "summary": "Vibe Coding with Memory Hackathon",
+                "start": "2026-02-15",
+                "end": "2026-02-16",
+                "location": "Google Japan Office, Shibuya Stream, Tokyo"
+            }
+        },
+        {
+            "id": "global_007",
+            "category": "ai_meetup",
+            "source": "Lu.ma AI Crawled Text",
+            "input": "Llama Lounge: The AI Startup Series\nSan Francisco · Founded April 2023. AI startups are featured on the demo floor, lightning talks, pitches, and networking. Hosted at top bay area organizations. Led by Jeremiah Owyang.\nNext event: Thursday, Feb 27, 2026",
+            "expected": {
+                "summary": "Llama Lounge: The AI Startup Series",
+                "start": "2026-02-27",
+                "end": "2026-02-27",
+                "location": "San Francisco"
+            }
+        },
+        {
+            "id": "global_008",
+            "category": "crypto_meetup",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "Midnight Tokyo Meetup, sponsored by Input Output Group\nWednesday, Feb 12\n19:30 - 22:30\nRoppongi, Tokyo\nJoin us for drinks and networking!",
+            "expected": {
+                "summary": "Midnight Tokyo Meetup",
+                "start": "2026-02-12T19:30:00+09:00",
+                "end": "2026-02-12T22:30:00+09:00",
+                "location": "Roppongi, Tokyo"
+            }
+        },
+        {
+            "id": "global_009",
+            "category": "workshop",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "Build with TRAE @ Tokyo // AIネイティブ開発のワークショップ\n2026/02/08 (Sun) 14:00 - 18:00 JST\nMicrosoft Japan Co., Ltd.\nShinagawa Grand Central Tower\nTokyo",
+            "expected": {
+                "summary": "Build with TRAE @ Tokyo // AIネイティブ開発のワークショップ",
+                "start": "2026-02-08T14:00:00+09:00",
+                "end": "2026-02-08T18:00:00+09:00",
+                "location": "Microsoft Japan Co., Ltd. Shinagawa"
+            }
+        },
+        {
+            "id": "global_010",
+            "category": "art",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "Shibuya AI Film Gallery - DIG SHIBUYA 2026\nFeb 7 - Feb 14, 2026\nShibuya Parco\nExperience the future of cinema created with AI.",
+            "expected": {
+                "summary": "Shibuya AI Film Gallery - DIG SHIBUYA 2026",
+                "start": "2026-02-07",
+                "end": "2026-02-14",
+                "location": "Shibuya Parco"
+            }
+        },
+        {
+            "id": "global_011",
+            "category": "event_list",
+            "source": "Eventbrite Crawled Text",
+            "input": "Free Online events today\n\n- [Business](https://www.eventbrite.com/d/online/business--events/)\n- [Science & Tech](https://www.eventbrite.com/d/online/science-and-tech--events/)\n\nSearch for something you love or check out popular events in your area.\n[Webinar: Introduction to AI] Fri, Feb 13, 2026 2:00 PM EST",
+            "expected": {
+                "summary": "Webinar: Introduction to AI",
+                "start": "2026-02-13T14:00:00-05:00",
+                "end": "2026-02-13T15:00:00-05:00",
+                "location": "Online"
+            }
+        },
+        {
+            "id": "global_012",
+            "category": "crypto_conference",
+            "source": "Lu.ma Crypto Crawled Text",
+            "input": "[Bitcoin 2026](https://lu.ma/bitcoin-2026?k=c)\nLaunching Soon\nLas Vegas, United States\nJuly 2026",
+            "expected": {
+                "summary": "Bitcoin 2026",
+                "start": "2026-07-01",
+                "end": "2026-07-31",
+                "location": "Las Vegas, United States"
+            }
+        },
+        {
+            "id": "global_013",
+            "category": "developer_event",
+            "source": "Lu.ma Crawled Text",
+            "input": "[Devcon](https://lu.ma/devcon?k=c)\nLaunching Soon\nMumbai, India\nNov 10-14, 2026",
+            "expected": {
+                "summary": "Devcon",
+                "start": "2026-11-10",
+                "end": "2026-11-14",
+                "location": "Mumbai, India"
+            }
+        },
+        {
+            "id": "global_014",
+            "category": "networking",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "【第3回】VC×起業家　出逢いが生まれる大交流会 〜VCリバースピッチ開催〜　STEP in Startups\n2026/02/20 (Fri) 18:30 - 21:00\nAWS Loft Tokyo\nMeguro, Tokyo",
+            "expected": {
+                "summary": "VC×起業家 出逢いが生まれる大交流会 STEP in Startups",
+                "start": "2026-02-20T18:30:00+09:00",
+                "end": "2026-02-20T21:00:00+09:00",
+                "location": "AWS Loft Tokyo"
+            }
+        },
+        {
+            "id": "global_015",
+            "category": "culture",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "【茶室で整う、はじめての茶道体験🍵＋ジャーナリング】 Mindful Tea Ceremony Experience 🍵＋Journaling (ENG / JPN)\n2026/02/22 (Sun) 10:00 - 12:00\nAsakusa, Tokyo",
+            "expected": {
+                "summary": "Mindful Tea Ceremony Experience + Journaling",
+                "start": "2026-02-22T10:00:00+09:00",
+                "end": "2026-02-22T12:00:00+09:00",
+                "location": "Asakusa, Tokyo"
+            }
+        },
+        {
+            "id": "global_016",
+            "category": "gaming",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "AI x Games: Revolutionizing Game Development and Game Experience\nFeb 18, 2026\n19:00 - 21:00\nUnity Technologies Japan",
+            "expected": {
+                "summary": "AI x Games: Revolutionizing Game Development",
+                "start": "2026-02-18T19:00:00+09:00",
+                "end": "2026-02-18T21:00:00+09:00",
+                "location": "Unity Technologies Japan"
+            }
+        },
+        {
+            "id": "global_017",
+            "category": "music",
+            "source": "Lu.ma Tokyo Crawled Text",
+            "input": "Too Hot to Be Cool: Open Mic Special | Rock for Climate\nMar 6, 2026\n19:30 - 23:00\nRuby Room Shibuya\nTokyo",
+            "expected": {
+                "summary": "Too Hot to Be Cool: Open Mic Special",
+                "start": "2026-03-06T19:30:00+09:00",
+                "end": "2026-03-06T23:00:00+09:00",
+                "location": "Ruby Room Shibuya, Tokyo"
+            }
+        },
+        {
+            "id": "global_018",
+            "category": "crypto_event",
+            "source": "Lu.ma Crypto Crawled Text",
+            "input": "[European Blockchain Convention](https://lu.ma/european-blockchain-convention?k=c)\nLaunching Soon\nBarcelona, Spain\nSeptember 2026",
+            "expected": {
+                "summary": "European Blockchain Convention",
+                "start": "2026-09-01",
+                "end": "2026-09-30",
+                "location": "Barcelona, Spain"
+            }
+        },
+        {
+            "id": "global_019",
+            "category": "startup",
+            "source": "Lu.ma AI Crawled Text",
+            "input": "[Subscribe] The AI Collective\nThe world’s largest AI community: 150,000+ pioneers.\nNext Meetup: London, March 12, 2026",
+            "expected": {
+                "summary": "The AI Collective Meetup",
+                "start": "2026-03-12",
+                "end": "2026-03-12",
+                "location": "London"
+            }
+        },
+        {
+            "id": "global_020",
+            "category": "community",
+            "source": "Lu.ma AI Crawled Text",
+            "input": "[Subscribe] Air Street events\nAI events around the world organized by Air Street Capital.\nState of AI Report Launch Party\nOct 14, 2026\nLondon, UK",
+            "expected": {
+                "summary": "State of AI Report Launch Party",
+                "start": "2026-10-14",
+                "end": "2026-10-14",
+                "location": "London, UK"
+            }
+        }
+    ]
+}

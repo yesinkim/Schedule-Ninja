@@ -1,0 +1,126 @@
+{
+    "description": "Additional test cases from various sources to reach 100 total",
+    "version": "1.0.0",
+    "testCases": [
+        {
+            "id": "misc_001",
+            "category": "developer_event",
+            "source": "GDG pattern",
+            "input": "GDG Seoul I/O Extended 2026\nMay 14-15, 2026\nGoogle for Startups Campus Seoul\n10:00 AM - 6:00 PM KST\nWatch Google I/O together with local developers",
+            "expected": {
+                "summary": "GDG Seoul I/O Extended 2026",
+                "start": "2026-05-14T10:00:00+09:00",
+                "end": "2026-05-15T18:00:00+09:00",
+                "location": "Google for Startups Campus Seoul"
+            }
+        },
+        {
+            "id": "misc_002",
+            "category": "developer_event",
+            "source": "GDG pattern",
+            "input": "DevFest Seoul 2026\nNovember 21, 2026 (Saturday)\n09:30 - 18:00\nNURi Dream Square, Sangam\n#DevFest #GDG",
+            "expected": {
+                "summary": "DevFest Seoul 2026",
+                "start": "2026-11-21T09:30:00+09:00",
+                "end": "2026-11-21T18:00:00+09:00",
+                "location": "NURi Dream Square, Sangam"
+            }
+        },
+        {
+            "id": "misc_003",
+            "category": "seminar",
+            "source": "University pattern",
+            "input": "서울대학교 AI 연구원 세미나\n발표자: Prof. Yoshua Bengio\n제목: The Future of Deep Learning\n일시: 2026년 3월 25일 (수) 오후 4시\n장소: 서울대 302동 105호",
+            "expected": {
+                "summary": "서울대 AI 연구원 세미나 - The Future of Deep Learning",
+                "start": "2026-03-25T16:00:00+09:00",
+                "end": "2026-03-25T18:00:00+09:00",
+                "location": "서울대 302동 105호"
+            }
+        },
+        {
+            "id": "misc_004",
+            "category": "exhibition",
+            "source": "Museum pattern",
+            "input": "국립중앙박물관 특별전시\n<이집트 보물: 파라오와 미라>\n전시기간: 2026. 4. 1. ~ 8. 31.\n관람시간: 10:00 ~ 18:00 (수, 토 21:00까지)\n장소: 국립중앙박물관 특별전시실",
+            "expected": {
+                "summary": "이집트 보물: 파라오와 미라 특별전시",
+                "start": "2026-04-01T10:00:00",
+                "end": "2026-08-31T18:00:00",
+                "location": "국립중앙박물관 특별전시실"
+            }
+        },
+        {
+            "id": "misc_005",
+            "category": "sports",
+            "source": "Sports event pattern",
+            "input": "2026 Asian Games Nagoya-Aichi\n아시안게임 축구 한국 vs 일본\n2026년 9월 28일 (월) 19:30 KST\nNagoya Paloma Mizuho Stadium\n준결승전",
+            "expected": {
+                "summary": "아시안게임 축구 한국 vs 일본 준결승",
+                "start": "2026-09-28T19:30:00+09:00",
+                "end": "2026-09-28T22:00:00+09:00",
+                "location": "Nagoya Paloma Mizuho Stadium"
+            }
+        },
+        {
+            "id": "misc_006",
+            "category": "workshop",
+            "source": "Education platform",
+            "input": "Figma Korea Workshop\n디자인 시스템 구축하기\n2026년 2월 28일 토요일\n10:00 AM - 5:00 PM\nWeWork 삼성역점 Large Conference Room\n참가비: ₩50,000",
+            "expected": {
+                "summary": "Figma Korea Workshop - 디자인 시스템 구축하기",
+                "start": "2026-02-28T10:00:00+09:00",
+                "end": "2026-02-28T17:00:00+09:00",
+                "location": "WeWork 삼성역점"
+            }
+        },
+        {
+            "id": "misc_007",
+            "category": "networking",
+            "source": "Startup pattern",
+            "input": "Startup Grind Seoul: Fireside Chat with Sam Altman\nDate: Thursday, April 9, 2026\nTime: 7:00 PM - 9:30 PM\nVenue: D.Camp Front1\n역삼동 강남파이낸스센터 1층",
+            "expected": {
+                "summary": "Startup Grind Seoul: Fireside Chat with Sam Altman",
+                "start": "2026-04-09T19:00:00+09:00",
+                "end": "2026-04-09T21:30:00+09:00",
+                "location": "D.Camp Front1, 역삼동"
+            }
+        },
+        {
+            "id": "misc_008",
+            "category": "art",
+            "source": "Gallery pattern",
+            "input": "teamLab Borderless Seoul\n예약 확인\n방문일: 2026년 3월 7일 토요일\n입장시간: 14:00 (14:30까지 입장 필요)\n장소: 잠실 롯데월드타워 6층",
+            "expected": {
+                "summary": "teamLab Borderless Seoul 방문",
+                "start": "2026-03-07T14:00:00",
+                "end": "2026-03-07T17:00:00",
+                "location": "잠실 롯데월드타워 6층"
+            }
+        },
+        {
+            "id": "misc_009",
+            "category": "webinar",
+            "source": "Online event pattern",
+            "input": "AWS re:Invent 2026 re:Cap Korea\n온라인 웨비나\n2026년 12월 15일 화요일\n10:00 - 17:00 KST\nZoom Webinar\n사전등록 필수",
+            "expected": {
+                "summary": "AWS re:Invent 2026 re:Cap Korea",
+                "start": "2026-12-15T10:00:00+09:00",
+                "end": "2026-12-15T17:00:00+09:00",
+                "location": "Zoom Webinar (Online)"
+            }
+        },
+        {
+            "id": "misc_010",
+            "category": "community",
+            "source": "Community meetup",
+            "input": "파이썬 한국 사용자 모임 (PyCon Korea Meetup)\n주제: FastAPI로 AI 서비스 배포하기\n일시: 매월 마지막 목요일 저녁 7시\n다음 모임: 2026년 2월 26일\n장소: 토스 본사 7층 이벤트홀",
+            "expected": {
+                "summary": "PyCon Korea Meetup - FastAPI로 AI 서비스 배포하기",
+                "start": "2026-02-26T19:00:00+09:00",
+                "end": "2026-02-26T21:00:00+09:00",
+                "location": "토스 본사 7층 이벤트홀"
+            }
+        }
+    ]
+}

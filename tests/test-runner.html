@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Ninja - Parsing Accuracy Test Runner</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        h1 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+
+        .stat-card .label {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e55a2b;
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #16213e;
+            color: #eee;
+            border: 1px solid #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #f7c94b);
+            transition: width 0.3s;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .results-table th {
+            background: #16213e;
+            color: #ff6b35;
+            position: sticky;
+            top: 0;
+        }
+
+        .results-table tr:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .status-pass {
+            color: #4ade80;
+        }
+
+        .status-fail {
+            color: #f87171;
+        }
+
+        .status-partial {
+            color: #fbbf24;
+        }
+
+        .field-match {
+            color: #4ade80;
+        }
+
+        .field-mismatch {
+            color: #f87171;
+        }
+
+        .input-preview {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+
+        .log-panel {
+            background: #0f0f23;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+        }
+
+        .log-info {
+            color: #60a5fa;
+        }
+
+        .log-success {
+            color: #4ade80;
+        }
+
+        .log-error {
+            color: #f87171;
+        }
+
+        .log-warn {
+            color: #fbbf24;
+        }
+
+        select,
+        input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #16213e;
+            color: #eee;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🥷 Schedule Ninja - Parsing Accuracy Test</h1>
+    <p>AI 파싱 정확도 측정 도구 (100개 테스트 케이스)</p>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="value" id="totalTests">0</div>
+            <div class="label">Total Tests</div>
+        </div>
+        <div class="stat-card">
+            <div class="value" id="passedTests">0</div>
+            <div class="label">Passed</div>
+        </div>
+        <div class="stat-card">
+            <div class="value" id="failedTests">0</div>
+            <div class="label">Failed</div>
+        </div>
+        <div class="stat-card">
+            <div class="value" id="accuracy">-</div>
+            <div class="label">Accuracy</div>
+        </div>
+        <div class="stat-card">
+            <div class="value" id="avgTime">-</div>
+            <div class="label">Avg Time (ms)</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-primary" id="runAllBtn">▶ Run All Tests</button>
+        <button class="btn-secondary" id="runSelectedBtn">Run Selected Category</button>
+        <button class="btn-secondary" id="exportBtn">📊 Export Results (CSV)</button>
+        <button class="btn-secondary" id="clearBtn">🗑️ Clear Results</button>
+    </div>
+
+    <div class="filter-row">
+        <label>Category:</label>
+        <select id="categoryFilter">
+            <option value="all">All Categories</option>
+        </select>
+        <label>Delay between tests:</label>
+        <input type="number" id="delayMs" value="1000" min="500" max="5000" style="width: 80px;"> ms
+    </div>
+
+    <div class="progress-bar">
+        <div class="fill" id="progressFill" style="width: 0%;"></div>
+    </div>
+    <div id="progressText">Ready to run tests...</div>
+
+    <div class="log-panel" id="logPanel"></div>
+
+    <table class="results-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Category</th>
+                <th>Input (Preview)</th>
+                <th>Summary</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+    </table>
+
+    <script src="test-runner.js"></script>
+</body>
+
+</html>
