@@ -13,7 +13,7 @@ chrome-extension://[EXTENSION_ID]/tests/test-runner.html
 
 **Option B: 로컬 서버로 열기 (Live Server 등)**
 ```bash
-cd /Users/yesinkim/Bailando/01_Lab/TimeKeeper/tests
+cd tests
 npx serve .   # 또는 Live Server 사용
 ```
 ⚠️ 이 경우 Extension API 접근이 안 됨 - 별도 설정 필요
