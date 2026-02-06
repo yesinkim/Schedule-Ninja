@@ -4,3 +4,5 @@ secrets.js
 *.pem
 schedule-ninja-accuracy-*.csv
 *.csv
+.env
+archive/*
