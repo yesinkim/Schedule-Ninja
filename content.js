@@ -33,6 +33,17 @@ async function loadI18nMessages(lang) {
 }
 // --- End I18n Logic ---
 
+// HTML 속성 이스케이프 함수 (따옴표 등 특수문자 처리)
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 
 // 전역 변수
 let modalInstance = null;
@@ -458,7 +469,7 @@ async function showDropdownForm(originData, eventIndex) {
     <form id="editForm" style="all: initial !important; display: block !important; background: ${colors.formBg} !important; padding: 16px !important; border-radius: 12px !important; border: none !important; text-align: left !important; margin: 0 !important; box-shadow: 0 -4px 12px rgba(0,0,0,0.08) !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; font-size: 14px !important; line-height: 1.5 !important;">
         <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
           <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">TITLE</label>
-          <input id="editSummary" type="text" value="${originData.summary || ''}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;" placeholder="${t('placeholderSummary')}" />
+          <input id="editSummary" type="text" value="${escapeHtml(originData.summary)}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;" placeholder="${t('placeholderSummary')}" />
         </div>
         <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
           <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">START</label>
@@ -470,7 +481,7 @@ async function showDropdownForm(originData, eventIndex) {
         </div>
         <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
           <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">PLACE</label>
-          <input id="editLocation" type="text" value="${originData.location || ''}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;" placeholder="${t('placeholderLocation')}" />
+          <input id="editLocation" type="text" value="${escapeHtml(originData.location)}" style="all: initial !important; display: block !important; width: 100% !important; padding: 8px !important; background: ${colors.inputBg} !important; color: ${colors.inputColor} !important; border: none !important; border-radius: 6px !important; font-size: 14px !important; outline: none !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; line-height: 1.5 !important; text-align: left !important; font-weight: normal !important; text-transform: none !important; letter-spacing: normal !important; font-style: normal !important; font-variant: normal !important;" placeholder="${t('placeholderLocation')}" />
         </div>
         <div style="all: initial !important; display: block !important; margin-bottom: 12px !important;">
           <label style="all: initial !important; display: block !important; font-size: 10px !important; font-weight: 600 !important; color: ${colors.labelColor} !important; margin-bottom: 4px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-transform: none !important; letter-spacing: 0 !important; font-style: normal !important; font-variant: normal !important;">DESCRIPTION</label>
@@ -968,6 +979,7 @@ class BookingPageDetector {
       });
     });
 
+    console.log(`🎯 findBookingInfo: maxScore=${maxScore}, threshold=5`);
     return maxScore > 5 ? bestMatch : null;  // Threshold: 5
   }
 
