@@ -901,31 +901,28 @@ class BookingPageDetector {
       if (text) importantTexts.push(text);
     });
 
-    // 2. Look for confirmation or booking-related keywords in the prioritized text
+    // 2. STRICT: Require confirmation keyword in headers FIRST
     const checkPatterns = (texts, patterns) => texts.some(text => patterns.some(pattern => pattern.test(text)));
     let hasConfirmationKeyword = checkPatterns(importantTexts, this.confirmationPatterns);
-    let hasBookingHint = checkPatterns(importantTexts, this.bookingHintPatterns);
 
-    if (!hasConfirmationKeyword && !hasBookingHint) {
-      // Fallback to search the entire body if no keyword is found in headers
-      const bodyText = document.body.innerText || '';
-      hasConfirmationKeyword = this.confirmationPatterns.some(pattern => pattern.test(bodyText));
-      hasBookingHint = this.bookingHintPatterns.some(pattern => pattern.test(bodyText));
-
-      if (!hasConfirmationKeyword && !hasBookingHint) {
-        return; // Exit if no confirmation or booking hint keyword is found anywhere
-      }
+    // If no confirmation in headers, skip entirely (don't check body)
+    if (!hasConfirmationKeyword) {
+      console.log('No confirmation keyword in headers. Skipping auto-detection.');
+      return;
     }
 
-    // 3. If confirmation is found, check for event details in the main content area
+    // 3. STRICT: Must have BOTH event details AND date/time patterns
     const mainContent = document.querySelector('main')?.innerText || document.body.innerText;
-    const hasEventDetails = this.detailPatterns.some(pattern => pattern.test(mainContent));
+    const hasEventDetails = this.eventDetailPatterns.some(pattern => pattern.test(mainContent));
+    const hasDateDetails = this.dateDetailPatterns.some(pattern => pattern.test(mainContent));
+    const hasTimeDetails = this.timeDetailPatterns.some(pattern => pattern.test(mainContent));
 
-    if (hasEventDetails) {
-      console.log('Confirmation and event details found. Triggering auto-detection.');
+    // Require at least: confirmation + event type + (date OR time)
+    if (hasEventDetails && (hasDateDetails || hasTimeDetails)) {
+      console.log('✅ Confirmation in headers + event details found. Triggering auto-detection.');
       this.extractBookingInfo();
     } else {
-      console.log('Confirmation keyword found, but no event details in main content. Skipping.');
+      console.log('⚠️ Confirmation found, but missing required event details (event type + date/time). Skipping.');
     }
   }
   
@@ -971,17 +968,19 @@ class BookingPageDetector {
       });
     });
     
-    return maxScore > 3 ? bestMatch : null;
+    return maxScore > 5 ? bestMatch : null;  // Increased from 3 to 5
   }
+  
   
   calculateRelevanceScore(text) {
     let score = 0;
-    if (this.confirmationPatterns.some(p => p.test(text))) score += 5;
+    // Increased weights for critical patterns
+    if (this.confirmationPatterns.some(p => p.test(text))) score += 3;  // Was 5, now 3
     if (this.eventDetailPatterns.some(p => p.test(text))) score += 2;
     if (this.dateDetailPatterns.some(p => p.test(text))) score += 2;
     if (this.timeDetailPatterns.some(p => p.test(text))) score += 2;
-    this.locationPatterns.forEach(p => { if (p.test(text)) score += 1; });
-    this.bookingHintPatterns.forEach(p => { if (p.test(text)) score += 1; });
+    this.locationPatterns.forEach(p => { if (p.test(text)) score += 0.5; });  // Reduced from 1
+    this.bookingHintPatterns.forEach(p => { if (p.test(text)) score += 0.5; });  // Reduced from 1
     return score;
   }
   

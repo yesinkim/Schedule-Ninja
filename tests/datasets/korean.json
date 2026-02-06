@@ -1,0 +1,246 @@
+{
+    "description": "한국어 예매/일정 테스트 데이터 - 웹 크롤링 실제 텍스트 (COEX, Lu.ma, KBW)",
+    "version": "1.0.1",
+    "testCases": [
+        {
+            "id": "kr_001",
+            "category": "exhibition",
+            "source": "COEX Crawled Text",
+            "input": "[세미콘 코리아 2026](https://www.coex.co.kr/exhibitions/semicon-korea-2026/?var_page=-1&list_type=CAL&cy=2026&cm=2)\n2026.02.19 ~ 2026.02.21\n전관\n전기/전자/IT",
+            "expected": {
+                "summary": "세미콘 코리아 2026",
+                "start": "2026-02-19",
+                "end": "2026-02-21",
+                "location": "코엑스 전관"
+            }
+        },
+        {
+            "id": "kr_002",
+            "category": "exhibition",
+            "source": "COEX Crawled Text",
+            "input": "[K-일러스트레이션페어 서울 2026](https://www.coex.co.kr/exhibitions/k-illustration-fair-seoul-2026)\n2026.02.07 ~ 2026.02.09\nD홀\n예술/디자인",
+            "expected": {
+                "summary": "K-일러스트레이션페어 서울 2026",
+                "start": "2026-02-07",
+                "end": "2026-02-09",
+                "location": "코엑스 D홀"
+            }
+        },
+        {
+            "id": "kr_003",
+            "category": "wedding",
+            "source": "COEX Crawled Text",
+            "input": "[제405회 웨덱스 웨딩박람회](https://www.coex.co.kr/exhibitions/wedex-wedding-fair-405)\n2026.02.01 ~ 2026.02.02\nC홀\n관광/오락",
+            "expected": {
+                "summary": "제405회 웨덱스 웨딩박람회",
+                "start": "2026-02-01",
+                "end": "2026-02-02",
+                "location": "코엑스 C홀"
+            }
+        },
+        {
+            "id": "kr_004",
+            "category": "blockchain",
+            "source": "KBW Crawled Text",
+            "input": "KOREA BLOCKCHAIN WEEK 2026\nSeptember 22-28, 2026\nSponsor: IMPACT\nKBW2026: IMPACT provides unparalleled visibility for brands and organizations.",
+            "expected": {
+                "summary": "KOREA BLOCKCHAIN WEEK 2026",
+                "start": "2026-09-22",
+                "end": "2026-09-28",
+                "location": "Seoul, Korea"
+            }
+        },
+        {
+            "id": "kr_005",
+            "category": "meetup",
+            "source": "Lu.ma Crawled Text",
+            "input": "크립토 현직자 밋업 Vol.1: Bridge the Gap with deBridge\n2026년 2월 6일 (목) 오후 7:00\n서울 강남구 테헤란로 521 파르나스타워\nHosted by DeBridge Korea",
+            "expected": {
+                "summary": "크립토 현직자 밋업 Vol.1",
+                "start": "2026-02-06T19:00:00+09:00",
+                "end": "2026-02-06T21:00:00+09:00",
+                "location": "서울 강남구 테헤란로 521 파르나스타워"
+            }
+        },
+        {
+            "id": "kr_006",
+            "category": "hackathon",
+            "source": "Lu.ma Crawled Text",
+            "input": "Cursor Hackathon Seoul\nFeb 15, 2026\n10:00 AM - 10:00 PM\nWeWork Seolleung III\nHosted by Cursor & GDG Seoul",
+            "expected": {
+                "summary": "Cursor Hackathon Seoul",
+                "start": "2026-02-15T10:00:00+09:00",
+                "end": "2026-02-15T22:00:00+09:00",
+                "location": "WeWork Seolleung III"
+            }
+        },
+        {
+            "id": "kr_007",
+            "category": "concert",
+            "source": "Search Result Raw Text",
+            "input": "[ZEROBASEONE WORLD TOUR [HERE & NOW] ENCORE IN SEOUL]\n장소: KSPO DOME\n기간: 2026.03.13 ~ 2026.03.15\n시간: 금 19:00, 토일 17:00\n관람등급: 7세 이상",
+            "expected": {
+                "summary": "ZEROBASEONE WORLD TOUR ENCORE",
+                "start": "2026-03-13T19:00:00",
+                "end": "2026-03-15T20:00:00",
+                "location": "KSPO DOME"
+            }
+        },
+        {
+            "id": "kr_008",
+            "category": "exhibition",
+            "source": "COEX Crawled Text",
+            "input": "[서울리빙디자인페어](https://www.coex.co.kr/exhibitions/seoul-living-design-fair)\n2026.03.19 ~ 2026.03.23\nA, B, C홀\n예술/디자인",
+            "expected": {
+                "summary": "서울리빙디자인페어",
+                "start": "2026-03-19",
+                "end": "2026-03-23",
+                "location": "코엑스 A, B, C홀"
+            }
+        },
+        {
+            "id": "kr_009",
+            "category": "exhibition",
+            "source": "COEX Crawled Text",
+            "input": "[2026 대한민국 조경*정원 박람회](https://www.coex.co.kr/exhibitions/landscape-garden-expo-2026)\n2026.02.06 ~ 2026.02.08\nHall D\n건설/건축/인테리어",
+            "expected": {
+                "summary": "2026 대한민국 조경*정원 박람회",
+                "start": "2026-02-06",
+                "end": "2026-02-08",
+                "location": "코엑스 Hall D"
+            }
+        },
+        {
+            "id": "kr_010",
+            "category": "education",
+            "source": "COEX Crawled Text",
+            "input": "[호주 뉴질랜드 유학박람회](https://www.coex.co.kr/exhibitions/australia-newzealand-edu-fair)\n2026.02.08 ~ 2026.02.08\n컨퍼런스룸(남) 401호\n교육/출판",
+            "expected": {
+                "summary": "호주 뉴질랜드 유학박람회",
+                "start": "2026-02-08",
+                "end": "2026-02-08",
+                "location": "코엑스 컨퍼런스룸(남) 401호"
+            }
+        },
+        {
+            "id": "kr_011",
+            "category": "conference",
+            "source": "COEX Crawled Text",
+            "input": "[2026 블록체인 컨퍼런스](https://www.coex.co.kr/exhibitions/blockchain-conference-2026)\n2026.02.12 ~ 2026.02.12\n그랜드볼룸\n금융/재테크",
+            "expected": {
+                "summary": "2026 블록체인 컨퍼런스",
+                "start": "2026-02-12",
+                "end": "2026-02-12",
+                "location": "코엑스 그랜드볼룸"
+            }
+        },
+        {
+            "id": "kr_012",
+            "category": "exhibition",
+            "source": "COEX Crawled Text",
+            "input": "[2026 하우징브랜드페어 / 2026 서울 툴&세이프티쇼]\n2026.02.06 ~ 2026.02.08\nC홀\n건설/건축/인테리어",
+            "expected": {
+                "summary": "2026 하우징브랜드페어 / 2026 서울 툴&세이프티쇼",
+                "start": "2026-02-06",
+                "end": "2026-02-08",
+                "location": "코엑스 C홀"
+            }
+        },
+        {
+            "id": "kr_013",
+            "category": "exhibition",
+            "source": "COEX Crawled Text",
+            "input": "[제10회 서울 건강산업 박람회 / 제7회 서울 오피스가구 및 오피스페어]\n2026.02.06 ~ 2026.02.08\nHall B\n의료/건강/스포츠",
+            "expected": {
+                "summary": "제10회 서울 건강산업 박람회 / 제7회 서울 오피스가구 및 오피스페어",
+                "start": "2026-02-06",
+                "end": "2026-02-08",
+                "location": "코엑스 Hall B"
+            }
+        },
+        {
+            "id": "kr_014",
+            "category": "meetup",
+            "source": "Lu.ma Crawled Text",
+            "input": "Arcium Seoul: Unlocking Encrypted Capital Markets\nMon, Feb 9, 2026\n15:00 - 18:00\nHashed Lounge\nSeoul",
+            "expected": {
+                "summary": "Arcium Seoul: Unlocking Encrypted Capital Markets",
+                "start": "2026-02-09T15:00:00+09:00",
+                "end": "2026-02-09T18:00:00+09:00",
+                "location": "Hashed Lounge, Seoul"
+            }
+        },
+        {
+            "id": "kr_015",
+            "category": "meetup",
+            "source": "Lu.ma Crawled Text",
+            "input": "Builders & Creators Meetup in Seoul\nFeb 20, 2026\n7:00 PM - 9:00 PM\nNonce Community",
+            "expected": {
+                "summary": "Builders & Creators Meetup in Seoul",
+                "start": "2026-02-20T19:00:00+09:00",
+                "end": "2026-02-20T21:00:00+09:00",
+                "location": "Nonce Community"
+            }
+        },
+        {
+            "id": "kr_016",
+            "category": "meetup",
+            "source": "Lu.ma Crawled Text",
+            "input": "Jito Korea Community Night\n2026/02/18 (Tue)\n18:30 - 21:00\nCasa Corona Seoul",
+            "expected": {
+                "summary": "Jito Korea Community Night",
+                "start": "2026-02-18T18:30:00+09:00",
+                "end": "2026-02-18T21:00:00+09:00",
+                "location": "Casa Corona Seoul"
+            }
+        },
+        {
+            "id": "kr_017",
+            "category": "meetup",
+            "source": "Lu.ma Crawled Text",
+            "input": "Nesa:Seoul\nFeb 13, 2026\n6:00 PM - 9:00 PM\nKB Innovation Hub",
+            "expected": {
+                "summary": "Nesa:Seoul",
+                "start": "2026-02-13T18:00:00+09:00",
+                "end": "2026-02-13T21:00:00+09:00",
+                "location": "KB Innovation Hub"
+            }
+        },
+        {
+            "id": "kr_018",
+            "category": "hackathon",
+            "source": "Lu.ma Crawled Text",
+            "input": "World Build Korea 2026\nFeb 22-23\nStart: 10:00 AM\nEnd: 6:00 PM (Next day)\nSeoul Startup Hub",
+            "expected": {
+                "summary": "World Build Korea 2026",
+                "start": "2026-02-22T10:00:00+09:00",
+                "end": "2026-02-23T18:00:00+09:00",
+                "location": "Seoul Startup Hub"
+            }
+        },
+        {
+            "id": "kr_019",
+            "category": "workshop",
+            "source": "Lu.ma Crawled Text",
+            "input": "Swift Students Cafe (서울 🇰🇷)\nEvery Saturday\nFeb 7 - Feb 28, 2026\n2:00 PM - 5:00 PM\nCafe Onion Anguk",
+            "expected": {
+                "summary": "Swift Students Cafe",
+                "start": "2026-02-07T14:00:00+09:00",
+                "end": "2026-02-07T17:00:00+09:00",
+                "location": "Cafe Onion Anguk"
+            }
+        },
+        {
+            "id": "kr_020",
+            "category": "community",
+            "source": "Lu.ma Crawled Text",
+            "input": "한국 블록체인 밋업 #24\n2026.02.20 (목)\n19:00 ~ 21:30\n마루180 지하 1층",
+            "expected": {
+                "summary": "한국 블록체인 밋업 #24",
+                "start": "2026-02-20T19:00:00+09:00",
+                "end": "2026-02-20T21:30:00+09:00",
+                "location": "마루180 지하 1층"
+            }
+        }
+    ]
+}

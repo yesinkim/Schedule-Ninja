@@ -1,0 +1,186 @@
+{
+    "description": "English event test data - based on Eventbrite and Lu.ma patterns",
+    "version": "1.0.0",
+    "testCases": [
+        {
+            "id": "en_001",
+            "category": "webinar",
+            "source": "Eventbrite pattern",
+            "input": "Free AI Workshop: Introduction to Machine Learning\nDate: Wednesday, February 12, 2026\nTime: 2:00 PM - 4:00 PM EST\nLocation: Online (Zoom)\nHost: TechEd Academy",
+            "expected": {
+                "summary": "Free AI Workshop: Introduction to Machine Learning",
+                "start": "2026-02-12T14:00:00-05:00",
+                "end": "2026-02-12T16:00:00-05:00",
+                "location": "Online (Zoom)"
+            }
+        },
+        {
+            "id": "en_002",
+            "category": "conference",
+            "source": "Eventbrite pattern",
+            "input": "Tech Summit 2026: Future of AI\nMarch 15-17, 2026\n9:00 AM - 6:00 PM PST\nMoscone Center, San Francisco, CA\nTickets from $299",
+            "expected": {
+                "summary": "Tech Summit 2026: Future of AI",
+                "start": "2026-03-15T09:00:00-08:00",
+                "end": "2026-03-17T18:00:00-08:00",
+                "location": "Moscone Center, San Francisco, CA"
+            }
+        },
+        {
+            "id": "en_003",
+            "category": "meetup",
+            "source": "Lu.ma pattern",
+            "input": "Builders & Creators Meetup in Seoul\nThursday, February 20, 2026 at 7:00 PM KST\nGangnam Station Exit 10, Ground Floor Coworking Space\nFree admission",
+            "expected": {
+                "summary": "Builders & Creators Meetup in Seoul",
+                "start": "2026-02-20T19:00:00+09:00",
+                "end": "2026-02-20T21:00:00+09:00",
+                "location": "Gangnam Station Exit 10, Ground Floor Coworking Space"
+            }
+        },
+        {
+            "id": "en_004",
+            "category": "hackathon",
+            "source": "Lu.ma pattern",
+            "input": "World Build Korea 2026\nFeb 22-23, 2026\nSaturday 9 AM - Sunday 9 PM\nSeoul Startup Hub, Yeongdeungpo\n48-hour hackathon",
+            "expected": {
+                "summary": "World Build Korea 2026",
+                "start": "2026-02-22T09:00:00",
+                "end": "2026-02-23T21:00:00",
+                "location": "Seoul Startup Hub, Yeongdeungpo"
+            }
+        },
+        {
+            "id": "en_005",
+            "category": "networking",
+            "source": "Lu.ma pattern",
+            "input": "Jito Korea Community Night\nDate: 2026/02/18 (Tue)\nTime: 18:30 - 21:00\nVenue: Itaewon Sports Bar & Grill",
+            "expected": {
+                "summary": "Jito Korea Community Night",
+                "start": "2026-02-18T18:30:00",
+                "end": "2026-02-18T21:00:00",
+                "location": "Itaewon Sports Bar & Grill"
+            }
+        },
+        {
+            "id": "en_006",
+            "category": "concert",
+            "source": "Ticketmaster pattern",
+            "input": "Taylor Swift | The Eras Tour 2026\nSat, Jun 20, 2026 7:00 PM\nSoFi Stadium, Inglewood, CA\nDoors open at 4:30 PM",
+            "expected": {
+                "summary": "Taylor Swift | The Eras Tour 2026",
+                "start": "2026-06-20T19:00:00",
+                "end": "2026-06-20T23:00:00",
+                "location": "SoFi Stadium, Inglewood, CA"
+            }
+        },
+        {
+            "id": "en_007",
+            "category": "workshop",
+            "source": "Eventbrite pattern",
+            "input": "Pottery Workshop for Beginners\nEvery Saturday in February\n10:00 AM - 1:00 PM\nClay Studio NYC, 123 Craft Street, Brooklyn\n$75 per session",
+            "expected": {
+                "summary": "Pottery Workshop for Beginners",
+                "start": "2026-02-07T10:00:00",
+                "end": "2026-02-28T13:00:00",
+                "location": "Clay Studio NYC, 123 Craft Street, Brooklyn"
+            }
+        },
+        {
+            "id": "en_008",
+            "category": "seminar",
+            "source": "Academic pattern",
+            "input": "International Conference on Blockchain and Cryptocurrencies (ICBC)\nApril 13-14, 2026\nSeoul, Republic of Korea\nOrganized by World Academy of Science, Engineering and Technology",
+            "expected": {
+                "summary": "International Conference on Blockchain and Cryptocurrencies (ICBC)",
+                "start": "2026-04-13",
+                "end": "2026-04-14",
+                "location": "Seoul, Republic of Korea"
+            }
+        },
+        {
+            "id": "en_009",
+            "category": "fitness",
+            "source": "Eventbrite pattern",
+            "input": "Morning Yoga in the Park - Free Class\nSunday, March 8, 2026\n7:00 AM - 8:00 AM\nCentral Park Great Lawn, New York, NY\nBring your own mat",
+            "expected": {
+                "summary": "Morning Yoga in the Park - Free Class",
+                "start": "2026-03-08T07:00:00",
+                "end": "2026-03-08T08:00:00",
+                "location": "Central Park Great Lawn, New York, NY"
+            }
+        },
+        {
+            "id": "en_010",
+            "category": "book_club",
+            "source": "Lu.ma pattern",
+            "input": "Reading Rhythms: Monthly Book Discussion\nFirst Thursday of every month\nNext session: March 5, 2026, 6:30 PM\nOnline via Google Meet",
+            "expected": {
+                "summary": "Reading Rhythms: Monthly Book Discussion",
+                "start": "2026-03-05T18:30:00",
+                "end": "2026-03-05T20:30:00",
+                "location": "Online via Google Meet"
+            }
+        },
+        {
+            "id": "en_011",
+            "category": "startup",
+            "source": "Lu.ma pattern",
+            "input": "YC Demo Day Watch Party - Korea\nMar 24, 2026 • 8:00 PM - 11:00 PM KST\nMaru180, Gangnam\nFor startup enthusiasts and founders",
+            "expected": {
+                "summary": "YC Demo Day Watch Party - Korea",
+                "start": "2026-03-24T20:00:00+09:00",
+                "end": "2026-03-24T23:00:00+09:00",
+                "location": "Maru180, Gangnam"
+            }
+        },
+        {
+            "id": "en_012",
+            "category": "gaming",
+            "source": "Eventbrite pattern",
+            "input": "Super Smash Bros Ultimate Tournament\nRegistration opens: Feb 1, 2026\nEvent date: Saturday, February 28, 2026\nCheck-in: 11:00 AM | Tournament starts: 12:00 PM\nGamers Lounge, 456 Arcade Ave, Los Angeles",
+            "expected": {
+                "summary": "Super Smash Bros Ultimate Tournament",
+                "start": "2026-02-28T12:00:00",
+                "end": "2026-02-28T18:00:00",
+                "location": "Gamers Lounge, 456 Arcade Ave, Los Angeles"
+            }
+        },
+        {
+            "id": "en_013",
+            "category": "art",
+            "source": "Museum pattern",
+            "input": "Van Gogh: The Immersive Experience\nNow through April 30, 2026\nOpen daily 10 AM - 9 PM\nLast entry at 7:30 PM\nPier 36, New York",
+            "expected": {
+                "summary": "Van Gogh: The Immersive Experience",
+                "start": "2026-02-04T10:00:00",
+                "end": "2026-04-30T21:00:00",
+                "location": "Pier 36, New York"
+            }
+        },
+        {
+            "id": "en_014",
+            "category": "food",
+            "source": "Eventbrite pattern",
+            "input": "Wine Tasting Experience: French Bordeaux\nFriday, February 14, 2026\n7:00 PM - 9:30 PM\nSommelier's Choice Wine Bar\n789 Vine Street, San Francisco\nAges 21+",
+            "expected": {
+                "summary": "Wine Tasting Experience: French Bordeaux",
+                "start": "2026-02-14T19:00:00",
+                "end": "2026-02-14T21:30:00",
+                "location": "Sommelier's Choice Wine Bar, 789 Vine Street, San Francisco"
+            }
+        },
+        {
+            "id": "en_015",
+            "category": "charity",
+            "source": "Eventbrite pattern",
+            "input": "5K Run for Cancer Research\nSunday, April 5, 2026\nRace starts at 8:00 AM sharp\nFinish by 10:00 AM\nLincoln Memorial, Washington D.C.\nRegistration fee: $35",
+            "expected": {
+                "summary": "5K Run for Cancer Research",
+                "start": "2026-04-05T08:00:00",
+                "end": "2026-04-05T10:00:00",
+                "location": "Lincoln Memorial, Washington D.C."
+            }
+        }
+    ]
+}
