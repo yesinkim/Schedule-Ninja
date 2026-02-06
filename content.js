@@ -53,19 +53,19 @@ const COLOR_PALETTE = {
     text: '#2C3E50',
     textMuted: '#61707C',
     accent: '#E83941',
-    
+
     // 카드 색상
     cardBg: '#F6F6F6',
     dividerColor: '#E0E0E0',
     iconFill: '#303030',
     buttonBg: '#313B43',
-    
+
     // 폼 색상
     formBg: 'white',
     labelColor: '#303030',
     inputBg: '#F6F6F6',
     inputColor: '#303030',
-    
+
     // 기타
     progressBg: 'rgba(255,255,255,0.3)',
     borderColor: 'rgba(255,255,255,0.1)'
@@ -79,19 +79,19 @@ const COLOR_PALETTE = {
     text: '#e6edf3',
     textMuted: '#8b949e',
     accent: '#ff6b6b',
-    
+
     // 카드 색상
     cardBg: 'rgba(255,255,255,0.03)',
     dividerColor: 'rgba(255,255,255,0.05)',
     iconFill: '#e6edf3',
     buttonBg: '#2d333b',
-    
+
     // 폼 색상
     formBg: '#1c2128',
     labelColor: '#e6edf3',
     inputBg: 'rgba(255,255,255,0.05)',
     inputColor: '#e6edf3',
-    
+
     // 기타
     progressBg: 'rgba(255,255,255,0.1)',
     borderColor: 'rgba(255,255,255,0.05)'
@@ -202,7 +202,7 @@ function openModal() {
     createModal();
   }
   modalInstance.style.display = 'block';
-  
+
   // 애니메이션 - 우측에서 슬라이드인
   const content = modalInstance.querySelector('#modal-content');
   content.style.transform = 'translateX(100%)';
@@ -215,10 +215,10 @@ function openModal() {
 // 모달 닫기
 function closeModal() {
   if (!modalInstance) return;
-  
+
   const content = modalInstance.querySelector('#modal-content');
   content.style.transform = 'translateX(100%)';
-  
+
   setTimeout(() => {
     modalInstance.style.display = 'none';
     modalInstance.remove();
@@ -229,15 +229,15 @@ function closeModal() {
 // 결과 표시
 function displayResult(data) {
   if (!modalInstance) return;
-  
+
   const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
   const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
-  
+
   if (!resultContent) return;
 
   const eventsArray = data ? (Array.isArray(data) ? data : [data]) : [];
   lastParsedData = eventsArray;
-  
+
   if (eventsArray.length === 0) {
     if (loadingIndicator) loadingIndicator.style.display = 'none';
     resultContent.style.display = 'block';
@@ -256,12 +256,12 @@ function displayResult(data) {
     `;
     return;
   }
-  
+
   if (loadingIndicator) loadingIndicator.style.display = 'none';
   resultContent.style.display = 'block';
-  
+
   const colors = getColors();
-  
+
   let eventsHtml = '';
   eventsArray.forEach((eventData, index) => {
     const divider = index > 0 ? `<div style="height: 1px; background: ${colors.dividerColor}; margin: 0;"></div>` : '';
@@ -284,15 +284,15 @@ function displayResult(data) {
                 </svg>
                 <div style="font-size: 12px; color: ${colors.text}; flex: 1; min-width: 0; line-height: 1.4;">
                   ${(() => {
-                    const hasTime = eventData.start?.dateTime || eventData.end?.dateTime;
-                    const startStr = eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || '';
-                    const endStr = eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || '';
-                    if (hasTime) {
-                      return `<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${startStr}${endStr ? ' ~' : ''}</div>${endStr ? `<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${endStr}</div>` : ''}`;
-                    } else {
-                      return `<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${startStr}${endStr ? ` ~ ${endStr}` : ''}</div>`;
-                    }
-                  })()}
+        const hasTime = eventData.start?.dateTime || eventData.end?.dateTime;
+        const startStr = eventData.start?.dateTime ? eventData.start.dateTime.replace('T', ' ').slice(0, 16) : eventData.start?.date || '';
+        const endStr = eventData.end?.dateTime ? eventData.end.dateTime.replace('T', ' ').slice(0, 16) : eventData.end?.date || '';
+        if (hasTime) {
+          return `<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${startStr}${endStr ? ' ~' : ''}</div>${endStr ? `<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${endStr}</div>` : ''}`;
+        } else {
+          return `<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${startStr}${endStr ? ` ~ ${endStr}` : ''}</div>`;
+        }
+      })()}
                 </div>
               </div>
               ${eventData.location ? `
@@ -317,9 +317,9 @@ function displayResult(data) {
       </div>
     `;
   });
-  
+
   resultContent.innerHTML = eventsHtml;
-  
+
   const dropdownControllers = new Map();
   let activeDropdownIndex = null;
 
@@ -328,7 +328,7 @@ function displayResult(data) {
     const dropdown = resultContent.querySelector(`#tk-dropdown-${index}`);
     const addBtn = resultContent.querySelector(`#tk-add-btn-${index}`);
     let dropdownOpen = false;
-    
+
     if (!card || !dropdown || !addBtn) return;
 
     const openDropdown = async () => {
@@ -428,7 +428,7 @@ function displayResult(data) {
     };
 
     dropdownControllers.set(index, { close: closeDropdown, isOpen: () => dropdownOpen });
-    
+
     card.addEventListener('click', async (e) => {
       if (e.target.closest(`#tk-add-btn-${index}`) || (isCreatingEvent && creatingEventIndex === index)) return;
       if (!dropdownOpen) {
@@ -440,7 +440,7 @@ function displayResult(data) {
         await closeDropdown();
       }
     });
-    
+
     addBtn.addEventListener('click', (e) => { e.stopPropagation(); handleAddEvent(addBtn, index); });
   });
 }
@@ -453,7 +453,7 @@ async function showDropdownForm(originData, eventIndex) {
 
   const settings = await chrome.storage.sync.get(['settings']);
   const colors = getColors();
-  
+
   dropdown.innerHTML = `
     <form id="editForm" style="all: initial !important; display: block !important; background: ${colors.formBg} !important; padding: 16px !important; border-radius: 12px !important; border: none !important; text-align: left !important; margin: 0 !important; box-shadow: 0 -4px 12px rgba(0,0,0,0.08) !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; font-size: 14px !important; line-height: 1.5 !important;">
         <div style="all: initial !important; display: block !important; margin-bottom: 8px !important;">
@@ -482,31 +482,31 @@ async function showDropdownForm(originData, eventIndex) {
       </button>
       </form>
   `;
-  
+
   dropdown.querySelector('#tk-dropdown-save').addEventListener('click', async () => {
     if (isCreatingEvent && creatingEventIndex === eventIndex) return;
-    
+
     const startValue = dropdown.querySelector('#editStart').value;
     const endValue = dropdown.querySelector('#editEnd').value;
-    
+
     // 원본이 date 타입이었는지 dateTime 타입이었는지 확인
     const wasStartDate = originData.start?.date && !originData.start?.dateTime;
     const wasEndDate = originData.end?.date && !originData.end?.dateTime;
-    
+
     const updatedEvent = {
       ...originData,
       summary: dropdown.querySelector('#editSummary').value,
-      start: wasStartDate 
+      start: wasStartDate
         ? { date: startValue.split('T')[0], timeZone: originData.start.timeZone }  // date만 저장
         : { dateTime: startValue, timeZone: originData.start.timeZone },          // dateTime 저장
-      end: wasEndDate 
+      end: wasEndDate
         ? { date: endValue.split('T')[0], timeZone: originData.end.timeZone }     // date만 저장
         : { dateTime: endValue, timeZone: originData.end.timeZone },              // dateTime 저장
       location: dropdown.querySelector('#editLocation').value,
       description: dropdown.querySelector('#editDescription').value,
     };
     lastParsedData[eventIndex] = updatedEvent;
-    
+
     updateSaveButtonState(dropdown.querySelector('#tk-dropdown-save'), 'loading');
     await handleAddEvent(modalInstance.querySelector(`#tk-add-btn-${eventIndex}`), eventIndex, dropdown.querySelector('#tk-dropdown-save'));
   });
@@ -603,40 +603,40 @@ async function handleAddEvent(addBtn, eventIndex, saveBtn = null) {
   if (isCreatingEvent) return;
   const isLoggedIn = await checkLoginStatus();
   if (!isLoggedIn) { await showLoginPromptModal(); return; }
-  
+
   isCreatingEvent = true;
   creatingEventIndex = eventIndex;
   addBtn.innerHTML = `<img src="${SHURIKEN_URL}" alt="loading" style="width: 16.2px; height: 16.2px; animation: spin 0.7s linear infinite;">`;
   addBtn.disabled = true;
-  
+
   try {
     const eventData = { ...lastParsedData[eventIndex] };
     const settings = await chrome.storage.sync.get(['settings']);
-    
+
     // 항상 Schedule Ninja snagged 포함
     if (pageInfo) {
       let sourceText = '🥷 Schedule Ninja snagged';
-      
+
       // 설정이 켜져 있으면 페이지 URL도 추가
       if (settings.settings?.showSourceInfo) {
         sourceText += `\n🌐 ${pageInfo.url}`;
       }
-      
-      eventData.description = eventData.description 
-        ? `${eventData.description}\n\n---\n${sourceText}` 
+
+      eventData.description = eventData.description
+        ? `${eventData.description}\n\n---\n${sourceText}`
         : sourceText;
     }
-    
+
     const response = await chrome.runtime.sendMessage({ action: 'createCalendarEvent', eventData: eventData });
-    
+
     if (response.success) {
       console.log('✅ 일정 생성 성공! 링크:', response.event.htmlLink);
       addBtn.innerHTML = `<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
       addBtn.setAttribute('data-added', 'true');
-      
+
       // 성공 토스트 메시지에 링크 추가 (선택사항)
       showToastMessage(`일정이 추가되었습니다. <a href="${response.event.htmlLink}" target="_blank" style="color: white; text-decoration: underline;">확인하기</a>`);
-      
+
       if (saveBtn) updateSaveButtonState(saveBtn, 'success');
       if (lastParsedData.every((_, i) => modalInstance.querySelector(`#tk-add-btn-${i}`)?.getAttribute('data-added') === 'true')) {
         setTimeout(() => closeModal(), 1500);
@@ -664,10 +664,10 @@ function showToastMessage(message, type = "success") {
   if (!modalContent) return;
 
   const toast = document.createElement('div');
-  
+
   // 타입별 스타일 설정
   let backgroundColor, iconPath;
-  switch(type) {
+  switch (type) {
     case 'success':
       backgroundColor = '#10b981';
       iconPath = 'M5 13l4 4L19 7';
@@ -684,7 +684,7 @@ function showToastMessage(message, type = "success") {
       backgroundColor = '#10b981';
       iconPath = 'M5 13l4 4L19 7';
   }
-  
+
   toast.style.cssText = `
     position: absolute;
     bottom: 12px;
@@ -703,14 +703,14 @@ function showToastMessage(message, type = "success") {
     background: ${backgroundColor};
     color: white;
   `;
-  
+
   toast.innerHTML = `
     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"></path>
     </svg>
     <span>${message}</span>
   `;
-  
+
   modalContent.appendChild(toast);
 
   // 애니메이션
@@ -739,7 +739,7 @@ async function showModal(selectedText, isAutoDetected = false) {
   openModal();
   const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
   const resultContent = modalInstance.querySelector('#schedule-ninja-result-content');
-  
+
   if (loadingIndicator) {
     loadingIndicator.style.display = 'block';
     if (isAutoDetected) {
@@ -752,7 +752,7 @@ async function showModal(selectedText, isAutoDetected = false) {
   const closeHandler = () => closeModal();
   modalInstance.querySelector('#modal-close')?.addEventListener('click', closeHandler);
   modalInstance.querySelector('#modal-backdrop')?.addEventListener('click', closeHandler);
-  
+
   const escapeHandler = (e) => {
     if (e.key === 'Escape') {
       closeHandler();
@@ -764,7 +764,7 @@ async function showModal(selectedText, isAutoDetected = false) {
   pageInfo = { title: document.title, url: window.location.href, domain: window.location.hostname, isAutoDetected };
 
   const response = await chrome.runtime.sendMessage({ action: 'parseText', eventData: { selectedText, pageInfo } });
-  
+
   if (response?.success) {
     displayResult(response.eventData);
     if (isAutoDetected) {
@@ -838,7 +838,7 @@ class BookingPageDetector {
       ...this.dateDetailPatterns,
       ...this.timeDetailPatterns
     ];
-    
+
     this.locationPatterns = [
       /장소|공연장|극장|영화관|홀|아트홀|문화센터/i,
       /venue|location|place|theater|hall|stadium|cinema/i,
@@ -849,17 +849,17 @@ class BookingPageDetector {
       /예매|예약|예약번호|예약정보|티켓|좌석|등급|발권/i,
       /booking|reservation|ticket|seat|grade|reference|confirmation\s?(number|code)?/i
     ];
-    
+
     this.init();
   }
-  
+
   async init() {
     await this.loadSettings();
-    
+
     setTimeout(() => {
       this.checkForBookingPage();
     }, 2000);
-    
+
     let lastUrl = location.href;
     new MutationObserver(() => {
       const url = location.href;
@@ -871,7 +871,7 @@ class BookingPageDetector {
       }
     }).observe(document, { subtree: true, childList: true });
   }
-  
+
   loadSettings() {
     return new Promise(resolve => {
       chrome.storage.sync.get(['settings'], (result) => {
@@ -882,7 +882,7 @@ class BookingPageDetector {
       });
     });
   }
-  
+
   async checkForBookingPage() {
     if (!this.enabled) return;
 
@@ -925,23 +925,23 @@ class BookingPageDetector {
       console.log('⚠️ Confirmation found, but missing required event details (event type + date/time). Skipping.');
     }
   }
-  
+
   setEnabled(enabled) {
     this.enabled = enabled;
     console.log('Auto-detect setting changed:', enabled ? 'On' : 'Off');
   }
-  
+
   extractBookingInfo() {
     const extractedText = this.findBookingInfo();
-    
+
     if (extractedText) {
       console.log('Extracted booking info:', extractedText);
       setTimeout(() => {
         this.showSoftNotificationWithParsing(extractedText);
-      }, 1500);
+      }, 500);  // Reduced from 1500ms for faster UX
     }
   }
-  
+
   findBookingInfo() {
     const selectors = [
       '.booking-info, .reservation-info, .ticket-info',
@@ -950,10 +950,10 @@ class BookingPageDetector {
       '.venue, .location, .place',
       'div, p, span, td, li'
     ];
-    
+
     let bestMatch = '';
     let maxScore = 0;
-    
+
     selectors.forEach(selector => {
       const elements = document.querySelectorAll(selector);
       elements.forEach(element => {
@@ -967,11 +967,11 @@ class BookingPageDetector {
         }
       });
     });
-    
-    return maxScore > 5 ? bestMatch : null;  // Increased from 3 to 5
+
+    return maxScore > 5 ? bestMatch : null;  // Threshold: 5
   }
-  
-  
+
+
   calculateRelevanceScore(text) {
     let score = 0;
     // Increased weights for critical patterns
@@ -983,17 +983,21 @@ class BookingPageDetector {
     this.bookingHintPatterns.forEach(p => { if (p.test(text)) score += 0.5; });  // Reduced from 1
     return score;
   }
-  
+
   showSoftNotificationWithParsing(extractedText) {
     this.createSoftNotificationWithParsing(extractedText);
   }
-  
+
   createSoftNotificationWithParsing(extractedText) {
     const existingNotification = document.getElementById('booking-detection-notification');
     if (existingNotification) {
       existingNotification.remove();
     }
-    
+
+    // 고유한 파서 ID 생성 (취소 기능용)
+    this.currentParserId = `parser_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log(`🔖 [자동감지] 파서 ID 생성: ${this.currentParserId}`);
+
     const notification = document.createElement('div');
     notification.id = 'booking-detection-notification';
     notification.style.cssText = `
@@ -1016,7 +1020,7 @@ class BookingPageDetector {
       transform: translateX(100%);
       opacity: 0;
     `;
-    
+
     notification.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px;">
         <div id="notification-icon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #E83941, #d32f2f); border-radius: 50% !important; display: flex; align-items: center; justify-content: center;">
@@ -1038,36 +1042,42 @@ class BookingPageDetector {
         </button>
       </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       notification.style.transform = 'translateX(0)';
       notification.style.opacity = '1';
     }, 10);
-    
-    this.startBackgroundParsing(extractedText, notification);
-    
+
+    this.startBackgroundParsing(extractedText, notification, this.currentParserId);
+
     const closeBtn = notification.querySelector('#close-soft-notification');
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      // 파싱 취소 메시지 전송
+      if (this.currentParserId) {
+        console.log(`🚫 [자동감지] 파싱 취소 요청: ${this.currentParserId}`);
+        chrome.runtime.sendMessage({ action: 'cancelParsing', parserId: this.currentParserId });
+        this.currentParserId = null;
+      }
       this.hideSoftNotification();
     });
-    
+
     notification.addEventListener('click', () => {
       if (this.parsedData) {
         this.hideSoftNotification();
         this.showParsedModal();
       }
     });
-    
+
     setTimeout(() => {
       this.hideSoftNotification();
     }, 15000);
   }
-  
-  
-  startBackgroundParsing(extractedText, notification) {
+
+
+  startBackgroundParsing(extractedText, notification, parserId) {
     const pageInfo = {
       title: document.title,
       url: window.location.href,
@@ -1075,9 +1085,9 @@ class BookingPageDetector {
       isAutoDetected: true
     };
 
-    console.log('🔄 [자동감지] 백그라운드 파싱 시작');
+    console.log('🔄 [자동감지] 백그라운드 파싱 시작, parserId:', parserId);
     chrome.runtime.sendMessage(
-      { action: 'parseText', eventData: { selectedText: extractedText, pageInfo } },
+      { action: 'parseText', eventData: { selectedText: extractedText, pageInfo, parserId } },
       (response) => {
         console.log('📬 [자동감지] 콜백 호출됨!', response);
         if (chrome.runtime.lastError) {
@@ -1085,7 +1095,7 @@ class BookingPageDetector {
           this.updateNotificationForError(notification, chrome.runtime.lastError.message);
           return;
         }
-        
+
         if (response?.success) {
           console.log('✅ [자동감지] 파싱 성공, 알림 업데이트 시작');
           this.parsedData = response.eventData;
@@ -1103,9 +1113,9 @@ class BookingPageDetector {
     console.log('🎉 [자동감지] updateNotificationForSuccess 호출됨', notification);
     const icon = notification.querySelector('#notification-icon');
     const message = notification.querySelector('#notification-message');
-    
+
     console.log('🔍 [자동감지] icon:', icon, 'message:', message);
-    
+
     if (icon && message) {
       icon.innerHTML = `<svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
       message.innerHTML = `${t('autoDetectCompleteTitle')}<br><span style="color: #10b981; font-weight: 500;">${t('autoDetectCompleteHint')}</span>`;
@@ -1119,7 +1129,7 @@ class BookingPageDetector {
   updateNotificationForError(notification, error) {
     const icon = notification.querySelector('#notification-icon');
     const message = notification.querySelector('#notification-message');
-    
+
     if (icon && message) {
       icon.innerHTML = `<svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
       message.innerHTML = `${t('autoDetectFailTitle')}<br><span style="color: #E83941; font-weight: 500;">${t('autoDetectFailHint')}</span>`;
@@ -1135,7 +1145,7 @@ class BookingPageDetector {
       console.error('❌ [자동감지] parsedData가 없어서 모달을 열 수 없음');
     }
   }
-  
+
   showModalWithPreParsedData() {
     openModal();
     const loadingIndicator = modalInstance.querySelector('#schedule-ninja-loading');
@@ -1146,7 +1156,7 @@ class BookingPageDetector {
     const closeHandler = () => closeModal();
     modalInstance.querySelector('#modal-close').addEventListener('click', closeHandler);
     modalInstance.querySelector('#modal-backdrop').addEventListener('click', closeHandler);
-    
+
     const escapeHandler = (e) => {
       if (e.key === 'Escape') {
         closeHandler();
@@ -1171,7 +1181,7 @@ class BookingPageDetector {
       }, 300);
     }
   }
-  
+
   showAutoRecommendation(extractedText) {
     if (modalInstance && modalInstance.style.display !== 'none') return;
     showModal(extractedText, true);
@@ -1189,17 +1199,17 @@ const bookingDetector = new BookingPageDetector();
 // 진행률 업데이트 함수
 function updateProgress(progress, stage) {
   if (!modalInstance) return;
-  
+
   const progressContainer = modalInstance.querySelector('#progress-container');
   const progressBar = modalInstance.querySelector('#progress-bar');
   const progressText = modalInstance.querySelector('#progress-text');
   const loadingText = modalInstance.querySelector('#loading-text');
-  
+
   if (progressContainer && progressBar && progressText) {
     // 진행률 표시 활성화
     progressContainer.style.display = 'block';
     progressBar.style.width = `${progress}%`;
-    
+
     // 단계별 메시지
     const stageMessages = {
       'cache_check': t('progressCacheCheck'),
@@ -1208,12 +1218,12 @@ function updateProgress(progress, stage) {
       'processing': t('progressProcessing'),
       'complete': t('progressComplete')
     };
-    
+
     const message = stageMessages[stage] || t('progressDefault');
     // 괄호 안의 내용 제거 (간결하게 표시)
     const shortMessage = message.replace(/\s*\([^)]*\)/g, '').trim();
     progressText.innerHTML = `${Math.round(progress)}% - ${shortMessage.replace(/\n/g, '<br>')}`;
-    
+
     // 로딩 텍스트 업데이트
     if (loadingText) {
       loadingText.textContent = shortMessage;
@@ -1229,13 +1239,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       const lang = settings.language || (navigator.language.startsWith('ko') ? 'ko' : 'en');
       await loadI18nMessages(lang);
       showModal(request.selectedText);
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else if (request.action === 'closeModal') {
       closeModal();
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else if (request.action === 'updateAutoDetectSetting') {
       if (bookingDetector) bookingDetector.setEnabled(request.enabled);
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else if (request.action === 'updateDarkMode') {
       isDarkMode = request.enabled;
       if (modalInstance && modalInstance.style.display !== 'none') {
@@ -1248,7 +1258,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
         }, 350);
       }
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else if (request.action === 'updateLanguage') {
       await loadI18nMessages(request.language);
       if (modalInstance && modalInstance.style.display !== 'none') {
@@ -1264,18 +1274,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
         }, 350);
       }
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else if (request.action === 'updateProgress') {
       updateProgress(request.progress, request.stage);
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else if (request.action === 'testModal') {
       const settings = await new Promise(resolve => chrome.storage.sync.get('settings', res => resolve(res.settings || {})));
       const lang = settings.language || (navigator.language.startsWith('ko') ? 'ko' : 'en');
       await loadI18nMessages(lang);
       // ... (rest of testModal logic)
-      sendResponse({status: "ok"});
+      sendResponse({ status: "ok" });
     } else {
-      sendResponse({status: "unknown action"});
+      sendResponse({ status: "unknown action" });
     }
   })();
   return true;
@@ -1283,10 +1293,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 초기 설정 로드
 (async () => {
-    const settings = await new Promise(resolve => {
-        chrome.storage.sync.get(['settings'], result => resolve(result.settings || {}));
-    });
-    isDarkMode = settings.darkMode || false;
-    const lang = settings.language || (navigator.language.startsWith('ko') ? 'ko' : 'en');
-    await loadI18nMessages(lang);
+  const settings = await new Promise(resolve => {
+    chrome.storage.sync.get(['settings'], result => resolve(result.settings || {}));
+  });
+  isDarkMode = settings.darkMode || false;
+  const lang = settings.language || (navigator.language.startsWith('ko') ? 'ko' : 'en');
+  await loadI18nMessages(lang);
 })();
