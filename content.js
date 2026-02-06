@@ -938,7 +938,7 @@ class BookingPageDetector {
       console.log('Extracted booking info:', extractedText);
       setTimeout(() => {
         this.showSoftNotificationWithParsing(extractedText);
-      }, 1500);
+      }, 500);  // Reduced from 1500ms for faster UX
     }
   }
 
@@ -968,7 +968,7 @@ class BookingPageDetector {
       });
     });
 
-    return maxScore > 5 ? bestMatch : null;  // Increased from 3 to 5
+    return maxScore > 5 ? bestMatch : null;  // Threshold: 5
   }
 
 
