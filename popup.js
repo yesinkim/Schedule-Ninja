@@ -352,44 +352,8 @@ document.addEventListener('DOMContentLoaded', function() {
     appendMessage('user', text);
     chatInput.value = '';
     chatInput.style.height = 'auto';
-    chatSendBtn.disabled = true;
 
-    // 타이핑 인디케이터 표시
-    const typingEl = showTypingIndicator();
-
-    // background에 메시지 전송 (parseText 액션 활용, eventData 형식 맞춤)
-    const parserId = 'chat-' + Date.now();
-    chrome.runtime.sendMessage(
-      {
-        action: 'parseText',
-        eventData: {
-          selectedText: text,
-          parserId: parserId,
-          pageInfo: { url: '', title: 'Chat' }
-        }
-      },
-      function(response) {
-        removeTypingIndicator(typingEl);
-        chatSendBtn.disabled = false;
-
-        if (response && response.success && response.eventData) {
-          const events = Array.isArray(response.eventData) ? response.eventData : [response.eventData];
-          let reply = events.map(ev => {
-            let parts = [];
-            if (ev.summary) parts.push(ev.summary);
-            if (ev.start && ev.start.dateTime) parts.push(ev.start.dateTime);
-            else if (ev.start && ev.start.date) parts.push(ev.start.date);
-            if (ev.location) parts.push(ev.location);
-            return parts.join(' | ');
-          }).join('\n');
-          appendMessage('assistant', reply);
-        } else if (response && response.error) {
-          appendMessage('assistant', response.error);
-        } else {
-          appendMessage('assistant', getMessage('noScheduleFoundTitle'));
-        }
-      }
-    );
+    // TODO: 백엔드 연결 시 여기서 API 호출
   }
 
   function appendMessage(role, text) {
