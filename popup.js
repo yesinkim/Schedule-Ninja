@@ -24,10 +24,19 @@ document.addEventListener('DOMContentLoaded', function() {
   const autoDetectLabel = document.getElementById('autoDetectLabel');
   const themeToggle = document.getElementById('themeToggle');
   const themeLabel = document.getElementById('themeLabel');
-  
+
   // 셀렉트 박스들
   const languageSelect = document.getElementById('languageSelect');
   const timezoneSelect = document.getElementById('timezoneSelect');
+
+  // 챗 UI 요소들
+  const chatContainer = document.getElementById('chatContainer');
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const settingsGearBtn = document.getElementById('settingsGearBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const settingsBackBtn = document.getElementById('settingsBackBtn');
   
   
   // 초기화
@@ -101,11 +110,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (sourceToggle) sourceToggle.addEventListener('click', toggleSourceInfo);
     if (autoDetectToggle) autoDetectToggle.addEventListener('click', toggleAutoDetect);
     if (themeToggle) themeToggle.addEventListener('click', toggleDarkMode);
-    
+
     // 셀렉트 박스들
     if (languageSelect) languageSelect.addEventListener('change', updateLanguage);
     if (timezoneSelect) timezoneSelect.addEventListener('change', updateTimezone);
-    
+
+    // 챗 UI 이벤트
+    if (settingsGearBtn) settingsGearBtn.addEventListener('click', showSettingsPanel);
+    if (settingsBackBtn) settingsBackBtn.addEventListener('click', hideSettingsPanel);
+    if (chatSendBtn) chatSendBtn.addEventListener('click', sendChatMessage);
+    if (chatInput) {
+      chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendChatMessage();
+        }
+      });
+      chatInput.addEventListener('input', autoResizeChatInput);
+    }
   }
   
   function showLoginSection() {
@@ -303,6 +325,112 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   
+  // --- 설정 패널 토글 ---
+  function showSettingsPanel() {
+    if (chatContainer) chatContainer.style.display = 'none';
+    if (settingsPanel) settingsPanel.style.display = 'block';
+  }
+
+  function hideSettingsPanel() {
+    if (settingsPanel) settingsPanel.style.display = 'none';
+    if (chatContainer) chatContainer.style.display = 'flex';
+  }
+
+  // --- 챗 UI 기능 ---
+  function autoResizeChatInput() {
+    if (!chatInput) return;
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
+  }
+
+  function sendChatMessage() {
+    if (!chatInput) return;
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    // 사용자 메시지 추가
+    appendMessage('user', text);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    chatSendBtn.disabled = true;
+
+    // 타이핑 인디케이터 표시
+    const typingEl = showTypingIndicator();
+
+    // background에 메시지 전송 (parseText 액션 활용)
+    chrome.runtime.sendMessage(
+      { action: 'parseText', selectedText: text, pageInfo: { url: '', title: 'Chat' } },
+      function(response) {
+        removeTypingIndicator(typingEl);
+        chatSendBtn.disabled = false;
+
+        if (response && response.events && response.events.length > 0) {
+          const events = response.events;
+          let reply = events.map(ev => {
+            let parts = [];
+            if (ev.summary) parts.push(ev.summary);
+            if (ev.start && ev.start.dateTime) parts.push(ev.start.dateTime);
+            else if (ev.start && ev.start.date) parts.push(ev.start.date);
+            if (ev.location) parts.push(ev.location);
+            return parts.join(' | ');
+          }).join('\n');
+          appendMessage('assistant', reply);
+        } else if (response && response.error) {
+          appendMessage('assistant', response.error);
+        } else {
+          appendMessage('assistant', getMessage('noScheduleFoundTitle'));
+        }
+      }
+    );
+  }
+
+  function appendMessage(role, text) {
+    if (!chatMessages) return;
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-message ${role}`;
+
+    if (role === 'assistant') {
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.innerHTML = '<img src="icons/icon48.png" alt="" width="24" height="24">';
+      msgDiv.appendChild(avatar);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.textContent = text;
+    msgDiv.appendChild(bubble);
+
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showTypingIndicator() {
+    if (!chatMessages) return null;
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message assistant typing-message';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.innerHTML = '<img src="icons/icon48.png" alt="" width="24" height="24">';
+    msgDiv.appendChild(avatar);
+
+    const indicator = document.createElement('div');
+    indicator.className = 'message-bubble typing-indicator';
+    indicator.innerHTML = '<span></span><span></span><span></span>';
+    msgDiv.appendChild(indicator);
+
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return msgDiv;
+  }
+
+  function removeTypingIndicator(el) {
+    if (el && el.parentElement) {
+      el.remove();
+    }
+  }
+
   function showNotification(message, type = 'success') {
     // 기존 알림 제거
     const existingNotification = document.querySelector('.notification');

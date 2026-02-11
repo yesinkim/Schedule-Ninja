@@ -91,5 +91,11 @@
   "loginPromptBody": { "message": "Please sign in with your Google account to add events to your calendar." },
   "loginButtonText": { "message": "Sign In with Google" },
   "loggingInButtonText": { "message": "Signing in..." },
-  "loginFailedText": { "message": "Login failed. Please try again." }
+  "loginFailedText": { "message": "Login failed. Please try again." },
+  "chatSubtitle": { "message": "Ask me anything about your schedule" },
+  "chatWelcome": { "message": "Hi there! I can help manage your schedule. Paste some text or ask me about events." },
+  "chatInputPlaceholder": { "message": "Type a message..." },
+  "chatSend": { "message": "Send" },
+  "chatSettingsTooltip": { "message": "Settings" },
+  "chatBackTooltip": { "message": "Back to chat" }
 }

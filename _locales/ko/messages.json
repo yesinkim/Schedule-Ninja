@@ -91,5 +91,11 @@
   "loginPromptBody": { "message": "캘린더에 일정을 추가하려면 Google 계정으로 로그인해주세요." },
   "loginButtonText": { "message": "Google 계정으로 로그인" },
   "loggingInButtonText": { "message": "로그인 중..." },
-  "loginFailedText": { "message": "로그인에 실패했습니다. 다시 시도해주세요." }
+  "loginFailedText": { "message": "로그인에 실패했습니다. 다시 시도해주세요." },
+  "chatSubtitle": { "message": "일정에 대해 무엇이든 물어보세요" },
+  "chatWelcome": { "message": "안녕하세요! 일정 관리를 도와드릴게요. 텍스트를 붙여넣거나 일정에 대해 물어보세요." },
+  "chatInputPlaceholder": { "message": "메시지를 입력하세요..." },
+  "chatSend": { "message": "전송" },
+  "chatSettingsTooltip": { "message": "설정" },
+  "chatBackTooltip": { "message": "채팅으로 돌아가기" }
 }
