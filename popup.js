@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (chatSendBtn) chatSendBtn.addEventListener('click', sendChatMessage);
     if (chatInput) {
       chatInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
           e.preventDefault();
           sendChatMessage();
         }
@@ -357,15 +357,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // 타이핑 인디케이터 표시
     const typingEl = showTypingIndicator();
 
-    // background에 메시지 전송 (parseText 액션 활용)
+    // background에 메시지 전송 (parseText 액션 활용, eventData 형식 맞춤)
+    const parserId = 'chat-' + Date.now();
     chrome.runtime.sendMessage(
-      { action: 'parseText', selectedText: text, pageInfo: { url: '', title: 'Chat' } },
+      {
+        action: 'parseText',
+        eventData: {
+          selectedText: text,
+          parserId: parserId,
+          pageInfo: { url: '', title: 'Chat' }
+        }
+      },
       function(response) {
         removeTypingIndicator(typingEl);
         chatSendBtn.disabled = false;
 
-        if (response && response.events && response.events.length > 0) {
-          const events = response.events;
+        if (response && response.success && response.eventData) {
+          const events = Array.isArray(response.eventData) ? response.eventData : [response.eventData];
           let reply = events.map(ev => {
             let parts = [];
             if (ev.summary) parts.push(ev.summary);
