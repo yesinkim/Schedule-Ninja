@@ -348,10 +348,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // 사용자 메시지 추가
+    // 기존 타이핑 인디케이터가 있으면 제거 후 메시지 추가, 다시 붙이기
+    const existingTyping = chatMessages.querySelector('.typing-message');
+    if (existingTyping) existingTyping.remove();
+
     appendMessage('user', text);
     chatInput.value = '';
     chatInput.style.height = 'auto';
+
+    // 타이핑 인디케이터를 항상 맨 아래에 표시
+    showTypingIndicator();
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
     // TODO: 백엔드 연결 시 여기서 API 호출
   }
